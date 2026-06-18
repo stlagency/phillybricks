@@ -122,6 +122,16 @@ export const consoleHooks: PipelineHooks = {
 
 /** CLI entrypoint: connect from env, run the worker, report, disconnect. */
 export async function main(): Promise<void> {
+  // Until a prod DATABASE_URL is configured, the nightly is heartbeat-only (the
+  // repo-mutating keep-alive still runs + resets GitHub's 60-day idle timer).
+  // Exit 0 so the workflow stays green rather than failing on a missing secret.
+  if (!process.env.DATABASE_URL) {
+    console.log(
+      'No DATABASE_URL configured — ingestion not wired to a database yet. ' +
+        'Nightly is heartbeat-only (keep-alive). Set the DATABASE_URL secret to begin accruing history.',
+    );
+    return;
+  }
   const sql = connectFromEnv();
   const db = asDbClient(sql);
   try {
