@@ -96,7 +96,10 @@ function sharesSurname(row: TransferInput): boolean {
  *      (null when fmv is null/0 or consideration is null) — assessment-relative
  *      DIAGNOSTIC, not the market benchmark.
  */
-export function deriveTransferFlags(row: TransferInput, adapter: CityAdapter): TransferFlags {
+export function deriveTransferFlags(
+  row: TransferInput,
+  adapter: Pick<CityAdapter, 'documentTypes' | 'nominalConsiderationFloor'>,
+): TransferFlags {
   const doc = normDoc(row.document_type);
   const { sheriff, distress, armsLength, estateNameRegex } = adapter.documentTypes;
 

@@ -50,22 +50,47 @@ describe('source_cursor — resumable keyset state', () => {
     expect(await readSourceCursor(db.client, 'rtt_summary')).toBeNull();
   });
 
-  it('reads a stored cursor', async () => {
+  it('reads a stored cursor (watermark defaults to null when absent)', async () => {
     const db = new FakeDb().on('from ops.source_cursor', () => [
       { source: 'rtt_summary', last_cartodb_id: 5000, rows_committed: 250000 },
     ]);
     expect(await readSourceCursor(db.client, 'rtt_summary')).toEqual({
       source: 'rtt_summary',
       lastCartodbId: 5000,
+      watermark: null,
       rowsCommitted: 250000,
     });
   });
 
-  it('upserts the cursor with ON CONFLICT', async () => {
+  it('reads a stored watermark (OPA freshness) as ISO text', async () => {
+    const db = new FakeDb().on('from ops.source_cursor', () => [
+      {
+        source: 'opa_properties_public',
+        last_cartodb_id: null,
+        watermark: '2026-06-17T00:00:00.000Z',
+        rows_committed: 583617,
+      },
+    ]);
+    const cur = await readSourceCursor(db.client, 'opa_properties_public');
+    expect(cur?.watermark).toBe('2026-06-17T00:00:00.000Z');
+    expect(cur?.lastCartodbId).toBeNull();
+  });
+
+  it('upserts the cursor with ON CONFLICT (keyset, watermark null)', async () => {
     const db = new FakeDb();
     await writeSourceCursor(db.client, 'rtt_summary', 6000, 260000, 9);
     const call = db.calls.find((c) => c.query?.includes('insert into ops.source_cursor'));
     expect(call?.query).toContain('on conflict (source) do update');
-    expect(call?.params).toEqual(['rtt_summary', 6000, 260000, 9]);
+    // [source, lastCartodbId, watermark, rowsCommitted, runId]
+    expect(call?.params).toEqual(['rtt_summary', 6000, null, 260000, 9]);
+  });
+
+  it('upserts an OPA watermark (no keyset id)', async () => {
+    const db = new FakeDb();
+    await writeSourceCursor(db.client, 'opa_properties_public', null, 583617, 12, '2026-06-18T01:00:00.000Z');
+    const call = db.calls.find((c) => c.query?.includes('insert into ops.source_cursor'));
+    expect(call?.params).toEqual(['opa_properties_public', null, '2026-06-18T01:00:00.000Z', 583617, 12]);
+    // preserves an existing watermark when a null is written (coalesce).
+    expect(call?.query).toContain('coalesce(excluded.watermark');
   });
 });

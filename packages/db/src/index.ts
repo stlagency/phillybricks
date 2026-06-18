@@ -38,6 +38,9 @@ export const PUBLIC_TABLES = [
   'parcel_change_log',
   'delinquency_event',
   'violation_event',
+  'tax_delinquency',
+  'tax_balance',
+  'business_license',
   'geo_metric',
   'geo_boundary',
 ] as const;

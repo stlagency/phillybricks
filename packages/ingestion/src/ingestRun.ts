@@ -62,6 +62,8 @@ export async function closeIngestRun(db: DbClient, input: CloseIngestRunInput): 
 export interface SourceCursorState {
   source: string;
   lastCartodbId: number | null;
+  /** OPA stores its S3 Last-Modified here (ISO text); keyset sources leave it null. */
+  watermark: string | null;
   rowsCommitted: number;
 }
 
@@ -71,35 +73,47 @@ export async function readSourceCursor(
   source: string,
 ): Promise<SourceCursorState | null> {
   const rows = (await db.unsafe(
-    `select source, last_cartodb_id, rows_committed
+    `select source, last_cartodb_id, watermark, rows_committed
        from ops.source_cursor where source = $1`,
     [source],
-  )) as readonly { source: string; last_cartodb_id: number | string | null; rows_committed: number | string }[];
+  )) as readonly {
+    source: string;
+    last_cartodb_id: number | string | null;
+    watermark: string | Date | null;
+    rows_committed: number | string;
+  }[];
   const r = rows[0];
   if (r === undefined) return null;
   return {
     source: r.source,
     lastCartodbId: r.last_cartodb_id === null ? null : Number(r.last_cartodb_id),
+    watermark: r.watermark == null ? null : new Date(r.watermark as string | Date).toISOString(),
     rowsCommitted: Number(r.rows_committed),
   };
 }
 
-/** Upsert the resumable cursor after committing N pages. */
+/**
+ * Upsert the resumable cursor after committing N pages. `watermark` is optional
+ * (the OPA bulk source stores its S3 Last-Modified here instead of a keyset id);
+ * a null `watermark` preserves the existing value rather than clearing it.
+ */
 export async function writeSourceCursor(
   db: DbClient,
   source: string,
   lastCartodbId: number | null,
   rowsCommitted: number,
   runId: number | null,
+  watermark: string | null = null,
 ): Promise<void> {
   await db.unsafe(
-    `insert into ops.source_cursor (source, last_cartodb_id, rows_committed, run_id, updated_at)
-     values ($1, $2, $3, $4, now())
+    `insert into ops.source_cursor (source, last_cartodb_id, watermark, rows_committed, run_id, updated_at)
+     values ($1, $2, $3, $4, $5, now())
      on conflict (source) do update
         set last_cartodb_id = excluded.last_cartodb_id,
+            watermark       = coalesce(excluded.watermark, ops.source_cursor.watermark),
             rows_committed  = excluded.rows_committed,
             run_id          = excluded.run_id,
             updated_at      = now()`,
-    [source, lastCartodbId, rowsCommitted, runId],
+    [source, lastCartodbId, watermark, rowsCommitted, runId],
   );
 }

@@ -9,6 +9,7 @@
  * This file is a FROZEN CONTRACT: downstream packages (ingestion, db, web) import
  * these types. Extend additively; do not reshape without updating every consumer.
  */
+import type { SourceMapping } from './ingest.js';
 
 /** The four map lenses (PRD §7.1, CONCEPT §2). One active at a time. */
 export type LensMetric = 'price' | 'momentum' | 'distress' | 'livability';
@@ -53,6 +54,19 @@ export interface SourceSpec {
   pageSize?: number;
   /** Target canonical table this source promotes into. */
   targetTable: string;
+  /**
+   * Declarative raw→canonical column mapping (PRD §4.2). Lives here (the adapter)
+   * because it names source literals the portability gate forbids elsewhere; the
+   * ingestion engine consumes it generically. Absent ⇒ source is not yet wired
+   * (reported `skipped`).
+   */
+  mapping?: SourceMapping;
+  /**
+   * Optional Carto WHERE predicate appended to keyset pages (PRD §4.3): the ~10y
+   * window for spatial feeds + the 311 noise filter. Names source columns, so it
+   * lives here in the adapter. No leading AND.
+   */
+  windowPredicate?: string;
   /** Optional notes carried into ops logging / docs. */
   notes?: string;
 }

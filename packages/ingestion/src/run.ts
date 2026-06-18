@@ -8,17 +8,27 @@
  * and closes the run — moving to the NEXT source even if one source fails or
  * quarantines (gate ≠ halt, PRD §3.1).
  *
- * This file is intentionally an orchestration SHELL: the per-source fetch/stage
- * (Carto keyset, OPA bulk CSV) and the promote/diff SQL are pulled from the
- * adapters + a `SourceSteps` factory. Standing up the full SQL for all 16 sources
- * is the M1 measurement pass; here we provide a correct, resumable skeleton plus
- * the OPA + Carto fetch paths so the worker is runnable end-to-end.
+ * The OPA spine (platform 's3') takes a DEDICATED path: it DEFINES the parcel
+ * universe, so the parcel-join gate is meaningless (it would read 0% on the first
+ * load). Its integrity gate is the freshness gate (in the fetcher); it promotes in
+ * chunked statements (pooler-safe, no single giant transaction), soft-retires
+ * missing accounts (only on a non-empty batch), and accrues parcel_change_log. After
+ * the spine loads, the parcel-key index is refreshed so the keyed sources measure
+ * their join rates against real parcels.
  */
 import { philadelphia } from '@phillybricks/core';
 import type { SourceSpec } from '@phillybricks/core/contracts';
 import { asDbClient, connectFromEnv, type DbClient } from './db.js';
-import { loadParcelKeyIndex } from './joinRate.js';
-import { closeIngestRun, openIngestRun, type IngestStatus } from './ingestRun.js';
+import { loadParcelKeyIndex, type ParcelKeyIndex } from './joinRate.js';
+import {
+  closeIngestRun,
+  openIngestRun,
+  readSourceCursor,
+  writeSourceCursor,
+  type IngestStatus,
+} from './ingestRun.js';
+import { makeCartoFetcher, makeOpaFetcher } from './fetchers.js';
+import { makeStepsForSpec } from './steps.js';
 import {
   runSourcePipeline,
   type PipelineHooks,
@@ -45,13 +55,44 @@ export interface SourceRunReport {
   error?: string;
 }
 
+/** True for the bulk-snapshot spine source (defines parcels; join-gate-exempt). */
+function isSpine(spec: SourceSpec): boolean {
+  return spec.platform === 's3';
+}
+
+/**
+ * Run the bulk-snapshot spine (OPA → public.parcel). Promotes in chunked statements
+ * (no single giant transaction — pooler-safe + idempotent), then — ONLY on a
+ * non-empty batch — soft-retires missing accounts and accrues parcel_change_log, and
+ * persists the freshness watermark. An empty batch (freshness skip) is a clean no-op.
+ */
+async function runSpineSource(
+  db: DbClient,
+  spec: SourceSpec,
+  batch: StagedBatch,
+  steps: SourceSteps,
+  hooks: PipelineHooks,
+  runId: number,
+): Promise<SourceRunReport> {
+  const rowsIn = batch.rows.length;
+  const rowsPromoted = await steps.promote(db, batch, null);
+  if (rowsIn > 0) {
+    await steps.diff(db, batch);
+    await steps.refreshDerived(db);
+    await Promise.resolve(hooks.triggerTileBuild(spec.name));
+    await writeSourceCursor(db, spec.name, null, rowsPromoted, runId, batch.watermark ?? null);
+  }
+  await closeIngestRun(db, { id: runId, status: 'success', rowsIn, rowsPromoted });
+  return { source: spec.name, status: 'success', rowsIn, rowsPromoted };
+}
+
 /**
  * Run the nightly worker over every adapter source with a registered fetcher +
  * steps. A source missing a fetcher is reported `skipped` (not an error) so the
- * skeleton is honest about what's wired. Returns a per-source report.
+ * registry is honest about what's wired. Returns a per-source report.
  */
 export async function runWorker(db: DbClient, deps: WorkerDeps): Promise<SourceRunReport[]> {
-  const parcelIndex = await loadParcelKeyIndex(db);
+  let parcelIndex: ParcelKeyIndex = await loadParcelKeyIndex(db);
   const reports: SourceRunReport[] = [];
 
   for (const spec of philadelphia.sources) {
@@ -65,6 +106,17 @@ export async function runWorker(db: DbClient, deps: WorkerDeps): Promise<SourceR
     const runId = await openIngestRun(db, spec.name);
     try {
       const batch = await fetcher(spec, db);
+
+      if (isSpine(spec)) {
+        const report = await runSpineSource(db, spec, batch, steps, deps.hooks, runId);
+        reports.push(report);
+        // Refresh the parcel-key index so the keyed sources measure against real parcels.
+        if (report.status === 'success' && batch.rows.length > 0) {
+          parcelIndex = await loadParcelKeyIndex(db);
+        }
+        continue;
+      }
+
       const outcome = await runSourcePipeline({
         db,
         adapter: philadelphia,
@@ -86,6 +138,11 @@ export async function runWorker(db: DbClient, deps: WorkerDeps): Promise<SourceR
             ? { best_column: outcome.measurement.bestColumn, best_rate: outcome.measurement.bestRate }
             : undefined,
       });
+      // Advance the keyset cursor ONLY after a successful promote (resumability).
+      if (outcome.status === 'promoted' && batch.nextCursor != null) {
+        const committed = (await readSourceCursor(db, spec.name))?.rowsCommitted ?? 0;
+        await writeSourceCursor(db, spec.name, batch.nextCursor, committed + outcome.rowsPromoted, runId);
+      }
       reports.push({
         source: spec.name,
         status,
@@ -120,11 +177,26 @@ export const consoleHooks: PipelineHooks = {
   },
 };
 
+/**
+ * Build the fetcher + steps registries from the adapter. Every source that carries
+ * a `mapping` is wired (spine → OPA bulk fetcher; otherwise → Carto keyset). Sources
+ * without a mapping are reported `skipped` by `runWorker`.
+ */
+export function buildRegistries(maxPages?: number): Pick<WorkerDeps, 'fetchers' | 'stepsBySource'> {
+  const fetchers: Record<string, SourceFetcher> = {};
+  const stepsBySource: Record<string, SourceSteps> = {};
+  for (const spec of philadelphia.sources) {
+    if (!spec.mapping) continue;
+    fetchers[spec.name] = isSpine(spec) ? makeOpaFetcher() : makeCartoFetcher({ maxPages });
+    stepsBySource[spec.name] = makeStepsForSpec(spec);
+  }
+  return { fetchers, stepsBySource };
+}
+
 /** CLI entrypoint: connect from env, run the worker, report, disconnect. */
 export async function main(): Promise<void> {
   // Until a prod DATABASE_URL is configured, the nightly is heartbeat-only (the
   // repo-mutating keep-alive still runs + resets GitHub's 60-day idle timer).
-  // Exit 0 so the workflow stays green rather than failing on a missing secret.
   if (!process.env.DATABASE_URL) {
     console.log(
       'No DATABASE_URL configured — ingestion not wired to a database yet. ' +
@@ -132,20 +204,22 @@ export async function main(): Promise<void> {
     );
     return;
   }
+  const maxPages = process.env.NIGHTLY_MAX_PAGES ? Number(process.env.NIGHTLY_MAX_PAGES) : undefined;
   const sql = connectFromEnv();
   const db = asDbClient(sql);
   try {
-    // Fetchers + steps are registered by the M1 wiring pass; an empty registry
-    // means every source reports `skipped` (honest no-op) rather than crashing.
-    const reports = await runWorker(db, {
-      fetchers: {},
-      stepsBySource: {},
-      hooks: consoleHooks,
-    });
+    const reports = await runWorker(db, { ...buildRegistries(maxPages), hooks: consoleHooks });
     const promoted = reports.filter((r) => r.status === 'success').length;
     const skipped = reports.filter((r) => r.status === 'skipped').length;
+    const partial = reports.filter((r) => r.status === 'partial').length;
     const failed = reports.filter((r) => r.status === 'failed').length;
-    console.log(`Nightly run complete: ${promoted} promoted, ${skipped} skipped, ${failed} failed.`);
+    const rows = reports.reduce((n, r) => n + r.rowsPromoted, 0);
+    console.log(
+      `Nightly run complete: ${promoted} ok, ${partial} partial, ${skipped} skipped, ${failed} failed; ${rows} rows promoted.`,
+    );
+    for (const r of reports) {
+      console.log(`  ${r.source}: ${r.status} (in=${r.rowsIn}, promoted=${r.rowsPromoted})${r.error ? ` — ${r.error}` : ''}`);
+    }
   } finally {
     await sql.end({ timeout: 5 });
   }

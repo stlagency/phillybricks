@@ -15,6 +15,22 @@ export { philadelphia } from './adapters/philadelphia.js';
 export { deriveTransferFlags } from './transfers.js';
 export type { TransferInput, TransferFlags } from './transfers.js';
 
+// Ingestion column-map helpers (coercions + geometry markers, PRD §4.2).
+export {
+  asText,
+  asNumeric,
+  asInt,
+  asDate,
+  asIdText,
+  boolFromTrueFalse,
+  boolFromYN,
+  boolFromYesNo,
+  ewktGeom,
+  wktGeom,
+  geoJsonGeom,
+  isGeomMarker,
+} from './ingest/mapping.js';
+
 // Distress scoring — versioned config + composite (PRD §5.3).
 export {
   DISTRESS_CONFIG,

@@ -49,6 +49,18 @@ export interface StagedBatch {
    * sources. Undefined for non-spatial sources.
    */
   geomValidCount?: number;
+  /**
+   * Keyset high-water (max cartodb_id) in this batch — the orchestrator advances
+   * `ops.source_cursor.last_cartodb_id` to this ONLY after a successful promote, so
+   * a crash re-fetches the un-promoted delta (PRD §4.1 resumability).
+   */
+  nextCursor?: number | null;
+  /**
+   * OPA bulk only: the S3 object's Last-Modified (ISO). Persisted to the cursor
+   * watermark after a successful promote so the next run's freshness gate compares
+   * against it.
+   */
+  watermark?: string | null;
 }
 
 /** Side-effect hooks (alerting, tiles) injected so the pipeline stays pure-ish. */
@@ -124,6 +136,26 @@ export interface RunPipelineDeps {
 export async function runSourcePipeline(deps: RunPipelineDeps): Promise<PipelineOutcome> {
   const { db, adapter, spec, batch, parcelIndex, steps, hooks, ingestRunId } = deps;
   const rowsIn = batch.rows.length;
+
+  // ── 0. empty batch → clean no-op (PRD §4.2: "zero new rows ≠ failure") ───────
+  // A drained incremental source (cursor past the last row) or a source with a
+  // legitimate ~7-week lag fetches 0 rows. Measuring a 0-row join rate yields 0,
+  // which would FALSELY quarantine; short-circuit to a successful no-op instead so
+  // steady-state nightlies stay green.
+  if (rowsIn === 0) {
+    return {
+      status: 'promoted',
+      source: spec.name,
+      rowsIn: 0,
+      rowsPromoted: 0,
+      decision:
+        spec.expectedJoinRate === undefined
+          ? { kind: 'exempt_spatial' }
+          : { kind: 'pass', bestColumn: null, bestRate: 0, threshold: spec.expectedJoinRate },
+      measurement: null,
+      quarantined: 0,
+    };
+  }
 
   // ── 1. normalize + collect malformed-key quarantine (non-spatial only) ──────
   const isSpatial = spec.expectedJoinRate === undefined;

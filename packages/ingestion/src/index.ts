@@ -91,9 +91,50 @@ export {
   type OpaParseResult,
 } from './adapters/opaBulk.js';
 
+// Mapping-driven upsert engine.
+export {
+  buildMappedUpsert,
+  upsertMapped,
+  mapRows,
+  type BuiltStatement,
+  type UpsertResult,
+  type UnsafeRunner,
+} from './loaders/upsert.js';
+
+// Diff → change-log / event history.
+export {
+  PARCEL_CHANGE_LOG_FIELDS,
+  buildFieldChangeLogSql,
+  runParcelChangeLog,
+  runDelinquencyEventDiff,
+  runViolationEventDiff,
+} from './loaders/changeLog.js';
+
+// Source fetchers (Carto keyset + OPA bulk).
+export {
+  makeCartoFetcher,
+  makeOpaFetcher,
+  DEFAULT_MAX_PAGES,
+  type CartoFetchOptions,
+  type OpaFetchOptions,
+} from './fetchers.js';
+
+// Per-source steps factory.
+export { makeStepsForSpec, softRetireParcels } from './steps.js';
+
+// Resumable backfill (M1a).
+export {
+  backfillSource,
+  reconcileSourceCount,
+  type BackfillOptions,
+  type BackfillResult,
+  type ReconcileResult,
+} from './backfill.js';
+
 // Worker orchestration.
 export {
   runWorker,
+  buildRegistries,
   consoleHooks,
   main as runWorkerCli,
   type SourceFetcher,

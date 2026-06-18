@@ -111,6 +111,27 @@ describe('pipeline ordering invariant (PRD §4.1)', () => {
     expect(events).not.toContain('tiles');
   });
 
+  it('an EMPTY batch is a clean no-op (a drained/lagging source must not quarantine)', async () => {
+    const order: string[] = [];
+    const events: string[] = [];
+    const db = new FakeDb();
+    const outcome = await runSourcePipeline({
+      db: db.client,
+      adapter: philadelphia,
+      spec: spec('imm_dang'), // non-spatial, threshold 0.9
+      batch: { source: 'imm_dang', rows: [] },
+      parcelIndex,
+      steps: recordingSteps(order),
+      hooks: spyHooks(events),
+      ingestRunId: 1,
+    });
+    expect(outcome.status).toBe('promoted');
+    expect(outcome.rowsPromoted).toBe(0);
+    expect(order).toEqual([]); // no promote/diff/refresh on an empty batch
+    expect(events).not.toContain('alert:gate_quarantine'); // and crucially NO false quarantine
+    expect(db.firstIndexOfKind('begin')).toBe(-1);
+  });
+
   it('does not throw on a below-threshold batch (gate ≠ halt)', async () => {
     const db = new FakeDb();
     const rtt = loadJsonFixture<{ rows: Record<string, unknown>[] }>('rtt_below_threshold.json');

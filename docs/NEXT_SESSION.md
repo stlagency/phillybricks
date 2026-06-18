@@ -1,46 +1,52 @@
 # PhillyBricks — resume here (next session)
 
-**You are continuing an in-progress build.** M0 is complete and the production database is live, migrated, and verified. Your job next is to **finish M1 ingestion so the nightly actually pulls real data and the change-logs start accruing** — that history is the one irreplaceable asset (PRD §0.6, §10).
+**M0 + M1 + M1a are complete and the production warehouse is live with real, accruing data.** The nightly ingests all 14 open-data sources, the four correctness gates are wired, and `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6). Your next milestone is **M2: the sheriff-sale scraper** (forward auctions are NOT in open data), then **M3: real derived/matview logic**.
 
-Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope), `design/DESIGN.md` + `TOKENS.css` (UI), `docs/DATA_SOURCES.md` (data facts). Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`) loads automatically and now carries the live-infra details below.
+Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope), `design/DESIGN.md` + `TOKENS.css` (UI), `docs/DATA_SOURCES.md` (data facts). Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`) loads automatically.
 
 ---
 
 ## What's DONE (don't redo)
 
-- **Repo:** https://github.com/stlagency/phillybricks — public, AGPL, secret-scanning + push-protection on. **CI green** (typecheck/lint/test · portability gate · static + **live `pg_catalog` RLS gate** vs ephemeral PostGIS · gitleaks full-history).
-- **Monorepo built + integrated:** `packages/core` (CityAdapter `philadelphia`, transfer flags, distress scoring + versioned config, comps/value-estimate — 202 tests), `packages/db` (9 migrations + runner — 89 tests), `packages/ingestion` (norm_parcel, per-source join-rate gate, pipeline, Carto + OPA-bulk adapters, ops run/cursor — 53 tests), `packages/tiles` (tippecanoe→PMTiles→R2), `apps/web` ("The Survey Table, Warmed" — market scan + deep-dive against typed mocks, light+dark, verified in-browser), `infra/` (CI + nightly/weekly crons + keep-alive + healthchecks + docker self-host). `pnpm run verify` is green.
-- **Production Supabase live:** project `phillybricks`, ref **`ctcvrdsrylauqpuxbauz`** (org "STL Agentic" `mzeohxsjewtrpvkvrudm`, us-east-1, PostGIS 3.3.7 / PG17). All 9 migrations applied via the MCP; `norm_parcel` executed against the real SQL = the TS normalizer; live RLS introspection clean (0 write leaks on our 15 tables; skiptrace_key/subscription/ops sealed; PostGIS system relations excluded).
-- **Worker DB access works end-to-end (no Aaron handoff needed):** a dedicated role `phillybricks_worker` (LOGIN BYPASSRLS, full grants) connects through the **transaction pooler** `aws-1-us-east-1.pooler.supabase.com:6543` (username `phillybricks_worker.ctcvrdsrylauqpuxbauz`, `prepare:false` + `ssl:'require'`). The full `DATABASE_URL` is the GH Actions secret `DATABASE_URL` **and** at `memory/database-url.secret` (chmod 600, out of repo) for local runs. A dispatched nightly went green in CI: `0 promoted, 14 skipped, 0 failed` — i.e. the worker connected + skipped unwired sources.
-- **Secrets:** Supabase Management API token (org-wide, never-expiring) at `memory/supabase-access-token.secret` (chmod 600); use vs `api.supabase.com` Bearer. Never put either secret value in the repo.
+- **Repo:** https://github.com/stlagency/phillybricks — public, AGPL, secret-scanning + push-protection. CI green (typecheck/lint/test · portability gate · static + live `pg_catalog` RLS gate · gitleaks).
+- **Monorepo:** `packages/core` (CityAdapter `philadelphia` + transfer flags + distress/comps + **declarative `SourceMapping` column-maps** for all 14 sources + coercion/geom-marker helpers), `packages/db` (10 migrations + runner), `packages/ingestion` (mapping-driven upsert engine, change-log/event diff, Carto-keyset + OPA-bulk fetchers, per-source steps, resumable backfill, nightly worker), `packages/tiles`, `apps/web`, `infra/`. `pnpm run verify` is green (db 101 · core 229 · tiles 11 · ingestion 80 tests · portability + security gates).
+- **Production Supabase live** (`ctcvrdsrylauqpuxbauz`): **10 migrations** applied (0010 added `tax_delinquency`/`tax_balance`/`business_license`). 18 public tables RLS-enabled + grant-locked.
+- **M1 ingestion COMPLETE + verified live (2026-06-18):**
+  - OPA spine loaded: **583,617 parcels** (583,507 with geometry; `shape` column is `SRID=2272;POINT` → `ST_Transform`'d to 4326; 37,545 out-of-state owners — matches the ~37.8K baseline).
+  - **`parcel_change_log`: 2,329,657 baseline rows** across 4 tracked fields (owner_1/market_value/sale_price/sale_date). Idempotent (a re-loaded spine adds 0 rows).
+  - All 13 Carto sources promote; `delinquency_event` (54,399) + `violation_event` (7,070) diffs fire.
+  - **Nightly is GREEN end-to-end: 14 ok, 0 failed.** Gate ≠ halt verified. Empty/drained/lagging sources are clean no-ops (not false quarantines). Soft-retire never fires on an empty batch.
+  - **`expectedJoinRate` baselines MEASURED live** and set in `philadelphia.ts` (permits 0.85, violations/complaints/cases 0.90, demolitions 0.75, tax 0.88, biz-license 0.72, RTT floored to **0.45** because historic 1974-era deeds legitimately join low — the count reconcile is RTT's real gate, not the per-batch join gate).
+  - Adversarial review (6 parallel skeptics + independent verification) over upsert/spine/change-log/decoy/cursor/window: **0 confirmed bugs**. The 3 bugs that mattered were caught by the LIVE run (violation_event NOT-NULL, intra-batch ON-CONFLICT dedup, empty-batch false-quarantine) and fixed.
+- **M1a RTT backfill:** resumable streaming loader (`src/backfill.ts` + `scripts/backfill-rtt.ts`), keyset on `cartodb_id`, commits `ops.source_cursor` every 5 pages, 6h-budgeted, reconciles count ±0.5%. **Running now** to drain rtt_summary to 1974 — re-runnable until `drained`; check `ops.source_cursor` / `ops.ingest_run` for progress.
 
-## YOUR TASK — M1 completion (ingestion-first, OPA-first)
+### Architecture notes carried forward
+- **Portability:** all Philly source literals (column names, table names, the decoy `parcel_id_num`) live ONLY in `packages/core/src/adapters/`. Ingestion is generic: it consumes each source's `SourceMapping.mapRow` (raw→canonical) + `windowPredicate`; the gate fails the build on a leak.
+- **OPA is the spine** → `expectedJoinRate: undefined` (exempt from the parcel-join gate, which would read 0% on first load). Its gate is the freshness gate (Last-Modified + row-count ±5%) in `makeOpaFetcher`; it promotes in chunked statements (no single giant tx), soft-retires, accrues change-log, then the parcel-key index is refreshed so keyed sources measure against real parcels.
+- **Cursor advances only after a successful promote** (a quarantine/failure leaves it, so the delta re-fetches). OPA stores its Last-Modified in `source_cursor.watermark`.
+- **Local run:** `DATABASE_URL="$(cat <memory>/database-url.secret)" NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter @phillybricks/ingestion run run:nightly` (set `NIGHTLY_MAX_PAGES` to bound per-run carto fetch; default 40).
 
-`packages/ingestion/src/run.ts` is an honest shell: `runWorker(db, { fetchers, stepsBySource, hooks })` iterates `philadelphia.sources` but the registries are **empty**, so every source reports `skipped`. Fill them in:
+## YOUR TASK — M2: sheriff-sale scraper (PRD §4.2, §9)
+Forward auctions are not in open data. Source = `phillysheriff.com/mortgage/` + `/foreclosure/` (server-rendered Ninja Tables). The adapter `scraper` config is already defined (`philadelphia.scraper`: urls, `expectedColumns`, `crawlDelaySec: 10`).
+1. Build a scraper adapter (cheerio is already a dep): fetch each page, **assert `<thead>` column order matches `expectedColumns` before parsing** (fail loudly on layout drift), honor the Crawl-delay.
+2. Map rows → `public.sheriff_listing`: `raw_assessment_id` = the dirty `AssessmentID`; `parcel_pk` = `normParcelKey(AssessmentID)` (kept even when null); `sale_type` DERIVED from which page (mortgage vs foreclosure→tax), `source_sale_type` = raw; `sale_status` core vocab only. Bid4Assets enrichment stays OFF by default.
+3. Wire it as a `weekly` source (it has no `mapping`/`platform:'scrape'` fetcher yet — add a scrape fetcher path in `run.ts` alongside carto/s3, or a dedicated step).
+4. **Adversarial gate:** golden-fixture test on the saved HTML (column-order assertion, 9-digit OPA join, mortgage-vs-tax derivation). PRD §9 DoD.
 
-1. **OPA first** (it populates `public.parcel`, the join target for everything else). Wire `adapters/opaBulk.ts`: stream the S3 CSV, parse `the_geom` WKT/EWKT via `geomSqlExpr`, freshness gate (Last-Modified + row-count ±5% of ~583,617), upsert into `public.parcel` (incl. `pin`, derived `is_out_of_state_owner` from `state_code`), soft-retire missing accounts. Batch the ~584K-row load (don't single-row-insert through the pooler).
-2. **Then the Carto keyset sources** (`adapters/carto.ts`, keyset on `cartodb_id`, resumable via `ops.source_cursor`): RTT incremental, L&I (permit/violation/complaint/case_investigation), tax delinquency/balances, crime + 311 (windowed ~10y, stamp geo ids — spatial, exempt from the parcel-join gate), licenses. Derive transfer flags on load via `core.deriveTransferFlags`.
-3. For each source provide a `SourceSteps` (`promote` upsert + column-map, `diff` → change-logs/`delinquency_event`/`violation_event` with **baseline rows** per PRD §3.3, `refreshDerived`). Register fetchers + steps in `main()`.
-4. **MEASURE join rates** against live `public.parcel` (`joinRate.measureJoinRate`) and **set per-source `expectedJoinRate` in `packages/core/src/adapters/philadelphia.ts` from the measured baselines** (replace the placeholders — recall RTT ~75% recent / ~60% overall on `parcel_number`; measure both `parcel_number`/`opa_account_num` AND `pin` paths). Gate = quarantine + alert, never halt.
-5. **Adversarial gate (do not skip):** golden-fixture skeptic on the join-rate gate + the OPA freshness/soft-retire + the change-log baseline. Confirm the `parcel_id_num` decoy is never a key path.
+## After M2 → M3 derived (REAL matview logic in `packages/core` + **matview ownership fix**, incremental `geo_metric`, geo-stamp crime/311 + parcels via `geo_boundary` point-in-polygon, comps) · M4 serving + PMTiles→R2 + MapLibre map (**Vercel Pro + R2 needed**) · M5 deep-dive `/api/parcel/:pk` · M6 leads + BYO skip-trace · M7 accounts + Stripe + alerts (**Stripe + Resend needed**).
 
-**M1 DoD (PRD §9):** nightly run green, per-source join rates meet measured baselines, `parcel_change_log` baseline rows present (history accruing), liveness verified, on-disk size within budget. Then **M1a** = RTT backfill to 1974 (resumable, 6h-chunked keyset; reconcile count ±0.5%).
-
-### Gotchas carried forward
-- **Matview REFRESH ownership:** `phillybricks_worker` is not the owner of `distress_signal`/`comp_candidate` (postgres is) and PG16 blocks `grant postgres` (no ADMIN option). For M1, `refreshDerived` can skip matviews; **resolve in M3** (reassign matview ownership to the worker via the MCP `postgres` session, or refresh as postgres).
-- **Pooler:** transaction mode ⇒ `prepare:false` already set in `connectFromEnv()`. For the heavy OPA load consider the **session pooler (port 5432, same host/role)** which supports prepared statements / `COPY`.
-- **Run locally** with `DATABASE_URL="$(cat memory/database-url.secret)" pnpm --filter @phillybricks/ingestion run:nightly` to iterate before the cron.
-- **Apply any new migration** to prod via the Supabase MCP `apply_migration` (project_id `ctcvrdsrylauqpuxbauz`) AND keep the repo `packages/db/migrations/` in sync.
-
-## After M1 → M2 sheriff scraper · M3 derived (real matview logic + ownership, incremental geo_metric, comps) · M4 serving + PMTiles→R2 + MapLibre map · M5 deep-dive wired to `/api/parcel/:pk` · M6 leads + BYO skip-trace · M7 accounts + Stripe + alerts. Each milestone's PRD §9 DoD is an adversarial gate.
+### Gotchas
+- **Matview REFRESH ownership (M3):** `phillybricks_worker` is not the owner of `distress_signal`/`comp_candidate` (postgres is) and PG16 blocks `grant postgres`. `refreshDerived` is a NO-OP in M1 — resolve in M3 (reassign matview ownership to the worker via the MCP `postgres` session, or refresh as postgres).
+- **Heavy loads:** the in-memory nightly OPA batch (~584K) wants `--max-old-space-size=4096`. The backfill streams page-by-page (bounded memory).
+- **Apply new migrations** to prod via the Supabase MCP `apply_migration` (project `ctcvrdsrylauqpuxbauz`) AND keep `packages/db/migrations/` in sync; add new public tables to `PUBLIC_TABLES` in `packages/db/src/index.ts` (the security gate test asserts the set).
 
 ## How to verify state on resume
 - `pnpm install && pnpm run verify` → all green.
-- Live DB sanity via the Supabase MCP `execute_sql` (project `ctcvrdsrylauqpuxbauz`): `select count(*) from public.parcel;` (0 until OPA loads), and re-run the RLS introspection if you touch grants.
-- `gh run list --repo stlagency/phillybricks` — nightly should be green (heartbeat-only until sources are wired).
+- Live DB via Supabase MCP `execute_sql`: `select count(*) from public.parcel;` (=583,617), `select count(*) from public.parcel_change_log;` (≥2.3M), and `select source, status, rows_promoted from ops.ingest_run order by id desc limit 20;`.
+- RTT backfill progress: `select * from ops.source_cursor where source='rtt_summary';` and `select count(*) from public.transfer;` (climbing toward ~5.1M).
 
-## Human pause-points still open (not blockers for M1)
-- **Vercel Pro** project + env (`SUPABASE_URL`=`https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable key — both safe/client; service_role for server) — needed at **M4** deploy.
+## Human pause-points still open (not blockers for M2/M3)
+- **Vercel Pro** + env (`SUPABASE_URL`=`https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable + service_role) — **M4**.
 - **R2** bucket + keys — **M4** tiles.
 - **Stripe** + **Resend** keys — **M7**.
 - **healthchecks.io** monitor URL (`HEALTHCHECKS_URL` secret) — wire the liveness dead-man's-switch when convenient.

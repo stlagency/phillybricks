@@ -74,10 +74,11 @@ describe('evaluateGate — quarantine vs pass (gate ≠ halt)', () => {
   it('QUARANTINES a below-threshold RTT batch without throwing', () => {
     const rtt = loadJsonFixture<{ rows: Record<string, unknown>[] }>('rtt_below_threshold.json');
     const rttSpec = spec('rtt_summary');
-    expect(rttSpec.expectedJoinRate).toBe(0.6);
+    // MEASURED baseline (2026-06-18): RTT floors low (historic deeds join low).
+    expect(rttSpec.expectedJoinRate).toBe(0.45);
 
     const m = measureJoinRate(rttSpec.name, rtt.rows, rttSpec.keyColumns, philadelphia, parcelIndex);
-    // Only 3 of 10 opa_account_num values are in the index → 0.30.
+    // Only 3 of 10 opa_account_num values are in the index → 0.30 (still below 0.45).
     expect(m.bestRate).toBeCloseTo(0.3, 5);
 
     // The gate decides — it must NOT throw, and the decision is quarantine.
@@ -87,15 +88,15 @@ describe('evaluateGate — quarantine vs pass (gate ≠ halt)', () => {
     }).not.toThrow();
     expect(decision.kind).toBe('quarantine');
     if (decision.kind === 'quarantine') {
-      expect(decision.threshold).toBe(0.6);
+      expect(decision.threshold).toBe(0.45);
       expect(decision.bestRate).toBeCloseTo(0.3, 5);
     }
   });
 
   it('PASSES an at-threshold batch (best rate >= threshold)', () => {
-    // Build a permits batch at exactly 0.98: 49 joining of 50.
+    // permits MEASURED baseline 0.85; a 0.98 batch (49/50) is comfortably above it.
     const permitsSpec = spec('permits');
-    expect(permitsSpec.expectedJoinRate).toBe(0.98);
+    expect(permitsSpec.expectedJoinRate).toBe(0.85);
     const joinKeys = [
       '523045600',
       '351243300',
