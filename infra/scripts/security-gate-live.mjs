@@ -46,6 +46,14 @@ if (!DATABASE_URL) {
 // effectively internet-reachable.
 const EXPOSED_ROLES = ['anon', 'authenticated'];
 
+// PostGIS ships these in `public`, owned by the extension/superuser (supabase_admin
+// on Supabase). They carry broad default grants we cannot revoke as the migration
+// role and are extension plumbing, not application data: geometry_columns /
+// geography_columns are read-only views; spatial_ref_sys is public EPSG reference
+// data. The gate scopes to OUR relations and excludes these (matches how Supabase's
+// own linter treats them).
+const POSTGIS_SYS = ['spatial_ref_sys', 'geometry_columns', 'geography_columns'];
+
 // Resolve the installed `postgres` client without relying on hoisting.
 const require = createRequire(pathToFileURL(join(ROOT, 'packages/db/package.json')));
 let postgres;
@@ -75,6 +83,7 @@ try {
     where table_schema = 'public'
       and grantee in ${sql(EXPOSED_ROLES)}
       and privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE', 'REFERENCES')
+      and table_name not in ${sql(POSTGIS_SYS)}
     order by table_name, grantee, privilege_type
   `;
   for (const r of publicWrites) {
@@ -161,6 +170,7 @@ try {
     where g.table_schema = 'public'
       and g.grantee in ${sql(EXPOSED_ROLES)}
       and g.privilege_type = 'SELECT'
+      and g.table_name not in ${sql(POSTGIS_SYS)}
     order by g.table_name
   `;
   for (const r of publicSelectable) {

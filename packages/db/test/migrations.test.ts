@@ -61,8 +61,10 @@ describe('security gate invariants (PRD §3.6) — mirrored as unit assertions',
     expect(new RegExp(`alter\\s+table\\s+public\\.${t}\\s+enable\\s+row\\s+level\\s+security`).test(norm)).toBe(true);
   });
 
-  it.each([...PUBLIC_TABLES])('public.%s REVOKEs insert/update/delete from anon+authenticated', (t) => {
-    const re = new RegExp(`revoke\\s+[^;]*\\b(insert|update|delete)\\b[^;]*on\\s+public\\.${t}\\s+from\\s+[^;]*(anon|authenticated)`);
+  it.each([...PUBLIC_TABLES])('public.%s REVOKEs writes (or ALL) from anon+authenticated', (t) => {
+    // `revoke all` is accepted and preferred — it also strips TRUNCATE/REFERENCES/
+    // TRIGGER that Supabase default-privileges grant (TRUNCATE bypasses RLS). See 0009.
+    const re = new RegExp(`revoke\\s+[^;]*\\b(insert|update|delete|all)\\b[^;]*on\\s+public\\.${t}\\s+from\\s+[^;]*(anon|authenticated)`);
     expect(re.test(norm)).toBe(true);
   });
 
