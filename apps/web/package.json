@@ -1,0 +1,35 @@
+{
+  "name": "@phillybricks/web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js App Router web app — market scan, property deep-dive, leads, alerts. Design: 'The Survey Table, Warmed'.",
+  "license": "AGPL-3.0-or-later",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "lint": "next lint",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@phillybricks/core": "workspace:*",
+    "@supabase/supabase-js": "^2.47.10",
+    "maplibre-gl": "^5.0.0",
+    "next": "^15.1.4",
+    "pmtiles": "^4.1.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "stripe": "^17.5.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.1.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

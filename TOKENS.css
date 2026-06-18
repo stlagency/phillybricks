@@ -1,0 +1,132 @@
+/* ============================================================
+   PhillyBricks — Design Tokens (v1.0)
+   "The Survey Table, Warmed" — brutalist bones + civic-warm air.
+   Canonical token file for the build. Rationale: design/DESIGN.md.
+   Hex is authoritative; OKLCH noted in DESIGN.md for tooling.
+   ============================================================ */
+
+/* ---- Fonts (Fontshare = free; Space Mono = Google; self-host in _fonts/) ---- */
+@import url("https://api.fontshare.com/v2/css?f[]=tanker@400&f[]=zodiak@700,400,700i&f[]=satoshi@900,700,500,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root {
+  /* ---- LIGHT (default): concrete + patriotic blue, red as signal only ---- */
+  --pb-ink:        #1A1714;  /* 3px borders + text (warm near-black) */
+  --pb-text:       #1A1714;  /* primary text (= ink in light)        */
+  --pb-slate:      #8A8479;  /* muted text / labels / metadata        */
+  --pb-paper:      #E7E3DA;  /* bg (mortar)                           */
+  --pb-surface:    #FFFFFF;  /* card (bone)                           */
+  --pb-stone:      #D9D4CA;  /* recessed / table zebra                */
+  --pb-recessed:   #CFC9BE;  /* derivation-drawer well                */
+  --pb-paper-warm: #EDE9E0;  /* group-gutter air behind card groups   */
+  --pb-rail:       #F2EEE6;  /* teach-in-place context-rail surface   */
+  --pb-gravel:     #BDB7AC;  /* inactive bars + within-card hairline  */
+
+  --pb-navy:       #0A2A5E;  /* structure / header mass               */
+  --pb-blue:       #2C6FBF;  /* data emphasis / links / chart bars    */
+  --pb-sky:        #6FA8DC;  /* secondary accents                     */
+  --pb-sky-tint:   #DCE8F6;  /* highlight fill behind ONE 2nd metric  */
+
+  --pb-red:        #E81828;  /* SIGNAL ONLY: distress / CTA / active   */
+  --pb-brick:      #A8341F;  /* TEXT/EDGE ACCENT ONLY — never a fill   */
+
+  --pb-draft-bg:   #1C2530;  /* blueprint map ground (both themes)    */
+  --pb-draft-line: #7FB0E0;  /* survey lines / parcel outlines         */
+
+  /* lens hues — matched lightness, one active at a time */
+  --pb-lens-price:      #2C6FBF;
+  --pb-lens-momentum:   #3E7D5A;
+  --pb-lens-distress:   #E81828;  /* the one lens allowed signal-red as fill */
+  --pb-lens-livability: #B5703A;  /* the one warm lens, distinct from both reds */
+
+  /* ---- Type ---- */
+  --pb-font-display: "Tanker", system-ui, sans-serif;
+  --pb-font-serif:   "Zodiak", Georgia, serif;
+  --pb-font-ui:      "Satoshi", system-ui, -apple-system, sans-serif;
+  --pb-font-mono:    "Space Mono", ui-monospace, monospace;
+  --pb-text-xs: 11px; --pb-text-sm: 13px; --pb-text-base: 15px;
+  --pb-text-lg: 18px; --pb-text-xl: 22px; --pb-text-2xl: 30px;
+  --pb-text-3xl: 44px; --pb-text-4xl: 62px; --pb-text-5xl: 84px; /* Tanker hero only */
+  --pb-track-label: 0.12em; --pb-track-tight: -0.01em;
+
+  /* ---- Structure (brutalist constants) ---- */
+  --pb-border-w:    3px;   /* default party-wall            */
+  --pb-border-w-lg: 4px;   /* promoted primary regions       */
+  --pb-border-w-in: 1px;   /* within-card hairline (gravel)  */
+  --pb-radius:      0;     /* square corners, always         */
+  --pb-shadow:      6px 6px 0 var(--pb-ink);  /* cards/marks  */
+  --pb-shadow-lg:   8px 8px 0 var(--pb-ink);  /* hero + CTA   */
+  --pb-shadow-mass: 10px 10px 0 var(--pb-ink);/* 1 block/screen */
+
+  /* ---- Spacing (4..48; B's loosened rhythm) ---- */
+  --pb-space-1: 4px;  --pb-space-2: 8px;  --pb-space-3: 12px;
+  --pb-space-4: 14px; --pb-space-5: 18px; --pb-space-6: 22px;
+  --pb-space-8: 34px; /* group gutter */ --pb-space-9: 48px; /* section air */
+
+  --pb-focus: var(--pb-blue);
+}
+
+/* ---- DARK: warm-umber lamplit instrument (the blueprint family at night) ---- */
+html[data-theme="dark"] {
+  --pb-ink:        #0C1016;  /* hard border ink (shadows use this)     */
+  --pb-text:       #ECE6DA;  /* warm bone, not cold white              */
+  --pb-slate:      #A39A8B;
+  --pb-paper:      #1B1814;  /* night mortar                           */
+  --pb-surface:    #25211B;  /* lamplit card                           */
+  --pb-stone:      #2F2A22;
+  --pb-recessed:   #161310;
+  --pb-paper-warm: #211D17;
+  --pb-rail:       #2A251D;  /* keeps the "invitation" after dark      */
+  --pb-gravel:     #3A4555;
+
+  --pb-navy:       #16407F;
+  --pb-blue:       #5C97D8;
+  --pb-sky:        #8FBCE6;
+  --pb-sky-tint:   #25344A;
+
+  --pb-red:        #FF3A47;  /* lifted for AA, still unmistakably Phillies */
+  --pb-brick:      #D9663F;
+
+  --pb-lens-price:      #5C97D8;
+  --pb-lens-momentum:   #5FA77E;
+  --pb-lens-distress:   #FF3A47;
+  --pb-lens-livability: #D69A4E;
+
+  --pb-focus: #5C97D8;
+}
+
+/* ============================================================
+   Component primitives — extend in the build (see DESIGN.md)
+   ============================================================ */
+.pb-border { border: var(--pb-border-w) solid var(--pb-ink); border-radius: var(--pb-radius); }
+.pb-shadow { box-shadow: var(--pb-shadow); }
+.pb-card   { background: var(--pb-surface); border: var(--pb-border-w) solid var(--pb-ink);
+             border-radius: var(--pb-radius); box-shadow: var(--pb-shadow); }
+
+/* wordmark: PHILLY letter-spaced to equal BRICKS width (measure after fonts.ready) */
+.pb-mark   { font-family: var(--pb-font-display); display: inline-flex; flex-direction: column;
+             line-height: 0.82; letter-spacing: var(--pb-track-tight); }
+.pb-mark .pb-philly { color: var(--pb-text); }   /* width equalized in JS */
+.pb-mark .pb-bricks { color: var(--pb-brick); }
+
+/* metric block / data */
+.pb-label { font-family: var(--pb-font-mono); font-size: var(--pb-text-xs);
+            letter-spacing: var(--pb-track-label); text-transform: uppercase; color: var(--pb-slate); }
+.pb-value { font-family: var(--pb-font-mono); font-weight: 700; color: var(--pb-text); }
+
+/* buttons */
+.pb-btn { font-family: var(--pb-font-mono); font-weight: 700; letter-spacing: 0.08em;
+          border: var(--pb-border-w) solid var(--pb-ink); border-radius: var(--pb-radius);
+          padding: 13px 16px; cursor: pointer; }
+.pb-btn--primary   { background: var(--pb-red); color: #fff; box-shadow: var(--pb-shadow-lg); }
+.pb-btn--secondary { background: var(--pb-ink); color: var(--pb-paper); }
+.pb-btn:active { transform: translate(2px,2px); box-shadow: 4px 4px 0 var(--pb-ink); }
+
+/* pills */
+.pb-pill { font-family: var(--pb-font-mono); font-size: 10px; font-weight: 700;
+           padding: 2px 7px; border: 2px solid var(--pb-ink); border-radius: var(--pb-radius); display: inline-block; }
+.pb-pill--danger  { background: var(--pb-red); color: #fff; }
+.pb-pill--neutral { background: var(--pb-ink); color: var(--pb-paper); }
+.pb-pill--aged    { background: var(--pb-surface); color: var(--pb-brick); border-color: var(--pb-brick); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

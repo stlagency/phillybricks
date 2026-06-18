@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhillyBricks — Market scan</title>
+</head>
+<body>
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&f[]=sentient@400,400i,500&f[]=general-sans@400,500,600&display=swap');
+
+.rh-root{
+  --bg: oklch(0.975 0.006 75);
+  --surface: oklch(0.992 0.004 80);
+  --sunken: oklch(0.955 0.007 70);
+  --text: oklch(0.255 0.012 55);
+  --muted: oklch(0.50 0.014 55);
+  --border: oklch(0.88 0.008 70);
+  --border-strong: oklch(0.80 0.010 68);
+  --brand: oklch(0.585 0.135 27);
+  --brand-ink: oklch(0.40 0.12 27);
+  --brand-tint: oklch(0.93 0.03 27);
+  --lens-price: oklch(0.55 0.13 250);
+  --lens-dev: oklch(0.62 0.14 145);
+  --lens-distress: oklch(0.55 0.16 32);
+  --lens-liv: oklch(0.55 0.10 195);
+  --water: oklch(0.93 0.018 195);
+  /* Distress sequential ramp: warm paper -> warm rust @ hue 32 */
+  --d0: oklch(0.955 0.008 45);
+  --d1: oklch(0.90 0.035 38);
+  --d2: oklch(0.82 0.075 35);
+  --d3: oklch(0.72 0.115 33);
+  --d4: oklch(0.62 0.145 32);
+  --d5: oklch(0.50 0.155 30);
+  --font-display:'Cabinet Grotesk',sans-serif;
+  --font-body:'Sentient',Georgia,serif;
+  --font-ui:'General Sans',sans-serif;
+  --font-mono:'General Sans',ui-monospace,monospace;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;
+  --step-data:0.75rem;--step-fine:0.8125rem;--step-base:1rem;
+  --step-h3:1.25rem;--step-h2:1.5625rem;--step-h1:1.953rem;--step-display:2.441rem;
+  --map-land: oklch(0.96 0.006 75);
+  --street: oklch(0.86 0.008 68);
+}
+.rh-root[data-theme="dark"]{
+  --bg: oklch(0.205 0.010 60);
+  --surface: oklch(0.245 0.011 58);
+  --sunken: oklch(0.185 0.009 60);
+  --text: oklch(0.93 0.008 80);
+  --muted: oklch(0.70 0.012 70);
+  --border: oklch(0.36 0.012 62);
+  --border-strong: oklch(0.44 0.014 62);
+  --brand: oklch(0.70 0.115 27);
+  --brand-ink: oklch(0.80 0.10 27);
+  --brand-tint: oklch(0.32 0.05 27);
+  --lens-price: oklch(0.70 0.11 250);
+  --lens-dev: oklch(0.74 0.12 145);
+  --lens-distress: oklch(0.70 0.14 34);
+  --lens-liv: oklch(0.72 0.085 195);
+  --water: oklch(0.27 0.022 195);
+  --d0: oklch(0.30 0.014 55);
+  --d1: oklch(0.40 0.055 38);
+  --d2: oklch(0.50 0.095 35);
+  --d3: oklch(0.60 0.125 34);
+  --d4: oklch(0.70 0.145 33);
+  --d5: oklch(0.78 0.150 33);
+  --map-land: oklch(0.235 0.012 62);
+  --street: oklch(0.34 0.012 62);
+}
+.rh-root *{box-sizing:border-box;}
+.rh-root{
+  background:var(--bg);color:var(--text);font-family:var(--font-body);
+  font-size:var(--step-base);line-height:1.65;
+  border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  display:grid;grid-template-rows:auto 1fr;min-height:760px;
+}
+.rh-root .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+
+/* ---- top chrome ---- */
+.rh-top{
+  display:flex;align-items:center;gap:var(--s4);
+  padding:var(--s3) var(--s4);border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.rh-mark{display:flex;align-items:center;gap:var(--s2);flex:0 0 auto;}
+.rh-mark .glyph{
+  width:26px;height:26px;border-radius:5px;background:var(--brand);
+  display:grid;place-items:center;color:var(--bg);font-family:var(--font-display);
+  font-weight:600;font-size:0.95rem;
+}
+.rh-root[data-theme="dark"] .rh-mark .glyph{color:oklch(0.20 0.01 60);}
+.rh-mark .name{font-family:var(--font-display);font-weight:600;font-size:1.05rem;letter-spacing:-0.01em;}
+.rh-crumb{
+  font-family:var(--font-ui);font-size:var(--step-fine);color:var(--muted);
+  display:flex;align-items:center;gap:var(--s2);
+}
+.rh-crumb b{color:var(--text);font-weight:600;}
+.rh-crumb .sep{color:var(--border-strong);}
+.rh-masthead{
+  flex:1;text-align:center;font-family:var(--font-ui);font-size:var(--step-fine);
+  color:var(--muted);letter-spacing:0.02em;
+}
+.rh-masthead .src-dot{color:var(--brand);}
+.rh-toggle{
+  flex:0 0 auto;font-family:var(--font-ui);font-size:var(--step-fine);font-weight:500;
+  letter-spacing:0.02em;color:var(--text);background:transparent;
+  border:1px solid var(--border);border-radius:8px;padding:var(--s1) var(--s3);
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:background-color .18s ease-out;
+}
+.rh-toggle:hover{background:var(--sunken);}
+.rh-toggle:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
+
+/* ---- body grid ---- */
+.rh-body{display:grid;grid-template-columns:230px 1fr 318px;min-height:0;}
+.rh-rail{padding:var(--s4);overflow:auto;}
+.rh-rail.left{border-right:1px solid var(--border);background:var(--surface);}
+.rh-rail.right{border-left:1px solid var(--border);background:var(--surface);}
+.rh-rail-h{
+  font-family:var(--font-ui);font-size:var(--step-data);font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--muted);margin:0 0 var(--s3);
+}
+
+/* ---- filter rail ---- */
+.f-group{margin-bottom:var(--s6);}
+.f-group:last-child{margin-bottom:0;}
+.f-label{font-family:var(--font-ui);font-size:var(--step-fine);font-weight:500;letter-spacing:0.02em;color:var(--text);display:flex;justify-content:space-between;align-items:baseline;}
+.f-label .v{font-family:var(--font-mono);font-size:var(--step-data);color:var(--brand-ink);font-weight:500;}
+.f-range{width:100%;margin-top:var(--s2);accent-color:var(--brand);}
+.f-range:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:4px;}
+.f-check{display:flex;align-items:center;gap:var(--s2);font-family:var(--font-ui);font-size:var(--step-fine);color:var(--text);padding:var(--s1) 0;cursor:pointer;}
+.f-check input{accent-color:var(--brand);width:14px;height:14px;}
+.f-check .ct{margin-left:auto;font-family:var(--font-mono);font-size:var(--step-data);color:var(--muted);}
+.f-hr{border:0;border-top:1px solid var(--border);margin:var(--s6) 0;}
+.f-clear{font-family:var(--font-ui);font-size:var(--step-fine);font-weight:500;letter-spacing:0.02em;color:var(--brand-ink);background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px var(--s3);cursor:pointer;width:100%;transition:background-color .18s ease-out;}
+.f-clear:hover{background:var(--sunken);}
+.f-clear:focus-visible{outline:2px solid var(--brand);outline-offset:2px;}
+
+/* ---- center map ---- */
+.rh-map{position:relative;background:var(--bg);display:grid;grid-template-rows:auto 1fr;min-height:0;}
+.rh-mapbar{
+  display:flex;align-items:center;gap:var(--s4);padding:var(--s3) var(--s4);
+  border-bottom:1px solid var(--border);
+}
+.rh-mapbar h2{font-family:var(--font-display);font-weight:600;font-size:var(--step-h3);letter-spacing:-0.01em;margin:0;}
+.rh-period{display:flex;align-items:center;gap:var(--s2);margin-left:auto;}
+.rh-period .pl{font-family:var(--font-ui);font-size:var(--step-fine);color:var(--muted);letter-spacing:0.02em;}
+.rh-period input[type=range]{width:150px;accent-color:var(--brand);}
+.rh-period input[type=range]:focus-visible{outline:2px solid var(--brand);outline-offset:3px;border-radius:4px;}
+.rh-period .pv{font-family:var(--font-mono);font-size:var(--step-data);color:var(--text);min-width:62px;}
+.rh-track{font-family:var(--font-ui);font-size:var(--step-data);color:var(--muted);font-style:normal;}
+
+.rh-canvas{position:relative;min-height:0;overflow:hidden;}
+.rh-canvas svg{display:block;width:100%;height:100%;}
+.region{cursor:pointer;stroke:var(--border-strong);stroke-width:0.75;transition:stroke .18s ease-out,stroke-width .18s ease-out;}
+.region:hover{stroke:var(--brand);stroke-width:1.5;}
+.region:focus-visible{outline:none;stroke:var(--brand);stroke-width:1.5;}
+.region.sel{stroke:var(--brand);stroke-width:2.4;}
+.rlabel{font-family:var(--font-ui);font-size:11px;font-weight:600;letter-spacing:0.01em;fill:var(--text);paint-order:stroke;stroke:var(--bg);stroke-width:2.4px;pointer-events:none;}
+.rlabel.lite{fill:var(--bg);stroke:none;}
+.street{stroke:var(--street);stroke-width:0.9;fill:none;opacity:.7;}
+.tick{stroke:var(--brand);stroke-width:1.6;}
+
+/* lens switcher */
+.lens-sw{
+  position:absolute;left:var(--s4);bottom:var(--s4);z-index:3;
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;
+  padding:var(--s1);display:flex;gap:2px;
+}
+.lens-b{
+  font-family:var(--font-ui);font-size:var(--step-fine);font-weight:500;letter-spacing:0.01em;
+  color:var(--muted);background:transparent;border:0;border-radius:6px;
+  padding:6px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;position:relative;
+  transition:color .18s ease-out,background-color .18s ease-out;
+}
+.lens-b .dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+.lens-b[data-lens=price] .dot{background:var(--lens-price);}
+.lens-b[data-lens=dev] .dot{background:var(--lens-dev);}
+.lens-b[data-lens=distress] .dot{background:var(--lens-distress);}
+.lens-b[data-lens=liv] .dot{background:var(--lens-liv);}
+.lens-b:hover{color:var(--text);background:var(--sunken);}
+.lens-b:focus-visible{outline:2px solid var(--brand);outline-offset:1px;}
+.lens-b.active{color:var(--text);}
+.lens-b.active::after{content:"";position:absolute;left:10px;right:10px;bottom:1px;height:2px;background:var(--brand);border-radius:2px;}
+
+/* legend */
+.legend{
+  position:absolute;right:var(--s4);bottom:var(--s4);z-index:3;width:226px;
+  background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:var(--s3);
+}
+.legend .lh{font-family:var(--font-ui);font-size:var(--step-data);font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--muted);margin:0 0 var(--s2);display:flex;justify-content:space-between;}
+.legend .lh .unit{font-family:var(--font-mono);text-transform:none;letter-spacing:0;font-weight:400;}
+.ramp{display:flex;height:12px;border-radius:3px;overflow:hidden;}
+.ramp span{flex:1;}
+.breaks{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:10px;color:var(--muted);margin-top:5px;}
+.legend .cap{font-family:var(--font-body);font-size:var(--step-fine);line-height:1.4;color:var(--text);margin:var(--s2) 0 0;}
+.legend .cap b{color:var(--brand-ink);font-weight:600;}
+
+/* instrument readout */
+.readout{
+  position:absolute;right:var(--s4);top:var(--s4);z-index:3;
+  font-family:var(--font-mono);font-size:10px;color:var(--muted);text-align:right;line-height:1.5;
+}
+.readout .bar{display:inline-flex;align-items:center;gap:5px;margin-top:3px;}
+.readout .bar i{display:inline-block;width:42px;height:4px;border-top:1.5px solid var(--muted);border-left:1.5px solid var(--muted);border-right:1.5px solid var(--muted);height:5px;}
+
+/* ---- right rail / ledger ---- */
+.r-name{font-family:var(--font-display);font-weight:600;font-size:var(--step-h2);letter-spacing:-0.01em;margin:0;line-height:1.15;}
+.r-sub{font-family:var(--font-ui);font-size:var(--step-fine);color:var(--muted);letter-spacing:0.02em;margin:2px 0 0;}
+.r-dispatch{font-family:var(--font-body);font-size:var(--step-fine);color:var(--text);margin:var(--s3) 0 0;line-height:1.5;}
+.r-dispatch b{font-family:var(--font-mono);font-weight:500;color:var(--brand-ink);font-size:var(--step-data);}
+.ledger{margin:var(--s4) 0 0;border-top:1px solid var(--border);}
+.lrow{display:flex;align-items:baseline;gap:var(--s3);padding:9px 0;border-bottom:1px solid var(--border);}
+.lrow .lk{font-family:var(--font-ui);font-size:var(--step-fine);color:var(--muted);letter-spacing:0.01em;}
+.lrow .lv{margin-left:auto;font-family:var(--font-mono);font-size:var(--step-fine);color:var(--text);text-align:right;}
+.src{
+  text-decoration:underline dotted;text-underline-offset:3px;text-decoration-color:var(--border-strong);
+  cursor:help;background:transparent;border:0;padding:0;color:inherit;font:inherit;
+}
+.src:hover{text-decoration-color:var(--brand);}
+.src:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:2px;}
+.stamp{font-family:var(--font-mono);font-size:9.5px;color:var(--muted);margin-left:6px;letter-spacing:-0.01em;}
+
+.sect-h{font-family:var(--font-ui);font-size:var(--step-data);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin:var(--s6) 0 var(--s3);}
+.trend-cap{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--font-ui);font-size:var(--step-data);color:var(--muted);margin-top:var(--s2);}
+.trend-cap .now{font-family:var(--font-mono);color:var(--lens-distress);}
+
+/* teach-in-place */
+.glossary{
+  text-decoration:underline dotted;text-underline-offset:3px;text-decoration-color:var(--brand);
+  cursor:pointer;background:transparent;border:0;padding:0;color:var(--brand-ink);font:inherit;font-weight:600;
+}
+.glossary:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:2px;}
+.teach{font-family:var(--font-body);font-size:var(--step-fine);line-height:1.5;color:var(--text);margin:var(--s2) 0 0;}
+.gloss-def{
+  margin-top:var(--s2);padding:var(--s3);background:var(--sunken);border:1px solid var(--border);border-radius:8px;
+  font-family:var(--font-body);font-size:var(--step-fine);line-height:1.5;color:var(--text);
+}
+.gloss-def[hidden]{display:none;}
+.gloss-def .term{font-family:var(--font-ui);font-weight:600;letter-spacing:0.02em;color:var(--brand-ink);}
+
+.community{
+  margin-top:var(--s4);padding:var(--s3);background:var(--brand-tint);border:1px solid var(--border);border-radius:8px;
+}
+.community .ct{font-family:var(--font-ui);font-size:var(--step-data);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--brand-ink);margin:0 0 var(--s1);}
+.community p{font-family:var(--font-body);font-size:var(--step-fine);line-height:1.5;color:var(--text);margin:0;}
+.community p b{color:var(--brand-ink);font-weight:600;}
+
+.freshness{font-family:var(--font-ui);font-size:var(--step-data);color:var(--muted);letter-spacing:0.01em;margin:var(--s4) 0 0;padding-top:var(--s3);border-top:1px solid var(--border);line-height:1.5;}
+
+@media (prefers-reduced-motion: reduce){
+  .rh-root *{transition:none !important;}
+}
+</style>
+
+<div class="rh-root" data-theme="light" role="region" aria-label="Philadelphia market scan, map-first">
+  <h2 class="sr-only">Map-first market scan of Philadelphia neighborhoods with the Distress and risk lens active; Kensington is selected, showing its distress metrics, trend, source links, and a community-value note.</h2>
+
+  <div class="rh-top">
+    <div class="rh-mark">
+      <span class="glyph" aria-hidden="true">P</span>
+      <span class="name">PhillyBricks</span>
+    </div>
+    <nav class="rh-crumb" aria-label="Resolution breadcrumb">
+      <span>Philadelphia</span><span class="sep">/</span><b>Kensington</b>
+    </nav>
+    <div class="rh-masthead"><span class="src-dot">&#9679;</span> Every number here links to a public record.</div>
+    <button class="rh-toggle" id="themeBtn" aria-label="Switch to dark theme">
+      <i class="ti ti-moon" aria-hidden="true"></i><span id="themeTxt">Dark</span>
+    </button>
+  </div>
+
+  <div class="rh-body">
+    <!-- LEFT: filters -->
+    <aside class="rh-rail left" aria-label="Filters">
+      <p class="rh-rail-h">Filter the scan</p>
+
+      <div class="f-group">
+        <div class="f-label"><span>Distress index</span><span class="v" id="vDist">&#8805; 35</span></div>
+        <input class="f-range" type="range" min="0" max="100" step="5" value="35" id="rDist" aria-label="Minimum distress index">
+      </div>
+
+      <div class="f-group">
+        <div class="f-label"><span>Median sale price</span><span class="v" id="vPrice">&#8804; $450k</span></div>
+        <input class="f-range" type="range" min="100" max="800" step="25" value="450" id="rPrice" aria-label="Maximum median sale price, thousands">
+      </div>
+
+      <div class="f-group">
+        <div class="f-label"><span>Lot count floor</span><span class="v" id="vLot">&#8805; 500</span></div>
+        <input class="f-range" type="range" min="0" max="5000" step="100" value="500" id="rLot" aria-label="Minimum lot count">
+      </div>
+
+      <hr class="f-hr">
+
+      <div class="f-group">
+        <p class="f-label" style="margin-bottom:var(--s2)">Signal types</p>
+        <label class="f-check"><input type="checkbox" checked> Tax delinquency <span class="ct">11.2k</span></label>
+        <label class="f-check"><input type="checkbox" checked> Open L&amp;I violations <span class="ct">8.4k</span></label>
+        <label class="f-check"><input type="checkbox" checked> Vacancy signal <span class="ct">5.9k</span></label>
+        <label class="f-check"><input type="checkbox"> Sheriff sale notice <span class="ct">1.3k</span></label>
+      </div>
+
+      <hr class="f-hr">
+
+      <div class="f-group">
+        <p class="f-label" style="margin-bottom:var(--s2)">Parcel use</p>
+        <label class="f-check"><input type="checkbox" checked> Residential <span class="ct">412k</span></label>
+        <label class="f-check"><input type="checkbox"> Mixed-use <span class="ct">19k</span></label>
+        <label class="f-check"><input type="checkbox"> Vacant land <span class="ct">28k</span></label>
+      </div>
+
+      <button class="f-clear">Reset filters</button>
+    </aside>
+
+    <!-- CENTER: map -->
+    <main class="rh-map" aria-label="Choropleth map">
+      <div class="rh-mapbar">
+        <h2>Distress &amp; risk &mdash; citywide</h2>
+        <div class="rh-period">
+          <span class="pl">Period</span>
+          <input type="range" min="0" max="5" step="1" value="5" id="rPeriod" aria-label="Time period">
+          <span class="pv" id="vPeriod">Q2 2026</span>
+        </div>
+      </div>
+
+      <div class="rh-canvas">
+        <svg viewBox="0 0 720 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Abstract choropleth of Philadelphia neighborhoods shaded by distress index">
+          <desc>Thirteen abstract neighborhood regions tinted on a warm paper basemap; darker rust means more distress signals. Kensington is selected.</desc>
+          <!-- water washes: Delaware (right edge) + Schuylkill (curving) -->
+          <path d="M650 0 L720 0 L720 560 L632 560 C648 430 600 300 648 170 C672 96 636 50 650 0 Z" fill="var(--water)"/>
+          <path d="M150 0 C180 110 96 200 150 300 C196 384 120 470 168 560 L96 560 C60 460 120 360 80 260 C44 170 110 90 78 0 Z" fill="var(--water)" opacity="0.85"/>
+
+          <!-- street hairlines (sparse civic-atlas feel) -->
+          <g class="street">
+            <path d="M40 150 L640 130"/><path d="M40 250 L640 235"/>
+            <path d="M40 350 L630 345"/><path d="M50 450 L620 448"/>
+            <path d="M260 30 L250 540"/><path d="M400 30 L398 540"/>
+            <path d="M520 40 L515 530"/><path d="M180 200 L600 470"/>
+          </g>
+
+          <!-- REGIONS (abstract). data-d = distress band 0..5 -->
+          <g id="regions">
+            <polygon class="region" data-n="Brewerytown" data-d="3" data-price="265" data-lots="2140" points="170,140 260,120 270,210 188,228 156,188"/>
+            <polygon class="region" data-n="Mantua" data-d="3" data-price="248" data-lots="1620" points="156,188 188,228 270,210 256,300 176,300"/>
+            <polygon class="region" data-n="Fairmount" data-d="1" data-price="520" data-lots="1980" points="260,120 360,110 372,200 290,214 270,210"/>
+            <polygon class="region" data-n="Germantown" data-d="2" data-price="232" data-lots="3320" points="370,40 470,46 460,150 372,160 360,110 360,70"/>
+            <polygon class="region" data-n="Fishtown" data-d="2" data-price="438" data-lots="1740" points="470,150 560,150 566,250 478,256 470,200"/>
+            <polygon class="region" data-n="Kensington" data-d="5" data-price="196" data-lots="3960" points="370,160 470,150 470,200 478,256 388,266 372,200"/>
+            <polygon class="region" data-n="Northern Liberties" data-d="1" data-price="565" data-lots="1280" points="478,256 566,250 562,330 486,336"/>
+            <polygon class="region" data-n="Old City" data-d="1" data-price="610" data-lots="980" points="562,330 632,340 628,410 558,406"/>
+            <polygon class="region" data-n="Center City" data-d="0" data-price="690" data-lots="2210" points="372,300 486,336 558,406 470,430 380,400"/>
+            <polygon class="region" data-n="Strawberry Mansion" data-d="4" data-price="178" data-lots="2680" points="256,300 372,300 380,400 290,408 264,360"/>
+            <polygon class="region" data-n="Point Breeze" data-d="3" data-price="372" data-lots="2840" points="290,408 380,400 470,430 452,520 308,520"/>
+            <polygon class="region" data-n="Graduate Hospital" data-d="1" data-price="612" data-lots="1460" points="380,400 470,430 470,430 540,452 530,520 452,520 470,430"/>
+            <polygon class="region" data-n="Grays Ferry" data-d="3" data-price="214" data-lots="2380" points="176,300 256,300 264,360 290,408 308,520 196,512 164,420"/>
+          </g>
+
+          <!-- selection corner-registration ticks (Survey graft), placed around Kensington bbox -->
+          <g id="selTicks" class="tick" aria-hidden="true">
+            <path d="M372 150 l-10 0 m10 0 l0 -10"/>
+            <path d="M478 145 l10 0 m-10 0 l0 -10"/>
+            <path d="M388 272 l-10 0 m10 0 l0 10"/>
+            <path d="M478 262 l10 0 m-10 0 l0 10"/>
+          </g>
+
+          <!-- labels: heroes are neighborhood names (community-as-unit) -->
+          <g id="labels">
+            <text class="rlabel" x="208" y="186">Brewerytown</text>
+            <text class="rlabel" x="206" y="256">Mantua</text>
+            <text class="rlabel" x="310" y="166">Fairmount</text>
+            <text class="rlabel" x="408" y="104">Germantown</text>
+            <text class="rlabel" x="508" y="206">Fishtown</text>
+            <text class="rlabel lite" x="418" y="214">Kensington</text>
+            <text class="rlabel" x="494" y="296">N. Liberties</text>
+            <text class="rlabel" x="588" y="378">Old City</text>
+            <text class="rlabel lite" x="446" y="372">Center City</text>
+            <text class="rlabel" x="300" y="356">Strawberry M.</text>
+            <text class="rlabel" x="372" y="474">Point Breeze</text>
+            <text class="rlabel" x="490" y="492">Grad. Hosp.</text>
+            <text class="rlabel" x="216" y="430">Grays Ferry</text>
+          </g>
+        </svg>
+
+        <div class="readout" aria-hidden="true">
+          39.9742&deg;N&nbsp; 75.1289&deg;W
+          <div class="bar"><i></i> 0.5 mi</div>
+        </div>
+
+        <div class="lens-sw" role="tablist" aria-label="Analytic lens">
+          <button class="lens-b" data-lens="price" role="tab" aria-selected="false"><span class="dot"></span>Price &amp; value</button>
+          <button class="lens-b" data-lens="dev" role="tab" aria-selected="false"><span class="dot"></span>Development</button>
+          <button class="lens-b active" data-lens="distress" role="tab" aria-selected="true"><span class="dot"></span>Distress &amp; risk</button>
+          <button class="lens-b" data-lens="liv" role="tab" aria-selected="false"><span class="dot"></span>Livability</button>
+        </div>
+
+        <div class="legend" aria-hidden="true">
+          <p class="lh">Distress index <span class="unit">0&ndash;100</span></p>
+          <div class="ramp">
+            <span style="background:var(--d0)"></span><span style="background:var(--d1)"></span><span style="background:var(--d2)"></span><span style="background:var(--d3)"></span><span style="background:var(--d4)"></span><span style="background:var(--d5)"></span>
+          </div>
+          <div class="breaks"><span>4</span><span>med 41</span><span>92</span></div>
+          <p class="cap"><b>Darker = more distress signals.</b> Click any band to see what counts.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT: selected neighborhood -->
+    <aside class="rh-rail right" aria-label="Selected neighborhood">
+      <p class="r-name" id="rnName">Kensington</p>
+      <p class="r-sub" id="rnSub">River Wards &middot; 3,960 residential parcels</p>
+      <p class="r-dispatch" id="rnDispatch">Distress index <b>92</b> &mdash; highest of the 13 scanned neighborhoods this quarter.</p>
+
+      <div class="ledger" id="ledger" aria-label="Neighborhood metrics">
+        <div class="lrow"><span class="lk">Distress index</span><span class="lv"><button class="src">92 / 100</button><span class="stamp">DERIVED</span></span></div>
+        <div class="lrow"><span class="lk">Tax-delinquent parcels</span><span class="lv"><button class="src">1,184</button><span class="stamp">OPA</span></span></div>
+        <div class="lrow"><span class="lk">Open L&amp;I violations</span><span class="lv"><button class="src">2,037</button><span class="stamp">L&amp;I</span></span></div>
+        <div class="lrow"><span class="lk">Vacant 3+ yrs</span><span class="lv"><button class="src">412</button><span class="stamp">RECORDS</span></span></div>
+        <div class="lrow"><span class="lk">Median sale price</span><span class="lv"><button class="src">$196,000</button><span class="stamp">OPA</span></span></div>
+        <div class="lrow"><span class="lk">Median assessment</span><span class="lv"><button class="src">$143,200</button><span class="stamp">OPA</span></span></div>
+      </div>
+
+      <p class="sect-h">Distress index over time</p>
+      <svg viewBox="0 0 286 96" width="100%" height="96" role="img" aria-label="Trend line of Kensington distress index rising from 74 in 2021 to 92 in 2026">
+        <line x1="34" y1="8" x2="34" y2="74" stroke="var(--border)" stroke-width="1"/>
+        <line x1="34" y1="74" x2="280" y2="74" stroke="var(--border)" stroke-width="1"/>
+        <text x="30" y="14" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">100</text>
+        <text x="30" y="77" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">60</text>
+        <polyline points="34,40 84,46 134,34 184,30 234,22 280,16" fill="none" stroke="var(--lens-distress)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+        <circle cx="280" cy="16" r="3.2" fill="var(--lens-distress)"/>
+        <text x="34" y="90" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">2021</text>
+        <text x="280" y="90" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">2026</text>
+      </svg>
+      <div class="trend-cap"><span>5-yr trend</span><span class="now">+18 pts &uarr;</span></div>
+
+      <p class="sect-h">What this measures</p>
+      <p class="teach">The <button class="glossary" id="glossBtn" aria-expanded="false" aria-controls="glossDef">distress index</button> blends tax delinquency, open violations, and vacancy signals into one 0&ndash;100 score per neighborhood.</p>
+      <div class="gloss-def" id="glossDef" hidden>
+        <span class="term">Distress index</span> &mdash; a rule-based composite: each parcel's open public-record signals are weighted and averaged across the neighborhood, then scaled 0&ndash;100. It is descriptive, not predictive &mdash; every input is one click from its raw record.
+      </div>
+
+      <div class="community">
+        <p class="ct">Community signal</p>
+        <p><b>412 vacant parcels</b>, <b>38</b> in active rehab this year &mdash; each rehab adds a home back to Kensington.</p>
+      </div>
+
+      <p class="freshness">Where this comes from: OPA assessments, L&amp;I violations &amp; Records Dept deeds. Vacancy tracked since Jan 2019. Data refreshed 14 Jun 2026.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+  var root=document.querySelector('.rh-root');
+
+  /* theme toggle */
+  var btn=document.getElementById('themeBtn'),txt=document.getElementById('themeTxt');
+  btn.addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark';
+    root.setAttribute('data-theme',dark?'light':'dark');
+    txt.textContent=dark?'Dark':'Light';
+    btn.setAttribute('aria-label',dark?'Switch to dark theme':'Switch to light theme');
+    btn.querySelector('i').className=dark?'ti ti-moon':'ti ti-sun';
+  });
+
+  /* distress band -> ramp fill */
+  var bands=['var(--d0)','var(--d1)','var(--d2)','var(--d3)','var(--d4)','var(--d5)'];
+  function paint(){
+    document.querySelectorAll('#regions .region').forEach(function(p){
+      p.setAttribute('fill',bands[+p.getAttribute('data-d')]);
+      p.setAttribute('tabindex','0');
+      p.setAttribute('role','button');
+      var n=p.getAttribute('data-n');
+      p.setAttribute('aria-label',n+', distress band '+p.getAttribute('data-d')+' of 5');
+    });
+  }
+  paint();
+
+  /* selection */
+  var data={
+    'Kensington':{sub:'River Wards · 3,960 residential parcels',disp:['92','highest of the 13 scanned neighborhoods this quarter'],idx:'92 / 100',tax:'1,184',vio:'2,037',vac:'412',price:'$196,000',asmt:'$143,200',rehab:'38'},
+    'Strawberry Mansion':{sub:'North Philadelphia · 2,680 residential parcels',disp:['78','among the highest-distress neighborhoods scanned'],idx:'78 / 100',tax:'742',vio:'1,108',vac:'331',price:'$178,000',asmt:'$121,400',rehab:'29'},
+    'Point Breeze':{sub:'South Philadelphia · 2,840 residential parcels',disp:['61','distress easing as rehab activity rises'],idx:'61 / 100',tax:'498',vio:'706',vac:'184',price:'$372,000',asmt:'$248,900',rehab:'71'},
+    'Brewerytown':{sub:'North Philadelphia · 2,140 residential parcels',disp:['58','steady mid-band distress this period'],idx:'58 / 100',tax:'441',vio:'612',vac:'166',price:'$265,000',asmt:'$182,300',rehab:'54'},
+    'Fishtown':{sub:'River Wards · 1,740 residential parcels',disp:['44','below the citywide median of 41'],idx:'44 / 100',tax:'302',vio:'388',vac:'97',price:'$438,000',asmt:'$311,500',rehab:'62'},
+    'Germantown':{sub:'Northwest Philadelphia · 3,320 residential parcels',disp:['47','near the citywide median'],idx:'47 / 100',tax:'658',vio:'742',vac:'201',price:'$232,000',asmt:'$166,800',rehab:'47'},
+    'Mantua':{sub:'West Philadelphia · 1,620 residential parcels',disp:['56','elevated, with active university-edge rehab'],idx:'56 / 100',tax:'388',vio:'506',vac:'148',price:'$248,000',asmt:'$171,200',rehab:'33'},
+    'Grays Ferry':{sub:'South Philadelphia · 2,380 residential parcels',disp:['57','mid-band distress, slowly improving'],idx:'57 / 100',tax:'452',vio:'588',vac:'171',price:'$214,000',asmt:'$152,600',rehab:'40'},
+    'Fairmount':{sub:'Center-adjacent · 1,980 residential parcels',disp:['22','well below the citywide median'],idx:'22 / 100',tax:'148',vio:'171',vac:'38',price:'$520,000',asmt:'$402,100',rehab:'18'},
+    'Northern Liberties':{sub:'River Wards · 1,280 residential parcels',disp:['19','among the lowest-distress neighborhoods'],idx:'19 / 100',tax:'96',vio:'128',vac:'24',price:'$565,000',asmt:'$441,700',rehab:'12'},
+    'Old City':{sub:'Center-adjacent · 980 residential parcels',disp:['17','low and stable'],idx:'17 / 100',tax:'74',vio:'102',vac:'19',price:'$610,000',asmt:'$498,300',rehab:'7'},
+    'Center City':{sub:'Downtown core · 2,210 residential parcels',disp:['9','lowest distress of the scan'],idx:'9 / 100',tax:'58',vio:'71',vac:'11',price:'$690,000',asmt:'$561,000',rehab:'5'},
+    'Graduate Hospital':{sub:'South-center · 1,460 residential parcels',disp:['21','below median, strong reinvestment'],idx:'21 / 100',tax:'112',vio:'149',vac:'31',price:'$612,000',asmt:'$472,400',rehab:'22'}
+  };
+  function select(poly){
+    document.querySelectorAll('#regions .region').forEach(function(p){p.classList.remove('sel');p.setAttribute('aria-selected','false');});
+    poly.classList.add('sel');poly.setAttribute('aria-selected','true');
+    var n=poly.getAttribute('data-n'),d=data[n];
+    document.querySelector('.rh-crumb b').textContent=n;
+    document.getElementById('rnName').textContent=n;
+    if(!d)return;
+    document.getElementById('rnSub').textContent=d.sub;
+    document.getElementById('rnDispatch').innerHTML='Distress index <b>'+d.disp[0]+'</b> &mdash; '+d.disp[1]+'.';
+    var rows=document.querySelectorAll('#ledger .src');
+    var vals=[d.idx,d.tax,d.vio,d.vac,d.price,d.asmt];
+    rows.forEach(function(b,i){b.textContent=vals[i];});
+    var c=document.querySelector('.community p');
+    c.innerHTML='<b>'+d.vac+' vacant parcels</b>, <b>'+d.rehab+'</b> in active rehab this year &mdash; each rehab adds a home back to '+n+'.';
+    /* move selection ticks to selected bbox */
+    var bb=poly.getBBox(),t=8;
+    var ticks=document.getElementById('selTicks');
+    ticks.innerHTML=
+      tick(bb.x-3,bb.y-3,1,1)+tick(bb.x+bb.width+3,bb.y-3,-1,1)+
+      tick(bb.x-3,bb.y+bb.height+3,1,-1)+tick(bb.x+bb.width+3,bb.y+bb.height+3,-1,-1);
+    function tick(x,y,dx,dy){return '<path d="M'+x+' '+y+' l'+(t*dx)+' 0 m'+(-t*dx)+' 0 l0 '+(t*dy)+'"/>';}
+  }
+  document.querySelectorAll('#regions .region').forEach(function(p){
+    p.addEventListener('click',function(){select(p);});
+    p.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();select(p);}});
+  });
+
+  /* lens switcher */
+  var lensTitle=document.querySelector('.rh-mapbar h2');
+  var lensNames={price:'Price & value',dev:'Development momentum',distress:'Distress & risk',liv:'Livability'};
+  document.querySelectorAll('.lens-b').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('.lens-b').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-selected','false');});
+      b.classList.add('active');b.setAttribute('aria-selected','true');
+      lensTitle.textContent=lensNames[b.getAttribute('data-lens')]+' — citywide';
+    });
+  });
+
+  /* period slider */
+  var periods=['Q1 2025','Q2 2025','Q3 2025','Q4 2025','Q1 2026','Q2 2026'];
+  var rp=document.getElementById('rPeriod'),vp=document.getElementById('vPeriod');
+  rp.addEventListener('input',function(){vp.textContent=periods[+rp.value];});
+
+  /* filter readouts */
+  function rd(id,out,fmt){var r=document.getElementById(id);r.addEventListener('input',function(){document.getElementById(out).innerHTML=fmt(r.value);});}
+  rd('rDist','vDist',function(v){return '≥ '+v;});
+  rd('rPrice','vPrice',function(v){return '≤ $'+v+'k';});
+  rd('rLot','vLot',function(v){return '≥ '+(+v).toLocaleString();});
+
+  /* teach-in-place glossary */
+  var gb=document.getElementById('glossBtn'),gd=document.getElementById('glossDef');
+  gb.addEventListener('click',function(){
+    var open=!gd.hidden;gd.hidden=open;gb.setAttribute('aria-expanded',String(!open));
+  });
+})();
+</script>
+
+</body>
+</html>

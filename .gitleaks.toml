@@ -1,0 +1,20 @@
+# gitleaks config — required CI check (PRD §8). Push-protection is the real gate;
+# this scans on push + full-history on first publish. Incident path = rotate immediately.
+title = "PhillyBricks gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Placeholders and docs are not leaks"
+paths = [
+  '''\.env\.example''',
+  '''.*\.md''',
+]
+regexes = [
+  '''REPLACE_ME''',
+  '''YOUR_PROJECT_REF''',
+  '''sk_test_REPLACE_ME''',
+  '''whsec_REPLACE_ME''',
+  '''re_REPLACE_ME''',
+]

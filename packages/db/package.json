@@ -1,0 +1,23 @@
+{
+  "name": "@phillybricks/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "SQL migrations (schemas, norm_parcel, canonical/derived tables, RLS/grants, matviews), migration runner, generated TS types.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "migrate": "node --experimental-strip-types src/migrate.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

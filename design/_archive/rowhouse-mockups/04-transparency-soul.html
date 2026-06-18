@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhillyBricks — Transparency</title>
+</head>
+<body>
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&f[]=sentient@400,400i,500&f[]=general-sans@400,500,600&display=swap');
+
+.rh{
+  --bg:oklch(0.975 0.006 75);
+  --surface:oklch(0.992 0.004 80);
+  --sunken:oklch(0.955 0.007 70);
+  --text:oklch(0.255 0.012 55);
+  --muted:oklch(0.50 0.014 55);
+  --border:oklch(0.88 0.008 70);
+  --border-strong:oklch(0.80 0.010 68);
+  --brand:oklch(0.585 0.135 27);
+  --brand-ink:oklch(0.40 0.12 27);
+  --brand-wash:oklch(0.95 0.022 27);
+  --price:oklch(0.55 0.13 250);
+  --dev:oklch(0.62 0.14 145);
+  --dev-ink:oklch(0.40 0.11 145);
+  --dev-wash:oklch(0.95 0.03 145);
+  --distress:oklch(0.55 0.16 32);
+  --liv:oklch(0.55 0.10 195);
+  --d-tax:oklch(0.55 0.16 32);
+  --d-viol:oklch(0.64 0.135 55);
+  --d-vac:oklch(0.50 0.115 18);
+  --d-rest:oklch(0.90 0.010 70);
+  --link:oklch(0.42 0.085 195);
+  --focus:oklch(0.585 0.135 45);
+  --fast:140ms;
+
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s6:24px;--s8:32px;--s12:48px;--s16:64px;
+
+  font-family:'Sentient',Georgia,serif;
+  color:var(--text);
+  background:var(--bg);
+  line-height:1.65;
+  border-radius:var(--border-radius-lg);
+  border:1px solid var(--border);
+  overflow:hidden;
+  display:block;
+}
+.rh[data-theme=dark]{
+  --bg:oklch(0.205 0.010 60);
+  --surface:oklch(0.245 0.011 58);
+  --sunken:oklch(0.185 0.009 60);
+  --text:oklch(0.93 0.008 80);
+  --muted:oklch(0.70 0.012 70);
+  --border:oklch(0.36 0.012 62);
+  --border-strong:oklch(0.44 0.013 62);
+  --brand:oklch(0.70 0.115 27);
+  --brand-ink:oklch(0.80 0.10 27);
+  --brand-wash:oklch(0.30 0.045 27);
+  --price:oklch(0.70 0.11 250);
+  --dev:oklch(0.74 0.12 145);
+  --dev-ink:oklch(0.80 0.10 145);
+  --dev-wash:oklch(0.30 0.05 145);
+  --distress:oklch(0.70 0.14 34);
+  --liv:oklch(0.72 0.085 195);
+  --d-tax:oklch(0.70 0.14 34);
+  --d-viol:oklch(0.76 0.115 60);
+  --d-vac:oklch(0.62 0.10 20);
+  --d-rest:oklch(0.32 0.011 60);
+  --link:oklch(0.78 0.075 195);
+  --focus:oklch(0.70 0.115 50);
+}
+.rh *{box-sizing:border-box}
+.rh .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+.rh .lbl{font-family:'General Sans',sans-serif;font-weight:500;letter-spacing:.02em;font-size:.8125rem;color:var(--muted)}
+.rh .mono{font-family:'General Sans',monospace;font-weight:400;font-size:.75rem;letter-spacing:-.01em}
+.rh .disp{font-family:'Cabinet Grotesk',sans-serif;font-weight:600;letter-spacing:-.01em;line-height:1.12;color:var(--text)}
+
+.rh a{color:var(--link);text-decoration:none}
+.rh a:focus-visible,.rh button:focus-visible,.rh summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:3px}
+
+/* masthead */
+.rh .top{display:flex;align-items:center;justify-content:space-between;gap:var(--s4);padding:var(--s3) var(--s6);background:var(--surface);border-bottom:1px solid var(--border)}
+.rh .crumb{font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--muted);display:flex;align-items:center;gap:var(--s2);flex-wrap:wrap}
+.rh .crumb .sep{opacity:.5}
+.rh .crumb b{color:var(--text);font-weight:600}
+.rh .toggle{display:inline-flex;align-items:center;gap:var(--s2);font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--text);background:transparent;border:1px solid var(--border-strong);border-radius:8px;padding:var(--s1) var(--s3);cursor:pointer;transition:background var(--fast) ease-out}
+.rh .toggle:hover{background:var(--sunken)}
+.rh .toggle:active{transform:translateY(1px)}
+
+.rh .pledge{padding:var(--s3) var(--s6);background:var(--brand-wash);border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:var(--s3)}
+.rh .pledge .dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--brand);transform:translateY(-1px)}
+.rh .pledge p{margin:0;font-size:.95rem;color:var(--brand-ink);max-width:68ch}
+.rh .pledge p b{font-weight:500}
+
+/* head block */
+.rh .head{padding:var(--s6) var(--s6) var(--s4)}
+.rh .head h1{margin:0;font-size:2.441rem}
+.rh .head .meta{margin-top:var(--s2);display:flex;flex-wrap:wrap;gap:var(--s2) var(--s4);align-items:center}
+.rh .chip{display:inline-flex;align-items:center;gap:6px;font-family:'General Sans',sans-serif;font-weight:600;font-size:.75rem;letter-spacing:.02em;padding:3px 10px;border-radius:999px;border:1px solid;line-height:1.3}
+.rh .chip i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.rh .chip.distress{color:var(--d-tax);border-color:color-mix(in oklch,var(--distress) 45%,var(--border));background:color-mix(in oklch,var(--distress) 12%,transparent)}
+.rh .chip.distress i{background:var(--distress)}
+.rh .chip.vac{color:var(--brand-ink);border-color:color-mix(in oklch,var(--brand) 45%,var(--border));background:color-mix(in oklch,var(--brand) 12%,transparent)}
+.rh .chip.vac i{background:var(--brand)}
+.rh .head .pid{margin-top:var(--s3)}
+.rh .head .pid .mono{color:var(--muted)}
+
+/* community signal */
+.rh .signal{margin:var(--s4) var(--s6) 0;padding:var(--s4) var(--s4);background:var(--dev-wash);border:1px solid color-mix(in oklch,var(--dev) 35%,var(--border));border-radius:8px;display:flex;gap:var(--s4);align-items:flex-start}
+.rh .signal .num{font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.953rem;line-height:1;color:var(--dev-ink);flex:none}
+.rh .signal .copy h2{margin:0 0 2px;font-family:'General Sans',sans-serif;font-weight:600;font-size:.8125rem;letter-spacing:.04em;text-transform:none;color:var(--dev-ink)}
+.rh .signal .copy p{margin:0;font-size:.95rem;color:var(--text);max-width:64ch}
+
+/* layout */
+.rh .grid{display:grid;grid-template-columns:1.62fr 1fr;gap:var(--s12);padding:var(--s8) var(--s6) var(--s12);align-items:start}
+@media(max-width:760px){.rh .grid{grid-template-columns:1fr;gap:var(--s8)}}
+
+.rh section + section{margin-top:var(--s12)}
+.rh .sechead{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);border-bottom:1px solid var(--border-strong);padding-bottom:var(--s2);margin-bottom:var(--s4)}
+.rh .sechead h2{margin:0;font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.5625rem;letter-spacing:-.01em;color:var(--text)}
+.rh .sechead .tag{font-family:'General Sans',sans-serif;font-weight:600;font-size:.75rem;letter-spacing:.06em;color:var(--muted)}
+
+/* ledger rows */
+.rh .ledger{display:flex;flex-direction:column}
+.rh .row{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s4);padding:var(--s2) 0;border-bottom:1px solid var(--border)}
+.rh .row:last-child{border-bottom:0}
+.rh .row.sum{border-bottom:0;border-top:2px solid var(--border-strong);margin-top:var(--s1);padding-top:var(--s3)}
+.rh .row .k{font-family:'General Sans',sans-serif;font-weight:500;letter-spacing:.02em;font-size:.875rem;color:var(--muted)}
+.rh .row.sum .k{color:var(--text);font-weight:600}
+.rh .row .v{font-family:'General Sans',monospace;font-size:.8125rem;text-align:right;white-space:nowrap;color:var(--text)}
+.rh .row.sum .v{font-size:.95rem;font-weight:500}
+
+/* source affordance */
+.rh .src{position:relative;border-bottom:1px dotted var(--border-strong);cursor:help}
+.rh .stamp{display:inline-block;margin-left:8px;font-family:'General Sans',monospace;font-size:.6875rem;letter-spacing:0;color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:0 5px;text-decoration:none;transition:background var(--fast) ease-out,border-color var(--fast) ease-out}
+.rh .stamp:hover{background:var(--sunken);border-color:var(--border-strong);color:var(--text)}
+.rh .stamp::before{content:"\2197";margin-right:3px;opacity:.7}
+
+/* estimate derivation */
+.rh .estimate{margin-top:var(--s2);background:var(--sunken);border:1px solid var(--border);border-radius:8px;padding:var(--s4)}
+.rh .estimate .big{display:flex;align-items:baseline;gap:var(--s3);flex-wrap:wrap}
+.rh .estimate .big .n{font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.953rem;line-height:1;color:var(--text)}
+.rh .estimate .big .cmp{font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--muted)}
+.rh details.deriv{margin-top:var(--s3)}
+.rh details.deriv > summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:'General Sans',sans-serif;font-weight:600;font-size:.8125rem;letter-spacing:.02em;color:var(--brand-ink)}
+.rh details.deriv > summary::-webkit-details-marker{display:none}
+.rh details.deriv > summary .car{transition:transform var(--fast) ease-out;font-family:'General Sans',monospace;font-size:.7rem}
+.rh details.deriv[open] > summary .car{transform:rotate(90deg)}
+.rh .work{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--border)}
+.rh .work p{margin:0 0 var(--s2);font-size:.95rem;color:var(--text);max-width:62ch}
+.rh .calc{font-family:'General Sans',monospace;font-size:.75rem;line-height:1.9;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:var(--s3);margin-top:var(--s2)}
+.rh .calc .op{color:var(--muted)}
+.rh .calc .res{color:var(--brand-ink);font-weight:500}
+
+/* distress decomposition */
+.rh .dscore{display:flex;align-items:baseline;gap:var(--s3);margin-bottom:var(--s3)}
+.rh .dscore .n{font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.953rem;line-height:1;color:var(--d-tax)}
+.rh .dscore .of{font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--muted)}
+.rh .stack{display:flex;width:100%;height:34px;border-radius:6px;overflow:hidden;border:1px solid var(--border)}
+.rh .seg{height:100%;position:relative;cursor:pointer;transition:filter var(--fast) ease-out}
+.rh .seg:hover,.rh .seg:focus-visible{filter:brightness(1.08);outline:none}
+.rh .seg:focus-visible{box-shadow:inset 0 0 0 2px var(--focus)}
+.rh .seg.tax{background:var(--d-tax)}
+.rh .seg.viol{background:var(--d-viol)}
+.rh .seg.vac{background:var(--d-vac)}
+.rh .seg.rest{background:var(--d-rest)}
+.rh .dlegend{margin-top:var(--s4);display:flex;flex-direction:column;gap:0}
+.rh .dlegend .lrow{display:flex;align-items:baseline;gap:var(--s3);padding:var(--s2) 0;border-bottom:1px solid var(--border)}
+.rh .dlegend .lrow:last-child{border-bottom:0}
+.rh .dlegend .sw{flex:none;width:11px;height:11px;border-radius:3px;transform:translateY(1px)}
+.rh .dlegend .lk{flex:1;font-family:'General Sans',sans-serif;font-weight:500;font-size:.875rem;letter-spacing:.02em;color:var(--text)}
+.rh .dlegend .lk .sub{display:block;font-weight:500;font-size:.8125rem;color:var(--muted)}
+.rh .dlegend .lv{font-family:'General Sans',monospace;font-size:.8125rem;color:var(--text);white-space:nowrap}
+
+/* freshness line */
+.rh .fresh{margin-top:var(--s4);font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--muted);display:flex;align-items:center;gap:6px}
+.rh .fresh i{width:6px;height:6px;border-radius:50%;background:var(--dev);flex:none}
+
+/* RAIL */
+.rh .rail{display:flex;flex-direction:column;gap:var(--s8);position:relative}
+.rh .rail::before{content:"";position:absolute;left:calc(-1 * var(--s6));top:0;bottom:0;width:1px;background:var(--border)}
+@media(max-width:760px){.rh .rail::before{display:none}}
+
+.rh .panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:var(--s4)}
+.rh .panel.raw{background:var(--sunken)}
+.rh .panel > .ph{display:flex;align-items:center;gap:var(--s2);margin-bottom:var(--s3)}
+.rh .panel > .ph .ico{font-family:'General Sans',sans-serif;font-weight:600;font-size:.7rem;letter-spacing:.08em;color:var(--muted)}
+.rh .panel h3{margin:0;font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.25rem;letter-spacing:-.01em;color:var(--text)}
+
+/* raw record */
+.rh .recmeta{display:flex;justify-content:space-between;align-items:baseline;gap:var(--s2);margin-bottom:var(--s3);padding-bottom:var(--s3);border-bottom:1px solid var(--border)}
+.rh .recmeta .ds{font-family:'General Sans',sans-serif;font-weight:600;font-size:.875rem;color:var(--text)}
+.rh .recmeta .api{font-family:'General Sans',monospace;font-size:.6875rem;color:var(--muted)}
+.rh .reclines{display:flex;flex-direction:column;gap:var(--s1);font-family:'General Sans',monospace;font-size:.75rem;line-height:1.7}
+.rh .reclines .rl{display:flex;gap:var(--s3);justify-content:space-between}
+.rh .reclines .rk{color:var(--muted)}
+.rh .reclines .rv{color:var(--text);text-align:right}
+.rh .reclines .rv.hi{color:var(--brand-ink)}
+.rh .openrec{margin-top:var(--s3);display:inline-flex;align-items:center;gap:6px;font-family:'General Sans',sans-serif;font-weight:600;font-size:.8125rem;letter-spacing:.02em;color:var(--link);background:transparent;border:1px solid var(--border-strong);border-radius:8px;padding:var(--s2) var(--s3);cursor:pointer;transition:background var(--fast) ease-out;text-decoration:none}
+.rh .openrec:hover{background:var(--surface)}
+.rh .openrec:active{transform:translateY(1px)}
+
+/* glossary teach-in-place */
+.rh .gloss{font-size:.95rem;max-width:60ch}
+.rh .gterm{font-family:inherit;font-size:inherit;color:var(--text);background:transparent;border:0;border-bottom:1px dotted var(--brand);padding:0;cursor:pointer;font-style:italic}
+.rh .gterm:hover{background:var(--brand-wash)}
+.rh .gdef{margin-top:var(--s3);padding-top:var(--s3);border-top:1px solid var(--border);font-size:.875rem;color:var(--muted);max-width:60ch}
+.rh .gdef[hidden]{display:none}
+.rh .gdef b{color:var(--text);font-weight:500;font-family:'General Sans',sans-serif;letter-spacing:.02em;font-size:.8125rem}
+
+/* nbhd rollup */
+.rh .roll{display:flex;flex-direction:column;gap:0}
+.rh .roll .rr{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);padding:var(--s3) 0;border-bottom:1px solid var(--border)}
+.rh .roll .rr:last-child{border-bottom:0}
+.rh .roll .rrn{font-family:'Cabinet Grotesk',sans-serif;font-weight:600;font-size:1.5625rem;line-height:1;color:var(--dev-ink)}
+.rh .roll .rrl{font-family:'General Sans',sans-serif;font-weight:500;font-size:.8125rem;letter-spacing:.02em;color:var(--muted);text-align:right;max-width:22ch}
+.rh .roll .rrl b{display:block;color:var(--text);font-weight:600;font-size:.875rem}
+
+@media(prefers-reduced-motion:reduce){
+  .rh *{transition:none!important;animation:none!important}
+  .rh details.deriv[open] > summary .car{transform:none}
+}
+</style>
+
+<div class="rh" data-theme="light" id="rh">
+  <p class="sr-only">Property record for 1423 East Susquehanna Avenue in Fishtown, Philadelphia, showing how each figure is computed and linking every value to its source public dataset, plus neighborhood vacancy and rehab impact.</p>
+
+  <div class="top">
+    <nav class="crumb" aria-label="Location">
+      Philadelphia <span class="sep" aria-hidden="true">/</span> Fishtown <span class="sep" aria-hidden="true">/</span> <b>1423 E Susquehanna Ave</b>
+    </nav>
+    <button class="toggle" id="tgl" aria-label="Switch to dark theme">
+      <span id="tglico" aria-hidden="true">&#9789;</span><span id="tgltxt">Dark</span>
+    </button>
+  </div>
+
+  <div class="pledge">
+    <span class="dot" aria-hidden="true"></span>
+    <p><b>Every figure on this page links to the public record it came from.</b> No black boxes — open any value to see the exact dataset, the raw number, and when it was last refreshed.</p>
+  </div>
+
+  <div class="head">
+    <h1 class="disp">1423 E Susquehanna Ave</h1>
+    <div class="meta">
+      <span class="chip vac"><i aria-hidden="true"></i>Vacant 3+ yrs</span>
+      <span class="chip distress"><i aria-hidden="true"></i>Distress 61 / 100</span>
+      <span class="lbl">Rowhouse &middot; 1,140 sqft &middot; built 1915</span>
+    </div>
+    <div class="pid"><span class="lbl">OPA account</span> <span class="mono">311221400</span> &nbsp;&middot;&nbsp; <span class="lbl">Parcel</span> <span class="mono">041N070119</span></div>
+  </div>
+
+  <div class="signal">
+    <div class="num">+1</div>
+    <div class="copy">
+      <h2>Community signal</h2>
+      <p>Vacant since 2022 and tax-delinquent — rehabbing this rowhouse returns a home to the 1400 block of E Susquehanna and lifts one parcel off Fishtown&rsquo;s vacancy rolls.</p>
+    </div>
+  </div>
+
+  <div class="grid">
+    <main>
+      <section aria-labelledby="s-est">
+        <div class="sechead"><h2 id="s-est" class="disp">What it&rsquo;s worth</h2><span class="tag">RULE-BASED ESTIMATE</span></div>
+        <div class="estimate">
+          <div class="big">
+            <span class="n">$268,000</span>
+            <span class="cmp">our transparent estimate &middot; 3 comparable sales</span>
+          </div>
+          <details class="deriv">
+            <summary><span class="car" aria-hidden="true">&#9656;</span>Show the math</summary>
+            <div class="work">
+              <p>We take recent arm&rsquo;s-length sales near this parcel, find the median price per square foot, scale it to this home&rsquo;s size, then apply one plain condition adjustment. That&rsquo;s the whole model.</p>
+              <div class="calc">
+                <span class="op">3 comps within 0.3 mi &middot; median $/sqft</span> = $245<br>
+                $245 <span class="op">&times;</span> 1,140 sqft <span class="op">=</span> $279,300<br>
+                <span class="op">condition adj (vacant, needs systems)</span> &minus;4% = &minus;$11,300<br>
+                <span class="res">= $268,000 estimated value</span>
+              </div>
+            </div>
+          </details>
+        </div>
+        <div class="ledger" style="margin-top:var(--s4)">
+          <div class="row"><span class="k">Comp &middot; 1418 E Susquehanna Ave</span><span class="v"><span class="src">$281,000</span><a class="stamp" href="#" aria-label="Open deed record for 1418 E Susquehanna in the Records Department dataset">RECORDS &middot; deed</a></span></div>
+          <div class="row"><span class="k">Comp &middot; 437 E Thompson St</span><span class="v"><span class="src">$259,500</span><a class="stamp" href="#" aria-label="Open deed record for 437 E Thompson Street">RECORDS &middot; deed</a></span></div>
+          <div class="row"><span class="k">Comp &middot; 1455 Frankford Ave</span><span class="v"><span class="src">$272,000</span><a class="stamp" href="#" aria-label="Open deed record for 1455 Frankford Avenue">RECORDS &middot; deed</a></span></div>
+        </div>
+        <div class="fresh"><i aria-hidden="true"></i>Where this comes from: Philadelphia Dept. of Records, real estate transfers. Sales pulled 2026-06-12.</div>
+      </section>
+
+      <section aria-labelledby="s-asmt">
+        <div class="sechead"><h2 id="s-asmt" class="disp">How it&rsquo;s assessed</h2><span class="tag">OPA &middot; FY2026</span></div>
+        <div class="ledger">
+          <div class="row"><span class="k">Land value</span><span class="v"><span class="src">$92,400</span><a class="stamp" href="#" aria-label="Open OPA land value field">OPA &middot; land</a></span></div>
+          <div class="row"><span class="k">Improvement value</span><span class="v"><span class="src">$137,600</span><a class="stamp" href="#" aria-label="Open OPA improvement value field">OPA &middot; impr</a></span></div>
+          <div class="row sum"><span class="k">Assessed value &middot; FY2026</span><span class="v">= $230,000</span></div>
+        </div>
+        <p style="margin:var(--s3) 0 0;font-size:.95rem;max-width:62ch;color:var(--text)">Land $92.4k <span style="color:var(--muted)">+</span> improvement $137.6k <span style="color:var(--muted)">=</span> assessed $230k. The City taxes the total; our estimate above is a separate, independent read of market value.</p>
+        <div class="fresh"><i aria-hidden="true"></i>Where this comes from: Office of Property Assessment, certified FY2026 values. Last refreshed 2026-05-30.</div>
+      </section>
+
+      <section aria-labelledby="s-dist">
+        <div class="sechead"><h2 id="s-dist" class="disp">Why distress reads 61</h2><span class="tag">DECOMPOSED SCORE</span></div>
+        <div class="dscore"><span class="n">61</span><span class="of">/ 100 &middot; sum of three public signals, nothing hidden</span></div>
+        <div class="stack" role="img" aria-label="Distress score of 61 broken into tax delinquency 28, open violations 21, and vacancy signal 12, out of 100">
+          <div class="seg tax" style="width:28%" tabindex="0" aria-label="Tax delinquency: 28 of 61 points"></div>
+          <div class="seg viol" style="width:21%" tabindex="0" aria-label="Open violations: 21 of 61 points"></div>
+          <div class="seg vac" style="width:12%" tabindex="0" aria-label="Vacancy signal: 12 of 61 points"></div>
+          <div class="seg rest" style="width:39%" aria-hidden="true"></div>
+        </div>
+        <div class="dlegend">
+          <div class="lrow"><span class="sw" style="background:var(--d-tax)"></span><span class="lk">Tax delinquency<span class="sub">$8,412 owed across 3 years</span></span><span class="lv">28 pts &middot; <a class="stamp" href="#" aria-label="Open revenue delinquency record">REVENUE</a></span></div>
+          <div class="lrow"><span class="sw" style="background:var(--d-viol)"></span><span class="lk">Open L&amp;I violations<span class="sub">2 open: unsafe, vacant-lot upkeep</span></span><span class="lv">21 pts &middot; <a class="stamp" href="#" aria-label="Open L and I violations record">L&amp;I</a></span></div>
+          <div class="lrow"><span class="sw" style="background:var(--d-vac)"></span><span class="lk">Vacancy signal<span class="sub">no active utility / mail since 2022</span></span><span class="lv">12 pts &middot; <a class="stamp" href="#" aria-label="Open vacancy indicators record">VACANCY</a></span></div>
+        </div>
+        <div class="fresh"><i aria-hidden="true"></i>Where this comes from: Dept. of Revenue, L&amp;I violations, and the Vacant Property Indicators set. Refreshed 2026-06-15.</div>
+      </section>
+    </main>
+
+    <aside class="rail" aria-label="Sources and neighborhood context">
+      <div class="panel raw">
+        <div class="ph"><span class="ico">RAW PUBLIC RECORD</span></div>
+        <h3 style="margin-bottom:var(--s3)">The actual OPA row</h3>
+        <div class="recmeta">
+          <span class="ds">phl_opa_properties</span>
+          <span class="api">CARTO &middot; SQL</span>
+        </div>
+        <div class="reclines">
+          <div class="rl"><span class="rk">parcel_number</span><span class="rv">311221400</span></div>
+          <div class="rl"><span class="rk">location</span><span class="rv">1423 E SUSQUEHANNA</span></div>
+          <div class="rl"><span class="rk">market_value</span><span class="rv hi">230000</span></div>
+          <div class="rl"><span class="rk">taxable_land</span><span class="rv">92400</span></div>
+          <div class="rl"><span class="rk">taxable_bldg</span><span class="rv">137600</span></div>
+          <div class="rl"><span class="rk">year_built</span><span class="rv">1915</span></div>
+          <div class="rl"><span class="rk">total_livable_area</span><span class="rv">1140</span></div>
+          <div class="rl"><span class="rk">category_code</span><span class="rv">1 (residential)</span></div>
+        </div>
+        <a class="openrec" href="#" aria-label="Open the full record on OpenDataPhilly">Open full record on OpenDataPhilly &#8594;</a>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><span class="ico">TEACH IN PLACE</span></div>
+        <div class="gloss">
+          Two terms worth knowing. An
+          <button class="gterm" data-def="g1" aria-expanded="false">arm&rsquo;s-length sale</button>
+          is a comp we trust; a
+          <button class="gterm" data-def="g2" aria-expanded="false">condition adjustment</button>
+          is the one judgment call in our estimate.
+          <div class="gdef" id="g1" hidden><b>ARM&rsquo;S-LENGTH SALE</b><br>A sale between unrelated parties acting in their own interest, so the price reflects the open market. We exclude family transfers, sheriff sales, and $1 deeds from comps.</div>
+          <div class="gdef" id="g2" hidden><b>CONDITION ADJUSTMENT</b><br>A flat percentage we subtract when a home needs work the comps didn&rsquo;t. Here &minus;4% reflects a vacant property likely needing systems. It is the only non-public-record input, and we always show it.</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="ph"><span class="ico">NEIGHBORHOOD IMPACT</span></div>
+        <h3 style="margin-bottom:var(--s4)">Fishtown, this year</h3>
+        <div class="roll">
+          <div class="rr"><span class="rrn">142</span><span class="rrl"><b>vacant parcels</b>3.4% of residential lots</span></div>
+          <div class="rr"><span class="rrn">38</span><span class="rrl"><b>in active rehab</b>permits pulled in 2026</span></div>
+          <div class="rr"><span class="rrn">+9</span><span class="rrl"><b>net homes returned</b>back on the rolls since Jan</span></div>
+        </div>
+        <p style="margin:var(--s4) 0 0;font-size:.875rem;color:var(--text);max-width:60ch">This parcel is one of the 142. Bringing it back nudges that count down — momentum the block can feel.</p>
+        <div class="fresh"><i aria-hidden="true"></i>Vacant Property Indicators + L&amp;I permits. Refreshed 2026-06-15.</div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function(){
+  var rh=document.getElementById('rh');
+  var tgl=document.getElementById('tgl');
+  var txt=document.getElementById('tgltxt');
+  var ico=document.getElementById('tglico');
+  tgl.addEventListener('click',function(){
+    var dark=rh.getAttribute('data-theme')==='dark';
+    rh.setAttribute('data-theme',dark?'light':'dark');
+    txt.textContent=dark?'Dark':'Light';
+    ico.innerHTML=dark?'&#9789;':'&#9788;';
+    tgl.setAttribute('aria-label',dark?'Switch to dark theme':'Switch to light theme');
+  });
+  var terms=rh.querySelectorAll('.gterm');
+  terms.forEach(function(t){
+    t.addEventListener('click',function(){
+      var id=t.getAttribute('data-def');
+      var def=document.getElementById(id);
+      var open=!def.hasAttribute('hidden');
+      rh.querySelectorAll('.gdef').forEach(function(d){d.setAttribute('hidden','');});
+      rh.querySelectorAll('.gterm').forEach(function(g){g.setAttribute('aria-expanded','false');});
+      if(open){return;}
+      def.removeAttribute('hidden');
+      t.setAttribute('aria-expanded','true');
+    });
+  });
+})();
+</script>
+</body>
+</html>

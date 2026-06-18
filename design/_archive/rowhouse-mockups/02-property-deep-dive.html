@@ -1,0 +1,719 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhillyBricks — Property deep-dive</title>
+</head>
+<body>
+<style>
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800&f[]=sentient@400,400i,500&f[]=general-sans@400,500,600&display=swap');
+
+#rh-dd {
+  --bg: oklch(0.975 0.006 75);
+  --surface: oklch(0.992 0.004 80);
+  --sunken: oklch(0.955 0.007 70);
+  --text: oklch(0.255 0.012 55);
+  --muted: oklch(0.50 0.014 55);
+  --border: oklch(0.88 0.008 70);
+  --border-strong: oklch(0.80 0.010 68);
+  --brand: oklch(0.585 0.135 27);
+  --brand-ink: oklch(0.40 0.12 27);
+  --brand-tint: oklch(0.94 0.022 27);
+  --link: oklch(0.46 0.09 195);
+
+  --lens-price: oklch(0.55 0.13 250);
+  --lens-price-bg: oklch(0.93 0.04 250);
+  --lens-dev: oklch(0.62 0.14 145);
+  --lens-dev-bg: oklch(0.93 0.05 145);
+  --lens-distress: oklch(0.55 0.16 32);
+  --lens-distress-bg: oklch(0.93 0.05 32);
+  --lens-liv: oklch(0.55 0.10 195);
+  --lens-liv-bg: oklch(0.93 0.035 195);
+
+  --d-tax: oklch(0.55 0.16 32);
+  --d-viol: oklch(0.62 0.14 55);
+  --d-vac: oklch(0.50 0.13 18);
+  --d-delq: oklch(0.58 0.12 70);
+
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px; --space-12: 48px; --space-16: 64px;
+
+  --step-data: 0.75rem; --step-fine: 0.8125rem; --step-base: 1rem;
+  --step-h3: 1.25rem; --step-h2: 1.5625rem; --step-h1: 1.953rem; --step-display: 2.441rem;
+
+  --font-display: 'Cabinet Grotesk', sans-serif;
+  --font-body: 'Sentient', Georgia, serif;
+  --font-ui: 'General Sans', sans-serif;
+  --font-mono: 'General Sans', ui-monospace, monospace;
+
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: var(--step-base);
+  line-height: 1.65;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+#rh-dd[data-theme="dark"] {
+  --bg: oklch(0.205 0.010 60);
+  --surface: oklch(0.245 0.011 58);
+  --sunken: oklch(0.185 0.009 60);
+  --text: oklch(0.93 0.008 80);
+  --muted: oklch(0.70 0.012 70);
+  --border: oklch(0.36 0.012 62);
+  --border-strong: oklch(0.45 0.014 62);
+  --brand: oklch(0.70 0.115 27);
+  --brand-ink: oklch(0.80 0.10 27);
+  --brand-tint: oklch(0.30 0.035 27);
+  --link: oklch(0.74 0.085 195);
+
+  --lens-price: oklch(0.70 0.11 250);
+  --lens-price-bg: oklch(0.32 0.05 250);
+  --lens-dev: oklch(0.74 0.12 145);
+  --lens-dev-bg: oklch(0.32 0.05 145);
+  --lens-distress: oklch(0.70 0.14 34);
+  --lens-distress-bg: oklch(0.33 0.06 34);
+  --lens-liv: oklch(0.72 0.085 195);
+  --lens-liv-bg: oklch(0.32 0.04 195);
+
+  --d-tax: oklch(0.70 0.14 34);
+  --d-viol: oklch(0.74 0.12 60);
+  --d-vac: oklch(0.66 0.12 20);
+  --d-delq: oklch(0.72 0.11 72);
+}
+#rh-dd * { box-sizing: border-box; }
+#rh-dd .wrap { padding: var(--space-8) var(--space-8) var(--space-16); max-width: 1100px; margin: 0 auto; }
+
+#rh-dd .masthead { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-6); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border); }
+#rh-dd .crumb { font-family: var(--font-ui); font-size: var(--step-fine); letter-spacing: 0.02em; color: var(--muted); display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; }
+#rh-dd .crumb .here { color: var(--text); font-weight: 600; }
+#rh-dd .crumb .sep { color: var(--border-strong); }
+#rh-dd .candor { font-family: var(--font-ui); font-size: var(--step-fine); color: var(--muted); margin-top: var(--space-2); display: flex; align-items: center; gap: 6px; }
+
+#rh-dd .toggle { font-family: var(--font-ui); font-size: var(--step-fine); font-weight: 500; letter-spacing: 0.02em; background: transparent; color: var(--text); border: 1px solid var(--border-strong); border-radius: 8px; padding: 6px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background-color 0.15s ease-out; white-space: nowrap; }
+#rh-dd .toggle:hover { background: var(--sunken); }
+#rh-dd .toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+#rh-dd h1.title { font-family: var(--font-display); font-weight: 600; font-size: var(--step-display); letter-spacing: -0.01em; line-height: 1.08; margin: var(--space-8) 0 var(--space-2); color: var(--text); }
+#rh-dd .subaddr { font-family: var(--font-ui); font-size: var(--step-fine); color: var(--muted); letter-spacing: 0.02em; display: flex; gap: var(--space-4); flex-wrap: wrap; align-items: center; }
+
+#rh-dd .layout { display: grid; grid-template-columns: 1.65fr 1fr; gap: var(--space-12); margin-top: var(--space-8); align-items: start; }
+@media (max-width: 820px) { #rh-dd .layout { grid-template-columns: 1fr; gap: var(--space-8); } }
+
+#rh-dd section { margin-top: var(--space-12); }
+#rh-dd section:first-child { margin-top: 0; }
+#rh-dd .seclabel { font-family: var(--font-ui); font-size: var(--step-fine); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 var(--space-4); display: flex; align-items: center; gap: var(--space-2); }
+#rh-dd .seclabel .num { font-family: var(--font-mono); font-weight: 500; color: var(--brand); font-size: var(--step-data); }
+#rh-dd h2 { font-family: var(--font-display); font-weight: 500; font-size: var(--step-h2); letter-spacing: -0.01em; margin: 0 0 var(--space-3); color: var(--text); }
+#rh-dd h3 { font-family: var(--font-display); font-weight: 500; font-size: var(--step-h3); margin: 0 0 var(--space-2); color: var(--text); }
+#rh-dd p.lede { margin: 0 0 var(--space-4); max-width: 68ch; color: var(--text); }
+
+#rh-dd .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: var(--space-6); }
+#rh-dd .panel.sunk { background: var(--sunken); }
+
+#rh-dd .src { font-family: var(--font-mono); font-size: 0.625rem; letter-spacing: 0.02em; color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--border-strong); padding-bottom: 1px; cursor: pointer; white-space: nowrap; transition: color 0.15s ease-out; }
+#rh-dd .src:hover, #rh-dd .src:focus-visible { color: var(--brand-ink); outline: none; }
+#rh-dd .src::before { content: "\21F2"; margin-right: 3px; opacity: 0.7; }
+
+#rh-dd .fig { font-family: var(--font-mono); font-variant-numeric: tabular-nums; border-bottom: 1px dotted var(--border-strong); cursor: help; }
+
+#rh-dd .ledger { display: flex; flex-direction: column; }
+#rh-dd .lrow { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+#rh-dd .lrow:last-child { border-bottom: none; }
+#rh-dd .lrow .lbl { font-family: var(--font-ui); font-size: var(--step-fine); letter-spacing: 0.02em; color: var(--muted); display: flex; align-items: center; gap: var(--space-2); }
+#rh-dd .lrow .val { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--step-fine); color: var(--text); text-align: right; display: flex; align-items: center; gap: var(--space-3); justify-content: flex-end; }
+#rh-dd .lrow .val .num { font-size: var(--step-base); font-weight: 500; }
+#rh-dd .lrow.total { border-top: 2px solid var(--border-strong); border-bottom: none; padding-top: var(--space-3); margin-top: var(--space-1); }
+#rh-dd .lrow.total .lbl { color: var(--text); font-weight: 600; }
+
+#rh-dd .vs { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--space-4); align-items: center; }
+#rh-dd .vs .col { display: flex; flex-direction: column; gap: var(--space-1); }
+#rh-dd .vs .col.right { text-align: right; align-items: flex-end; }
+#rh-dd .vs .cap { font-family: var(--font-ui); font-size: var(--step-fine); letter-spacing: 0.02em; color: var(--muted); }
+#rh-dd .vs .big { font-family: var(--font-mono); font-weight: 600; font-size: var(--step-h2); color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.1; }
+#rh-dd .vs .delta { font-family: var(--font-display); font-weight: 600; font-size: var(--step-h3); color: var(--brand-ink); text-align: center; line-height: 1; }
+#rh-dd .vs .delta small { display: block; font-family: var(--font-ui); font-weight: 500; font-size: 0.625rem; letter-spacing: 0.04em; color: var(--muted); margin-top: 2px; }
+
+#rh-dd .pill { font-family: var(--font-ui); font-size: 0.6875rem; font-weight: 600; letter-spacing: 0.03em; padding: 2px 9px; border-radius: 999px; border: 1px solid; display: inline-flex; align-items: center; gap: 5px; line-height: 1.5; white-space: nowrap; }
+#rh-dd .pill .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+#rh-dd .pill.arms { background: var(--lens-dev-bg); border-color: color-mix(in oklch, var(--lens-dev) 45%, transparent); color: oklch(0.34 0.10 145); }
+#rh-dd[data-theme="dark"] .pill.arms { color: oklch(0.85 0.10 145); }
+#rh-dd .pill.arms .dot { background: var(--lens-dev); }
+#rh-dd .pill.estate { background: var(--lens-distress-bg); border-color: color-mix(in oklch, var(--lens-distress) 45%, transparent); color: oklch(0.36 0.13 32); }
+#rh-dd[data-theme="dark"] .pill.estate { color: oklch(0.84 0.11 34); }
+#rh-dd .pill.estate .dot { background: var(--lens-distress); }
+#rh-dd .pill.sheriff { background: var(--d-vac); border: 1px solid color-mix(in oklch, var(--d-vac) 60%, var(--text)); color: oklch(0.99 0.01 20); }
+#rh-dd[data-theme="dark"] .pill.sheriff { color: oklch(0.20 0.02 20); }
+#rh-dd .pill.sheriff .dot { background: oklch(0.99 0.01 20); }
+#rh-dd[data-theme="dark"] .pill.sheriff .dot { background: oklch(0.20 0.02 20); }
+
+#rh-dd table { width: 100%; border-collapse: collapse; font-size: var(--step-fine); }
+#rh-dd table.fixed { table-layout: fixed; }
+#rh-dd th { font-family: var(--font-ui); font-size: var(--step-data); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); text-align: left; padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border-strong); }
+#rh-dd th.r, #rh-dd td.r { text-align: right; }
+#rh-dd td { padding: var(--space-3); border-bottom: 1px solid var(--border); vertical-align: top; }
+#rh-dd tbody tr:nth-child(even) { background: var(--sunken); }
+#rh-dd td .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+#rh-dd td .lbl-cell { font-family: var(--font-body); }
+#rh-dd td .why { font-family: var(--font-ui); font-size: var(--step-data); color: var(--muted); display: block; margin-top: 2px; line-height: 1.4; }
+
+#rh-dd .saleitem { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-4); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); align-items: baseline; }
+#rh-dd .saleitem:last-child { border-bottom: none; }
+#rh-dd .saleitem .yr { font-family: var(--font-mono); font-weight: 600; font-size: var(--step-fine); color: var(--brand); }
+#rh-dd .saleitem .deet { font-family: var(--font-body); }
+#rh-dd .saleitem .deet .who { font-size: var(--step-fine); }
+#rh-dd .saleitem .deet .meta { font-family: var(--font-ui); font-size: var(--step-data); color: var(--muted); margin-top: 2px; display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+#rh-dd .saleitem .amt { font-family: var(--font-mono); font-weight: 500; font-size: var(--step-fine); text-align: right; white-space: nowrap; }
+
+#rh-dd .commsig { background: var(--brand-tint); border: 1px solid color-mix(in oklch, var(--brand) 35%, transparent); border-radius: 8px; padding: var(--space-3) var(--space-4); margin-top: var(--space-4); display: flex; gap: var(--space-3); align-items: flex-start; }
+#rh-dd .commsig i { color: var(--brand); font-size: 18px; margin-top: 2px; flex-shrink: 0; }
+#rh-dd .commsig .ctxt { font-family: var(--font-body); font-size: var(--step-fine); color: var(--brand-ink); line-height: 1.5; }
+#rh-dd .commsig .ctxt strong { font-weight: 600; }
+
+#rh-dd .estimate-head { display: flex; justify-content: space-between; align-items: flex-end; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--border); margin-bottom: var(--space-4); }
+#rh-dd .estimate-head .est-val { font-family: var(--font-mono); font-weight: 600; font-size: var(--step-h1); color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+#rh-dd .estimate-head .est-range { font-family: var(--font-ui); font-size: var(--step-fine); color: var(--muted); margin-top: var(--space-1); }
+#rh-dd .derive-toggle { font-family: var(--font-ui); font-size: var(--step-fine); font-weight: 500; letter-spacing: 0.02em; color: var(--link); background: transparent; border: none; cursor: pointer; padding: 0; display: inline-flex; align-items: center; gap: 5px; border-bottom: 1px dotted var(--link); }
+#rh-dd .derive-toggle:focus-visible { outline: 2px solid var(--brand); outline-offset: 3px; }
+#rh-dd .derive { margin-top: var(--space-4); overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.25s ease-out; }
+#rh-dd .derive[hidden] { display: block; max-height: 0; opacity: 0; margin-top: 0; }
+#rh-dd .derive.open { max-height: 600px; opacity: 1; }
+#rh-dd .derive .step { display: grid; grid-template-columns: 1fr auto; gap: var(--space-4); padding: var(--space-2) 0; border-bottom: 1px dashed var(--border); align-items: baseline; }
+#rh-dd .derive .step:last-child { border-bottom: none; }
+#rh-dd .derive .step .d-lbl { font-family: var(--font-body); font-size: var(--step-fine); color: var(--text); }
+#rh-dd .derive .step .d-val { font-family: var(--font-mono); font-size: var(--step-fine); color: var(--text); text-align: right; font-variant-numeric: tabular-nums; }
+#rh-dd .derive .step.sum .d-lbl { font-weight: 600; }
+#rh-dd .derive .step.sum { border-top: 2px solid var(--border-strong); border-bottom: none; margin-top: var(--space-1); padding-top: var(--space-3); }
+#rh-dd .derive .step.sum .d-val { font-weight: 600; font-size: var(--step-base); }
+
+#rh-dd .dist-bar { display: flex; width: 100%; height: 30px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+#rh-dd .dist-bar .seg { height: 100%; display: flex; align-items: center; justify-content: center; transition: opacity 0.15s ease-out; }
+#rh-dd .dist-bar .seg span { font-family: var(--font-mono); font-size: 0.625rem; font-weight: 600; }
+#rh-dd .dist-legend { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); margin-top: var(--space-3); }
+#rh-dd .dist-legend .li { display: flex; align-items: center; gap: 6px; font-family: var(--font-ui); font-size: var(--step-data); letter-spacing: 0.02em; color: var(--muted); }
+#rh-dd .dist-legend .li .sw { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+#rh-dd .dist-composite { font-family: var(--font-mono); }
+
+#rh-dd .dist-table td .nrm { color: var(--muted); }
+#rh-dd .dist-table .contrib-bar { display: inline-block; height: 6px; border-radius: 3px; vertical-align: middle; margin-left: 6px; min-width: 2px; }
+
+#rh-dd .rail .railsec { margin-bottom: var(--space-8); }
+#rh-dd .rail .railsec:last-child { margin-bottom: 0; }
+#rh-dd .locator { background: var(--sunken); border: 1px solid var(--border); border-radius: 8px; padding: var(--space-3); position: relative; }
+#rh-dd .locator svg { display: block; width: 100%; height: auto; border-radius: 4px; }
+#rh-dd .locator .readout { font-family: var(--font-mono); font-size: 0.625rem; color: var(--muted); margin-top: var(--space-2); display: flex; justify-content: space-between; letter-spacing: 0.01em; }
+
+#rh-dd .rollup .lrow .val .num { font-size: var(--step-h3); }
+#rh-dd .rollup-note { font-family: var(--font-body); font-size: var(--step-fine); color: var(--text); margin-top: var(--space-3); line-height: 1.55; }
+
+#rh-dd .gloss { position: relative; display: inline-block; }
+#rh-dd .gloss .term { border-bottom: 1px dotted var(--link); color: var(--link); cursor: help; }
+#rh-dd .gloss-panel { margin-top: var(--space-3); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; padding: var(--space-3) var(--space-4); overflow: hidden; transition: max-height 0.25s ease-out, opacity 0.2s ease-out; }
+#rh-dd .gloss-panel[hidden] { display: block; max-height: 0; opacity: 0; padding-top: 0; padding-bottom: 0; border-width: 0 1px; }
+#rh-dd .gloss-panel.open { max-height: 220px; opacity: 1; }
+#rh-dd .gloss-panel .gt { font-family: var(--font-display); font-weight: 500; font-size: var(--step-fine); color: var(--text); margin-bottom: 4px; }
+#rh-dd .gloss-panel .gd { font-family: var(--font-body); font-size: var(--step-fine); color: var(--muted); line-height: 1.5; }
+
+#rh-dd .freshness { font-family: var(--font-ui); font-size: var(--step-data); letter-spacing: 0.02em; color: var(--muted); margin-top: var(--space-3); display: flex; align-items: center; gap: 6px; }
+
+#rh-dd .alert-row { display: grid; grid-template-columns: auto 1fr auto; gap: var(--space-3); align-items: baseline; padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+#rh-dd .alert-row:last-child { border-bottom: none; }
+#rh-dd .alert-row .tag { font-family: var(--font-mono); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.03em; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+#rh-dd .alert-row .tag.open { background: var(--lens-distress-bg); color: oklch(0.36 0.13 32); }
+#rh-dd[data-theme="dark"] .alert-row .tag.open { color: oklch(0.84 0.11 34); }
+#rh-dd .alert-row .tag.owed { background: var(--d-delq); color: oklch(0.25 0.05 70); }
+#rh-dd[data-theme="dark"] .alert-row .tag.owed { color: oklch(0.20 0.04 70); }
+#rh-dd .alert-row .tag.resolved { background: var(--sunken); color: var(--muted); border: 1px solid var(--border); }
+#rh-dd .alert-row .adesc { font-family: var(--font-body); font-size: var(--step-fine); }
+#rh-dd .alert-row .adesc .ameta { font-family: var(--font-ui); font-size: var(--step-data); color: var(--muted); display: block; margin-top: 1px; }
+#rh-dd .alert-row .aval { font-family: var(--font-mono); font-size: var(--step-fine); font-weight: 500; text-align: right; white-space: nowrap; }
+
+#rh-dd .distrib { margin-top: var(--space-4); }
+#rh-dd .distrib .scale { position: relative; height: 56px; margin: var(--space-6) 0 var(--space-2); }
+#rh-dd .distrib .track { position: absolute; left: 0; right: 0; top: 34px; height: 2px; background: var(--border-strong); }
+#rh-dd .distrib .tick { position: absolute; top: 28px; width: 1px; height: 14px; background: var(--border-strong); }
+#rh-dd .distrib .ticklbl { position: absolute; top: 44px; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.625rem; color: var(--muted); white-space: nowrap; }
+#rh-dd .distrib .ticklbl.named { top: -2px; }
+#rh-dd .distrib .comp-mark { position: absolute; top: 22px; transform: translateX(-50%); width: 12px; height: 12px; border-radius: 50%; background: var(--lens-price); border: 2px solid var(--surface); }
+#rh-dd .distrib .subj-mark { position: absolute; top: 18px; transform: translateX(-50%); width: 0; height: 0; border-left: 7px solid transparent; border-right: 7px solid transparent; border-top: 11px solid var(--brand); }
+#rh-dd .distrib .subj-lbl { position: absolute; top: -2px; transform: translateX(-50%); font-family: var(--font-ui); font-size: 0.625rem; font-weight: 600; letter-spacing: 0.02em; color: var(--brand-ink); white-space: nowrap; }
+#rh-dd .distrib .cap { font-family: var(--font-ui); font-size: var(--step-data); color: var(--muted); margin-top: var(--space-4); letter-spacing: 0.02em; line-height: 1.5; }
+
+#rh-dd a.rec-link { color: var(--link); text-decoration: none; border-bottom: 1px solid color-mix(in oklch, var(--link) 40%, transparent); }
+#rh-dd a.rec-link:hover { border-bottom-color: var(--link); }
+
+@media (prefers-reduced-motion: reduce) {
+  #rh-dd *, #rh-dd .derive, #rh-dd .gloss-panel { transition: none !important; }
+}
+</style>
+
+<div id="rh-dd" data-theme="light">
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Property underwriting deep-dive for 1834 East Firth Street, Fishtown, Philadelphia, showing assessment versus last sale, sale history, open permits and taxes, comparable sales with a rule-based value estimate, and a decomposed distress score. Every figure links to its public record.</h2>
+<div class="wrap">
+
+  <div class="masthead">
+    <div>
+      <div class="crumb">
+        <span>Philadelphia</span><span class="sep">/</span>
+        <span>Fishtown</span><span class="sep">/</span>
+        <span class="here">1834 E Firth St</span>
+      </div>
+      <div class="candor"><i class="ti ti-quote" aria-hidden="true"></i> Every figure here links to its public record. We show our work.</div>
+    </div>
+    <button class="toggle" id="rh-toggle" aria-label="Switch color theme">
+      <i class="ti ti-moon" aria-hidden="true" id="rh-toggle-icon"></i><span id="rh-toggle-label">Dark</span>
+    </button>
+  </div>
+
+  <h1 class="title">1834 E Firth St</h1>
+  <div class="subaddr">
+    <span>Fishtown, Philadelphia 19125</span>
+    <span class="fig" title="Office of Property Assessment account number">OPA&nbsp;313114200</span>
+    <span class="fig" title="Parcel registry identifier">Parcel&nbsp;18N0312-0144</span>
+    <span>Rowhouse &middot; 2 story &middot; 1,140 sqft &middot; 14&times;71 lot</span>
+  </div>
+
+  <div class="layout">
+
+    <div class="main">
+
+      <section>
+        <div class="seclabel"><span class="num">01</span> Assessment vs. last sale</div>
+        <div class="panel">
+          <div class="vs">
+            <div class="col">
+              <span class="cap">2025 assessed value</span>
+              <span class="big">$218,200</span>
+              <a class="src" tabindex="0">OPA 2025 certified</a>
+            </div>
+            <div class="delta">+22%<small>over last sale</small></div>
+            <div class="col right">
+              <span class="cap">Last arms-length sale &middot; Mar 2019</span>
+              <span class="big">$179,000</span>
+              <a class="src" tabindex="0">Records Dept deed</a>
+            </div>
+          </div>
+          <div class="ledger" style="margin-top:var(--space-4)">
+            <div class="lrow">
+              <span class="lbl">Land</span>
+              <span class="val"><span class="num">$46,300</span><a class="src" tabindex="0">OPA</a></span>
+            </div>
+            <div class="lrow">
+              <span class="lbl">+ Improvement (structure)</span>
+              <span class="val"><span class="num">$171,900</span><a class="src" tabindex="0">OPA</a></span>
+            </div>
+            <div class="lrow total">
+              <span class="lbl">= Total assessed</span>
+              <span class="val"><span class="num">$218,200</span><a class="src" tabindex="0">OPA 2025</a></span>
+            </div>
+            <div class="lrow">
+              <span class="lbl">Taxable (after homestead exemption $0 &mdash; non-resident)</span>
+              <span class="val"><span class="num">$218,200</span></span>
+            </div>
+          </div>
+          <div class="freshness"><i class="ti ti-clock" aria-hidden="true"></i> Where this comes from: OPA certified roll, vintage 2025. Freshness: Apr 2025.</div>
+        </div>
+      </section>
+
+      <section>
+        <div class="seclabel"><span class="num">02</span> Sale history</div>
+        <p class="lede">Three recorded transfers since 2008. We flag whether each was <em>arms-length</em> (open-market, willing buyer and seller) or a non-market transfer such as an estate or sheriff sale &mdash; those prices do not reflect fair value and are excluded from comps.</p>
+        <div class="panel">
+          <div class="saleitem">
+            <span class="yr">2019</span>
+            <span class="deet">
+              <span class="who">Sold to Firth Holdings LLC</span>
+              <span class="meta"><span class="pill arms"><span class="dot"></span>Arms-length</span> Deed bk 53991 &middot; grantor M. Calderón</span>
+            </span>
+            <span class="amt">$179,000<br><a class="src" tabindex="0">deed</a></span>
+          </div>
+          <div class="saleitem">
+            <span class="yr">2014</span>
+            <span class="deet">
+              <span class="who">Transferred to Estate of J. Calderón</span>
+              <span class="meta"><span class="pill estate"><span class="dot"></span>Estate transfer</span> Probate &middot; non-market &middot; excluded from comps</span>
+            </span>
+            <span class="amt">$1<br><a class="src" tabindex="0">deed</a></span>
+          </div>
+          <div class="saleitem">
+            <span class="yr">2008</span>
+            <span class="deet">
+              <span class="who">Sheriff sale &middot; mortgage foreclosure</span>
+              <span class="meta"><span class="pill sheriff"><span class="dot"></span>Sheriff sale</span> Distressed &middot; non-market &middot; excluded from comps</span>
+            </span>
+            <span class="amt">$64,500<br><a class="src" tabindex="0">sheriff</a></span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="seclabel"><span class="num">03</span> Open permits, violations &amp; taxes owed</div>
+        <div class="panel">
+          <div class="alert-row">
+            <span class="tag owed">TAX</span>
+            <span class="adesc">Real-estate tax delinquency &mdash; 2 years
+              <span class="ameta">Tax years 2024–2025 unpaid &middot; lien filed Jan 2025</span></span>
+            <span class="aval">$6,840 <a class="src" tabindex="0">Revenue</a></span>
+          </div>
+          <div class="alert-row">
+            <span class="tag open">L&amp;I</span>
+            <span class="adesc">Open violation &mdash; vacant property, unsafe
+              <span class="ameta">Case CF-2022-114503 &middot; opened Aug 2022 &middot; unabated</span></span>
+            <span class="aval">— <a class="src" tabindex="0">L&amp;I</a></span>
+          </div>
+          <div class="alert-row">
+            <span class="tag open">L&amp;I</span>
+            <span class="adesc">Open violation &mdash; exterior maintenance (cornice, rear)
+              <span class="ameta">Case CF-2023-009871 &middot; opened May 2023</span></span>
+            <span class="aval">— <a class="src" tabindex="0">L&amp;I</a></span>
+          </div>
+          <div class="alert-row">
+            <span class="tag resolved">PERMIT</span>
+            <span class="adesc">Roof replacement permit &mdash; closed
+              <span class="ameta">RP-2019-088210 &middot; issued Jun 2019 &middot; final passed</span></span>
+            <span class="aval">closed <a class="src" tabindex="0">L&amp;I</a></span>
+          </div>
+        </div>
+        <div class="commsig">
+          <i class="ti ti-building-community" aria-hidden="true"></i>
+          <span class="ctxt"><strong>Community signal.</strong> Flagged vacant since 2021. Rehabbing this parcel returns a home to Fishtown and clears two standing L&amp;I cases on the block.</span>
+        </div>
+      </section>
+
+      <section>
+        <div class="seclabel"><span class="num">04</span> Comparable sales</div>
+        <p class="lede">Four recent arms-length rowhouse sales within 0.3 mi, similar in size and era. Each note explains why it qualified and how it differs from the subject.</p>
+        <div class="panel" style="padding:var(--space-3) var(--space-4)">
+          <table class="fixed">
+            <thead>
+              <tr>
+                <th style="width:36%">Comp &middot; why selected</th>
+                <th class="r" style="width:15%">Dist.</th>
+                <th class="r" style="width:17%">Sale</th>
+                <th class="r" style="width:14%">Sqft</th>
+                <th class="r" style="width:18%">$/sqft</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="lbl-cell">1851 E Firth St</span>
+                  <span class="why">Same block, same era; renovated &mdash; sets the upper bound. <a class="src" tabindex="0">deed</a></span></td>
+                <td class="r mono">0.04 mi</td>
+                <td class="r mono">$312,000</td>
+                <td class="r mono">1,180</td>
+                <td class="r mono">$264</td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">2433 Tucker St</span>
+                  <span class="why">+40 sqft, similar condition; 1 block south. <a class="src" tabindex="0">deed</a></span></td>
+                <td class="r mono">0.11 mi</td>
+                <td class="r mono">$268,500</td>
+                <td class="r mono">1,200</td>
+                <td class="r mono">$224</td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">1320 E Berks St</span>
+                  <span class="why">Closest match in size &amp; vintage; un-renovated. <a class="src" tabindex="0">deed</a></span></td>
+                <td class="r mono">0.22 mi</td>
+                <td class="r mono">$245,000</td>
+                <td class="r mono">1,120</td>
+                <td class="r mono">$219</td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">2519 Coral St</span>
+                  <span class="why">Smaller lot, similar finish &mdash; sets the lower bound. <a class="src" tabindex="0">deed</a></span></td>
+                <td class="r mono">0.28 mi</td>
+                <td class="r mono">$229,000</td>
+                <td class="r mono">1,090</td>
+                <td class="r mono">$210</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="distrib">
+            <div style="font-family:var(--font-ui);font-size:var(--step-data);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;color:var(--muted)">$/sqft distribution &middot; 4 comps</div>
+            <div class="scale">
+              <div class="track"></div>
+              <div class="tick" style="left:0%"></div>
+              <div class="tick" style="left:50%"></div>
+              <div class="tick" style="left:100%"></div>
+              <div class="ticklbl named" style="left:0%;transform:none">min</div>
+              <div class="ticklbl named" style="left:50%">median</div>
+              <div class="ticklbl named" style="left:100%;transform:translateX(-100%)">max</div>
+              <div class="ticklbl" style="left:0%;transform:none">$210</div>
+              <div class="ticklbl" style="left:50%">$221</div>
+              <div class="ticklbl" style="left:100%;transform:translateX(-100%)">$264</div>
+              <div class="comp-mark" style="left:0%" title="2519 Coral St — $210/sqft"></div>
+              <div class="comp-mark" style="left:16.7%" title="1320 E Berks St — $219/sqft"></div>
+              <div class="comp-mark" style="left:25.9%" title="2433 Tucker St — $224/sqft"></div>
+              <div class="comp-mark" style="left:100%" title="1851 E Firth St — $264/sqft"></div>
+              <div class="subj-mark" style="left:20.4%"></div>
+              <div class="subj-lbl" style="left:20.4%">subject est. $221</div>
+            </div>
+            <div class="cap">Each dot is one comp's price per square foot. Median $221/sqft anchors the estimate; the subject lands just below median on condition. Click any dot for the deed.</div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="seclabel"><span class="num">05</span> Rule-based value estimate</div>
+        <p class="lede">A transparent, non-AI estimate: median comp $/sqft applied to the subject's living area, then plain adjustments for condition and lot. No black box &mdash; open the derivation to see every line.</p>
+        <div class="panel">
+          <div class="estimate-head">
+            <div>
+              <div class="est-val">$268,000</div>
+              <div class="est-range">Confidence range $252k – $281k &middot; 4 comps, low dispersion</div>
+            </div>
+            <button class="derive-toggle" id="rh-derive-btn" aria-expanded="true" aria-controls="rh-derive">
+              <i class="ti ti-math-function" aria-hidden="true"></i> Hide the math
+            </button>
+          </div>
+          <div class="derive open" id="rh-derive">
+            <div class="step">
+              <span class="d-lbl">Median comp price per square foot</span>
+              <span class="d-val">$221 / sqft</span>
+            </div>
+            <div class="step">
+              <span class="d-lbl">&times; subject living area</span>
+              <span class="d-val">1,140 sqft</span>
+            </div>
+            <div class="step">
+              <span class="d-lbl">= base value</span>
+              <span class="d-val">$251,940</span>
+            </div>
+            <div class="step">
+              <span class="d-lbl">+ lot premium (14×71 vs comp median 14×62)</span>
+              <span class="d-val">+ $11,300</span>
+            </div>
+            <div class="step">
+              <span class="d-lbl">+ corner-of-block / light adjustment</span>
+              <span class="d-val">+ $4,760</span>
+            </div>
+            <div class="step">
+              <span class="d-lbl">− condition adjustment (vacant, deferred upkeep)</span>
+              <span class="d-val">− $0 (already below median)</span>
+            </div>
+            <div class="step sum">
+              <span class="d-lbl">= rule-based estimate</span>
+              <span class="d-val">$268,000</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="seclabel"><span class="num">06</span> Distress score &middot; decomposition</div>
+        <p class="lede">The distress score is not a verdict &mdash; it is a sum you can audit. Each signal is taken from a public record, normalized to a 0–1 scale, multiplied by its weight, and added. Here is every term.</p>
+        <div class="panel">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-4)">
+            <div style="font-family:var(--font-ui);font-size:var(--step-fine);letter-spacing:0.02em;color:var(--muted)">Composite distress (0 = none, 1 = severe)</div>
+            <div class="dist-composite" style="font-size:var(--step-h2);font-weight:600;color:var(--lens-distress)">0.61</div>
+          </div>
+
+          <div class="dist-bar" aria-hidden="true">
+            <div class="seg" style="width:34.4%;background:var(--d-tax)" title="Tax delinquency contributes 0.21"><span style="color:oklch(0.99 0.01 30)">.21</span></div>
+            <div class="seg" style="width:29.5%;background:var(--d-viol)" title="Open violations contributes 0.18"><span style="color:oklch(0.20 0.03 55)">.18</span></div>
+            <div class="seg" style="width:24.6%;background:var(--d-vac)" title="Vacancy signal contributes 0.15"><span style="color:oklch(0.99 0.01 20)">.15</span></div>
+            <div class="seg" style="width:11.5%;background:var(--d-delq)" title="Utility / mortgage signal contributes 0.07"><span style="color:oklch(0.22 0.03 70)">.07</span></div>
+          </div>
+          <div class="dist-legend">
+            <span class="li"><span class="sw" style="background:var(--d-tax)"></span>Tax delinquency .21</span>
+            <span class="li"><span class="sw" style="background:var(--d-viol)"></span>Open violations .18</span>
+            <span class="li"><span class="sw" style="background:var(--d-vac)"></span>Vacancy signal .15</span>
+            <span class="li"><span class="sw" style="background:var(--d-delq)"></span>Mortgage / utility .07</span>
+          </div>
+
+          <table class="fixed dist-table" style="margin-top:var(--space-6)">
+            <thead>
+              <tr>
+                <th style="width:28%">Signal</th>
+                <th class="r" style="width:22%">Raw value</th>
+                <th class="r" style="width:16%">Normalized</th>
+                <th class="r" style="width:13%">Weight</th>
+                <th class="r" style="width:21%">Contribution</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="lbl-cell">Tax delinquency</span><span class="why">2 yrs owed, $6,840 <a class="src" tabindex="0">Revenue</a></span></td>
+                <td class="r mono">2 yrs / $6.8k</td>
+                <td class="r mono nrm">0.70</td>
+                <td class="r mono">&times;0.30</td>
+                <td class="r mono">0.21<span class="contrib-bar" style="width:42px;background:var(--d-tax)"></span></td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">Open violations</span><span class="why">2 open L&amp;I cases <a class="src" tabindex="0">L&amp;I</a></span></td>
+                <td class="r mono">2 open</td>
+                <td class="r mono nrm">0.72</td>
+                <td class="r mono">&times;0.25</td>
+                <td class="r mono">0.18<span class="contrib-bar" style="width:36px;background:var(--d-viol)"></span></td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">Vacancy signal</span><span class="why">USPS + L&amp;I vacant 3+ yrs <a class="src" tabindex="0">L&amp;I</a></span></td>
+                <td class="r mono">3.5 yrs</td>
+                <td class="r mono nrm">0.75</td>
+                <td class="r mono">&times;0.20</td>
+                <td class="r mono">0.15<span class="contrib-bar" style="width:30px;background:var(--d-vac)"></span></td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">Mortgage / utility</span><span class="why">No active mortgage; water shutoff <a class="src" tabindex="0">Records</a></span></td>
+                <td class="r mono">shutoff</td>
+                <td class="r mono nrm">0.47</td>
+                <td class="r mono">&times;0.15</td>
+                <td class="r mono">0.07<span class="contrib-bar" style="width:14px;background:var(--d-delq)"></span></td>
+              </tr>
+              <tr>
+                <td><span class="lbl-cell">Sale recency</span><span class="why">Last sale 2019, stable <a class="src" tabindex="0">deed</a></span></td>
+                <td class="r mono">6 yrs</td>
+                <td class="r mono nrm">0.00</td>
+                <td class="r mono">&times;0.10</td>
+                <td class="r mono">0.00<span class="contrib-bar" style="width:2px;background:var(--muted)"></span></td>
+              </tr>
+              <tr style="background:transparent;border-top:2px solid var(--border-strong)">
+                <td style="font-family:var(--font-ui);font-weight:600;border-bottom:none">Composite</td>
+                <td class="r" style="border-bottom:none"></td>
+                <td class="r" style="border-bottom:none"></td>
+                <td class="r mono" style="border-bottom:none;color:var(--muted)">&Sigma;1.00</td>
+                <td class="r mono" style="border-bottom:none;font-weight:600;font-size:var(--step-base);color:var(--lens-distress)">0.61</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="freshness"><i class="ti ti-clock" aria-hidden="true"></i> Where this comes from: OPA, L&amp;I, Dept of Revenue, Records Dept &middot; weights are fixed and published &middot; freshness Jun 2025.</div>
+        </div>
+      </section>
+
+    </div>
+
+    <aside class="rail">
+
+      <div class="railsec">
+        <div class="seclabel"><i class="ti ti-map-pin" aria-hidden="true"></i> Parcel</div>
+        <div class="locator">
+          <svg viewBox="0 0 300 200" role="img" aria-label="Parcel locator showing 1834 East Firth Street outlined on its block">
+            <rect x="0" y="0" width="300" height="200" fill="var(--bg)"/>
+            <rect x="0" y="86" width="300" height="28" fill="var(--brand-tint)" opacity="0.5"/>
+            <line x1="0" y1="86" x2="300" y2="86" stroke="var(--border-strong)" stroke-width="1"/>
+            <line x1="0" y1="114" x2="300" y2="114" stroke="var(--border-strong)" stroke-width="1"/>
+            <line x1="64" y1="0" x2="64" y2="200" stroke="var(--border)" stroke-width="1"/>
+            <line x1="236" y1="0" x2="236" y2="200" stroke="var(--border)" stroke-width="1"/>
+            <g stroke="var(--border)" stroke-width="0.75">
+              <line x1="78" y1="86" x2="78" y2="114"/><line x1="92" y1="86" x2="92" y2="114"/>
+              <line x1="106" y1="86" x2="106" y2="114"/><line x1="134" y1="86" x2="134" y2="114"/>
+              <line x1="148" y1="86" x2="148" y2="114"/><line x1="162" y1="86" x2="162" y2="114"/>
+              <line x1="176" y1="86" x2="176" y2="114"/><line x1="190" y1="86" x2="190" y2="114"/>
+            </g>
+            <rect x="120" y="86" width="14" height="28" fill="var(--brand)" opacity="0.92"/>
+            <g stroke="var(--brand-ink)" stroke-width="1.5" fill="none">
+              <path d="M114 80 h6 M114 80 v6"/>
+              <path d="M140 80 h-6 M140 80 v6"/>
+              <path d="M114 120 h6 M114 120 v-6"/>
+              <path d="M140 120 h-6 M140 120 v-6"/>
+            </g>
+            <text x="150" y="78" text-anchor="middle" font-family="General Sans" font-size="7" fill="var(--brand-ink)">1834 E FIRTH ST</text>
+            <text x="6" y="132" font-family="General Sans" font-size="8" fill="var(--muted)">E Firth St</text>
+          </svg>
+          <div class="readout">
+            <span>39.9742°N 75.1318°W</span>
+            <span>1in = 60ft</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="railsec">
+        <div class="seclabel"><i class="ti ti-book-2" aria-hidden="true"></i> In context</div>
+        <p style="font-size:var(--step-fine);line-height:1.6;margin:0 0 var(--space-2)">The assessment uses the City's
+          <span class="gloss"><button class="term" id="rh-gloss-btn" aria-expanded="false" aria-controls="rh-gloss" style="background:none;border:none;padding:0;font:inherit;cursor:help">CLR</button></span>
+          to translate market value into the certified roll. It matters because the gap between assessment and a real sale often hides under it.</p>
+        <div class="gloss-panel" id="rh-gloss" hidden>
+          <div class="gt">CLR &mdash; Common Level Ratio</div>
+          <div class="gd">The state-published ratio of assessed value to actual market value across all sales in a county; used to test whether an individual assessment is fair. Philadelphia's 2025 CLR is 0.926.</div>
+        </div>
+      </div>
+
+      <div class="railsec rollup">
+        <div class="seclabel"><i class="ti ti-building-community" aria-hidden="true"></i> Fishtown &middot; dispatch</div>
+        <div class="panel sunk">
+          <div class="ledger">
+            <div class="lrow">
+              <span class="lbl">Vacant parcels</span>
+              <span class="val"><span class="num">142</span><a class="src" tabindex="0">L&amp;I</a></span>
+            </div>
+            <div class="lrow">
+              <span class="lbl">In active rehab (2025)</span>
+              <span class="val"><span class="num" style="color:var(--lens-dev)">38</span></span>
+            </div>
+            <div class="lrow">
+              <span class="lbl">Share of lots vacant</span>
+              <span class="val"><span class="num">3.4%</span></span>
+            </div>
+          </div>
+          <div class="rollup-note">This parcel is one of 142 vacant lots in Fishtown. 38 have begun rehab this year &mdash; each one a home returned to the neighborhood.</div>
+        </div>
+      </div>
+
+      <div class="railsec">
+        <div class="seclabel"><i class="ti ti-link" aria-hidden="true"></i> Raw records</div>
+        <p style="font-size:var(--step-fine);line-height:1.6;margin:0">
+          Open the underlying records directly:
+          <a class="rec-link" tabindex="0">OPA property page</a>,
+          <a class="rec-link" tabindex="0">L&amp;I case history</a>,
+          <a class="rec-link" tabindex="0">Dept of Revenue account</a>,
+          <a class="rec-link" tabindex="0">recorded deeds</a>.
+        </p>
+        <div class="freshness"><i class="ti ti-shield-check" aria-hidden="true"></i> Open data, City of Philadelphia. No login, no markup.</div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
+</div>
+
+<script>
+(function(){
+  var root = document.getElementById('rh-dd');
+  if(!root) return;
+
+  var tBtn = document.getElementById('rh-toggle');
+  var tIcon = document.getElementById('rh-toggle-icon');
+  var tLabel = document.getElementById('rh-toggle-label');
+  var theme = 'light';
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { theme = 'dark'; }
+  function apply(){
+    root.setAttribute('data-theme', theme);
+    var dark = theme === 'dark';
+    tIcon.className = dark ? 'ti ti-sun' : 'ti ti-moon';
+    tLabel.textContent = dark ? 'Light' : 'Dark';
+  }
+  apply();
+  tBtn.addEventListener('click', function(){ theme = theme === 'dark' ? 'light' : 'dark'; apply(); });
+
+  var dBtn = document.getElementById('rh-derive-btn');
+  var dPanel = document.getElementById('rh-derive');
+  dBtn.addEventListener('click', function(){
+    var open = dPanel.classList.toggle('open');
+    if(open){ dPanel.hidden = false; }
+    dBtn.setAttribute('aria-expanded', String(open));
+    dBtn.innerHTML = open
+      ? '<i class="ti ti-math-function" aria-hidden="true"></i> Hide the math'
+      : '<i class="ti ti-math-function" aria-hidden="true"></i> Show the math';
+  });
+
+  var gBtn = document.getElementById('rh-gloss-btn');
+  var gPanel = document.getElementById('rh-gloss');
+  gBtn.addEventListener('click', function(){
+    var willOpen = gPanel.hidden || !gPanel.classList.contains('open');
+    if(willOpen){ gPanel.hidden = false; requestAnimationFrame(function(){ gPanel.classList.add('open'); }); }
+    else { gPanel.classList.remove('open'); }
+    gBtn.setAttribute('aria-expanded', String(willOpen));
+  });
+
+  root.querySelectorAll('.src, .rec-link').forEach(function(el){
+    el.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } });
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "@phillybricks/ingestion",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Nightly worker: normalize → stage → validate(gate) → promote → diff→change-log/alert → refresh derived → trigger tiles. Adapters: Carto, S3 bulk, phillysheriff scrape.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:live": "vitest run --mode live",
+    "run:nightly": "node --experimental-strip-types src/run.ts"
+  },
+  "dependencies": {
+    "@phillybricks/core": "workspace:*",
+    "@phillybricks/db": "workspace:*",
+    "cheerio": "^1.0.0",
+    "csv-parse": "^5.6.0",
+    "postgres": "^3.4.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

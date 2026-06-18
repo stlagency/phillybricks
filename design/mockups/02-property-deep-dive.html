@@ -1,0 +1,1065 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PhillyBricks — 1834 E Firth St, Fishtown</title>
+<style>
+@import url("https://api.fontshare.com/v2/css?f[]=tanker@400&f[]=zodiak@700,400,700i&f[]=satoshi@900,700,500,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap");
+
+:root {
+  --pb-font-display: "Tanker", system-ui, sans-serif;
+  --pb-font-serif: "Zodiak", Georgia, serif;
+  --pb-font-ui: "Satoshi", system-ui, -apple-system, sans-serif;
+  --pb-font-mono: "Space Mono", ui-monospace, monospace;
+
+  --pb-text-xs: 11px; --pb-text-sm: 13px; --pb-text-base: 15px;
+  --pb-text-lg: 18px; --pb-text-xl: 22px; --pb-text-2xl: 30px;
+  --pb-text-3xl: 44px; --pb-text-4xl: 62px; --pb-text-5xl: 84px;
+
+  --pb-space-1: 4px; --pb-space-2: 8px; --pb-space-3: 12px; --pb-space-4: 14px;
+  --pb-space-5: 18px; --pb-space-6: 22px; --pb-space-7: 34px; --pb-space-8: 48px;
+
+  --pb-border-w: 3px; --pb-border-w-lg: 4px; --pb-radius: 0;
+  --pb-shadow: 6px 6px 0 var(--pb-ink);
+  --pb-shadow-lg: 8px 8px 0 var(--pb-ink);
+  --pb-shadow-mass: 10px 10px 0 var(--pb-ink);
+
+  --pb-ink: #1A1714;
+  --pb-slate: #8A8479;
+  --pb-paper: #E7E3DA;
+  --pb-surface: #FFFFFF;
+  --pb-stone: #D9D4CA;
+  --pb-recessed: #CFC9BE;
+  --pb-gravel: #BDB7AC;
+  --pb-paper-warm: #EDE9E0;
+  --pb-rail: #F2EEE6;
+  --pb-navy: #0A2A5E;
+  --pb-blue: #2C6FBF;
+  --pb-sky: #6FA8DC;
+  --pb-sky-tint: #DCE8F6;
+  --pb-red: #E81828;
+  --pb-brick: #A8341F;
+  --pb-text: #1A1714;
+  --pb-on-navy: #FFFFFF;
+  --pb-on-red: #FFFFFF;
+  --pb-draft-bg: #1C2530;
+  --pb-draft-line: #7FB0E0;
+
+  --pb-lens-price: #2C6FBF;
+  --pb-lens-momentum: #3E7D5A;
+  --pb-lens-distress: #E81828;
+  --pb-lens-livability: #B5703A;
+}
+
+html[data-theme="dark"] {
+  --pb-ink: #0C1016;
+  --pb-slate: #A39A8B;
+  --pb-paper: #1B1814;
+  --pb-surface: #25211B;
+  --pb-stone: #2F2A22;
+  --pb-recessed: #161310;
+  --pb-gravel: #3A4555;
+  --pb-paper-warm: #211D17;
+  --pb-rail: #2A251D;
+  --pb-navy: #16407F;
+  --pb-blue: #5C97D8;
+  --pb-sky: #8FBCE6;
+  --pb-sky-tint: #25344A;
+  --pb-red: #FF3A47;
+  --pb-brick: #D9663F;
+  --pb-text: #ECE6DA;
+  --pb-on-navy: #ECE6DA;
+  --pb-on-red: #1B1814;
+  --pb-draft-bg: #1C2530;
+  --pb-draft-line: #7FB0E0;
+
+  --pb-lens-price: #5C97D8;
+  --pb-lens-momentum: #5FA77E;
+  --pb-lens-distress: #FF3A47;
+  --pb-lens-livability: #D69A4E;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--pb-paper);
+  color: var(--pb-text);
+  font-family: var(--pb-font-ui);
+  font-size: var(--pb-text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--pb-sky-tint); color: var(--pb-ink); }
+
+a { color: var(--pb-blue); text-underline-offset: 3px; }
+
+:focus-visible {
+  outline: 3px solid var(--pb-blue);
+  outline-offset: 2px;
+}
+
+.pb-header {
+  background: var(--pb-navy);
+  color: var(--pb-on-navy);
+  border-bottom: var(--pb-border-w-lg) solid var(--pb-ink);
+  padding: var(--pb-space-5) var(--pb-space-7);
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-6);
+  flex-wrap: wrap;
+}
+
+.pb-mark {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 0.82;
+  font-family: var(--pb-font-display);
+  letter-spacing: -0.01em;
+  background: var(--pb-surface);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  box-shadow: var(--pb-shadow);
+  padding: var(--pb-space-3) var(--pb-space-4);
+  font-size: var(--pb-text-2xl);
+}
+.pb-mark .pb-philly { color: var(--pb-ink); }
+.pb-mark .pb-bricks { color: var(--pb-brick); }
+
+.pb-header-id { flex: 1 1 320px; min-width: 0; }
+.pb-eyebrow {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pb-sky);
+  margin: 0 0 var(--pb-space-2);
+}
+.pb-address {
+  font-family: var(--pb-font-display);
+  letter-spacing: -0.01em;
+  line-height: 0.9;
+  font-size: var(--pb-text-3xl);
+  margin: 0;
+  color: var(--pb-on-navy);
+}
+.pb-subaddr {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-sm);
+  color: var(--pb-sky);
+  margin: var(--pb-space-2) 0 0;
+  letter-spacing: 0.04em;
+}
+
+.pb-theme-toggle {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  background: var(--pb-ink);
+  color: var(--pb-paper);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  box-shadow: var(--pb-shadow);
+  padding: var(--pb-space-3) var(--pb-space-5);
+  cursor: pointer;
+  align-self: flex-start;
+}
+.pb-theme-toggle:active { transform: translate(2px,2px); box-shadow: 4px 4px 0 var(--pb-ink); }
+
+.pb-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--pb-space-7);
+  padding: var(--pb-space-8) var(--pb-space-7);
+  max-width: 1240px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+.pb-main { min-width: 0; display: flex; flex-direction: column; gap: var(--pb-space-7); }
+
+.pb-card {
+  background: var(--pb-surface);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  box-shadow: var(--pb-shadow);
+  padding: var(--pb-space-6);
+}
+.pb-card--frame { border-width: var(--pb-border-w-lg); }
+
+.pb-card-head {
+  font-family: var(--pb-font-ui);
+  font-weight: 900;
+  font-size: var(--pb-text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 var(--pb-space-4);
+  padding-bottom: var(--pb-space-3);
+  border-bottom: var(--pb-border-w) solid var(--pb-ink);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--pb-space-3);
+}
+.pb-card-head .pb-tally {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.12em;
+  color: var(--pb-slate);
+  font-weight: 700;
+}
+
+.pb-metric-strip {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+}
+.pb-metric {
+  padding: var(--pb-space-5) var(--pb-space-5);
+  background: var(--pb-surface);
+  border-right: var(--pb-border-w) solid var(--pb-ink);
+}
+.pb-metric:last-child { border-right: 0; }
+.pb-metric--tint { background: var(--pb-sky-tint); }
+.pb-metric--red { background: var(--pb-red); color: var(--pb-on-red); }
+.pb-mlabel {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pb-slate);
+  margin: 0 0 var(--pb-space-2);
+}
+.pb-metric--red .pb-mlabel { color: var(--pb-on-red); opacity: 0.85; }
+.pb-mval {
+  font-family: var(--pb-font-mono);
+  font-weight: 700;
+  font-size: var(--pb-text-2xl);
+  margin: 0;
+  line-height: 1;
+}
+.pb-msub {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  color: var(--pb-slate);
+  margin: var(--pb-space-2) 0 0;
+}
+.pb-metric--red .pb-msub { color: var(--pb-on-red); opacity: 0.85; }
+
+.pb-src {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.04em;
+  color: var(--pb-slate);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+.pb-src:hover, .pb-src:focus-visible { color: var(--pb-blue); }
+
+.pb-dotted {
+  border-bottom: 1px dotted var(--pb-slate);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.pb-freshness {
+  font-family: var(--pb-font-serif);
+  font-style: italic;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-slate);
+  margin: var(--pb-space-4) 0 0;
+}
+
+.pb-pill {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--pb-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  padding: 3px 7px;
+  line-height: 1;
+}
+.pb-pill--danger { background: var(--pb-red); color: var(--pb-on-red); border-color: var(--pb-red); }
+.pb-pill--neutral { background: var(--pb-ink); color: var(--pb-paper); }
+.pb-pill--aged { background: var(--pb-surface); color: var(--pb-brick); border-color: var(--pb-brick); }
+.pb-pill--blue { background: var(--pb-navy); color: var(--pb-on-navy); border-color: var(--pb-ink); }
+
+.pb-ledger { width: 100%; border-collapse: collapse; }
+.pb-ledger thead th {
+  background: var(--pb-navy);
+  color: var(--pb-on-navy);
+  font-family: var(--pb-font-ui);
+  font-weight: 700;
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: var(--pb-space-3) var(--pb-space-3);
+  border: var(--pb-border-w) solid var(--pb-ink);
+}
+.pb-ledger tbody td {
+  padding: var(--pb-space-3) var(--pb-space-3);
+  border-bottom: 1px solid var(--pb-gravel);
+  font-size: var(--pb-text-sm);
+  vertical-align: middle;
+}
+.pb-ledger tbody tr:nth-child(even) td { background: var(--pb-stone); }
+.pb-ledger .num {
+  font-family: var(--pb-font-mono);
+  text-align: right;
+  font-size: var(--pb-text-sm);
+}
+.pb-ledger .lbl { font-family: var(--pb-font-ui); }
+
+.pb-comp {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--pb-space-2);
+  padding: var(--pb-space-4) 0;
+  border-bottom: 1px solid var(--pb-gravel);
+}
+.pb-comp:last-child { border-bottom: 0; }
+.pb-comp-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--pb-space-3);
+  flex-wrap: wrap;
+}
+.pb-comp-addr {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+.pb-comp-psf {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+.pb-bar-track {
+  height: 22px;
+  background: var(--pb-stone);
+  border: 2px solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  position: relative;
+  overflow: hidden;
+}
+.pb-bar-fill { height: 100%; }
+.pb-bar-fill--blue { background: var(--pb-blue); }
+.pb-bar-fill--sky { background: var(--pb-sky); }
+.pb-bar-fill--brick { background: var(--pb-brick); }
+.pb-why {
+  font-family: var(--pb-font-serif);
+  font-size: var(--pb-text-sm);
+  line-height: 1.6;
+  color: var(--pb-text);
+  margin: 0;
+}
+.pb-why .pb-whyflag {
+  font-family: var(--pb-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pb-brick);
+  margin-right: 6px;
+}
+
+.pb-deriv {
+  margin-top: var(--pb-space-5);
+  border-top: var(--pb-border-w) solid var(--pb-ink);
+  background: var(--pb-recessed);
+}
+.pb-deriv-trigger {
+  width: 100%;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--pb-space-3);
+  padding: var(--pb-space-5);
+  font-family: var(--pb-font-ui);
+  color: var(--pb-text);
+  text-align: left;
+}
+.pb-deriv-est {
+  font-family: var(--pb-font-mono);
+  font-weight: 700;
+  font-size: var(--pb-text-xl);
+  border-bottom: 1px dotted var(--pb-slate);
+}
+.pb-deriv-toggle {
+  font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pb-blue);
+  font-weight: 700;
+}
+.pb-deriv-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.32s ease;
+}
+.pb-deriv-body.open { max-height: 360px; }
+.pb-deriv-inner {
+  padding: 0 var(--pb-space-5) var(--pb-space-5);
+  font-family: var(--pb-font-serif);
+  font-size: var(--pb-text-base);
+  line-height: 1.65;
+  max-width: 64ch;
+}
+.pb-deriv-inner .op { border-bottom: 1px dotted var(--pb-slate); cursor: pointer; }
+
+.pb-distress-score {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--pb-red);
+  color: var(--pb-on-red);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  box-shadow: var(--pb-shadow-mass);
+  padding: var(--pb-space-5) var(--pb-space-6);
+  margin-bottom: var(--pb-space-6);
+}
+.pb-distress-score .pb-mlabel { color: var(--pb-on-red); opacity: 0.9; }
+.pb-distress-score .pb-mval { font-size: var(--pb-text-4xl); }
+
+.pb-stack {
+  display: flex;
+  height: 46px;
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  overflow: hidden;
+}
+.pb-seg {
+  border-right: 1px solid var(--pb-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--pb-font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--pb-on-red);
+  position: relative;
+  transition: filter 0.12s ease;
+}
+.pb-seg:last-child { border-right: 0; }
+.pb-seg:hover { filter: brightness(0.92); }
+.pb-seg--red { background: var(--pb-red); }
+.pb-seg--brick { background: var(--pb-brick); color: #fff; }
+.pb-seg--gravel { background: var(--pb-gravel); color: var(--pb-ink); }
+
+.pb-seg-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pb-space-3) var(--pb-space-5);
+  margin-top: var(--pb-space-4);
+}
+.pb-seg-key button {
+  background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
+  display: flex; align-items: center; gap: var(--pb-space-2);
+  font-family: var(--pb-font-mono); font-size: var(--pb-text-xs); color: var(--pb-text);
+}
+.pb-swatch { width: 12px; height: 12px; border: 2px solid var(--pb-ink); display: inline-block; }
+
+.pb-seg-detail {
+  margin-top: var(--pb-space-4);
+  border: var(--pb-border-w) solid var(--pb-ink);
+  background: var(--pb-recessed);
+  padding: var(--pb-space-5);
+}
+.pb-seg-detail h4 {
+  font-family: var(--pb-font-ui); font-weight: 900; font-size: var(--pb-text-sm);
+  letter-spacing: 0.06em; text-transform: uppercase; margin: 0 0 var(--pb-space-3);
+}
+.pb-deco-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border: var(--pb-border-w) solid var(--pb-ink);
+}
+.pb-deco-cell { padding: var(--pb-space-3); border-right: var(--pb-border-w) solid var(--pb-ink); background: var(--pb-surface); }
+.pb-deco-cell:last-child { border-right: 0; }
+.pb-deco-cell .pb-mlabel { font-size: 10px; }
+.pb-deco-cell .v { font-family: var(--pb-font-mono); font-weight: 700; font-size: var(--pb-text-lg); }
+.pb-deco-src { font-family: var(--pb-font-mono); font-size: var(--pb-text-xs); color: var(--pb-slate); margin-top: var(--pb-space-3); }
+
+.pb-community {
+  border: var(--pb-border-w) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  background: var(--pb-surface);
+  padding: var(--pb-space-5) var(--pb-space-6);
+  margin-top: var(--pb-space-6);
+  display: flex;
+  gap: var(--pb-space-5);
+  align-items: flex-start;
+}
+.pb-community .pb-cs-mark {
+  font-family: var(--pb-font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #fff; background: var(--pb-lens-momentum);
+  border: 2px solid var(--pb-ink); padding: 4px 7px; white-space: nowrap; flex: 0 0 auto;
+}
+.pb-community p {
+  font-family: var(--pb-font-serif); font-size: var(--pb-text-base); line-height: 1.6; margin: 0;
+}
+
+.pb-actions { display: flex; gap: var(--pb-space-5); flex-wrap: wrap; margin-top: var(--pb-space-7); }
+.pb-btn {
+  font-family: var(--pb-font-mono); font-weight: 700; font-size: var(--pb-text-sm);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  border: var(--pb-border-w) solid var(--pb-ink); border-radius: var(--pb-radius);
+  padding: var(--pb-space-4) var(--pb-space-6); cursor: pointer;
+  display: inline-flex; align-items: center; gap: var(--pb-space-3);
+}
+.pb-btn--primary { background: var(--pb-red); color: var(--pb-on-red); box-shadow: var(--pb-shadow-lg); border-color: var(--pb-ink); }
+.pb-btn--secondary { background: var(--pb-ink); color: var(--pb-paper); box-shadow: var(--pb-shadow); }
+.pb-btn--ghost { background: transparent; color: var(--pb-text); box-shadow: var(--pb-shadow); }
+.pb-btn:active { transform: translate(2px,2px); box-shadow: 4px 4px 0 var(--pb-ink); }
+
+.pb-rail {
+  background: var(--pb-rail);
+  border: var(--pb-border-w-lg) solid var(--pb-ink);
+  border-radius: var(--pb-radius);
+  box-shadow: var(--pb-shadow);
+  padding: var(--pb-space-6);
+  position: sticky;
+  top: var(--pb-space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-6);
+}
+.pb-rail-head {
+  font-family: var(--pb-font-ui); font-weight: 900; font-size: var(--pb-text-sm);
+  letter-spacing: 0.06em; text-transform: uppercase; margin: 0;
+  padding-bottom: var(--pb-space-3); border-bottom: var(--pb-border-w) solid var(--pb-ink);
+}
+.pb-rail-term {
+  font-family: var(--pb-font-mono); font-weight: 700; font-size: var(--pb-text-sm);
+  letter-spacing: 0.04em; margin: 0 0 var(--pb-space-2);
+}
+.pb-rail-def {
+  font-family: var(--pb-font-serif); font-size: var(--pb-text-base); line-height: 1.65; margin: 0;
+}
+.pb-rail-src {
+  font-family: var(--pb-font-mono); font-size: var(--pb-text-xs); color: var(--pb-slate);
+  margin: var(--pb-space-2) 0 0;
+}
+.pb-rail-block + .pb-rail-block { padding-top: var(--pb-space-5); border-top: 1px solid var(--pb-gravel); }
+.pb-rail-block.flash { background: var(--pb-sky-tint); outline: 3px solid var(--pb-blue); outline-offset: 4px; }
+
+.pb-term {
+  font-family: var(--pb-font-mono); font-weight: 700; letter-spacing: 0.02em;
+  border-bottom: 1px dotted var(--pb-slate); cursor: pointer; color: var(--pb-text);
+  background: none; border-left: 0; border-right: 0; border-top: 0; padding: 0; font-size: inherit;
+}
+
+.pb-prose {
+  font-family: var(--pb-font-serif); font-size: var(--pb-text-base); line-height: 1.65; max-width: 64ch;
+}
+
+.pb-section-rule {
+  border: 0; border-top: var(--pb-border-w) solid var(--pb-brick); margin: var(--pb-space-2) 0 var(--pb-space-5); width: 56px;
+}
+
+.pb-twocol { display: grid; grid-template-columns: 1fr 1fr; gap: var(--pb-space-7); }
+
+.pb-foot {
+  text-align: center; padding: var(--pb-space-7); font-family: var(--pb-font-mono);
+  font-size: var(--pb-text-xs); color: var(--pb-slate); letter-spacing: 0.1em;
+  border-top: var(--pb-border-w) solid var(--pb-ink);
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pb-deriv-body { transition: none; }
+  .pb-seg { transition: none; }
+  * { scroll-behavior: auto; }
+}
+
+@media (max-width: 920px) {
+  .pb-shell { grid-template-columns: 1fr; padding: var(--pb-space-6) var(--pb-space-5); }
+  .pb-rail { position: static; box-shadow: 4px 4px 0 var(--pb-ink); }
+  .pb-card { box-shadow: 4px 4px 0 var(--pb-ink); }
+  .pb-twocol { grid-template-columns: 1fr; }
+  .pb-deco-grid { grid-template-columns: 1fr 1fr; }
+  .pb-distress-score { box-shadow: 6px 6px 0 var(--pb-ink); }
+}
+@media (max-width: 560px) {
+  .pb-metric-strip { grid-template-columns: 1fr; }
+  .pb-metric { border-right: 0; border-bottom: var(--pb-border-w) solid var(--pb-ink); }
+  .pb-metric:last-child { border-bottom: 0; }
+  .pb-address { font-size: var(--pb-text-2xl); }
+  .pb-deco-grid { grid-template-columns: 1fr; }
+  .pb-deco-cell { border-right: 0; border-bottom: var(--pb-border-w) solid var(--pb-ink); }
+  .pb-deco-cell:last-child { border-bottom: 0; }
+}
+</style>
+</head>
+<body>
+<span class="sr-only">Property deep-dive for 1834 East Firth Street in Fishtown, Philadelphia: assessment, sale history, permits, comparable sales, value estimate, and a decomposable distress score.</span>
+
+<header class="pb-header">
+  <span class="pb-mark" aria-label="PhillyBricks">
+    <span class="pb-philly">PHILLY</span>
+    <span class="pb-bricks">BRICKS</span>
+  </span>
+  <div class="pb-header-id">
+    <p class="pb-eyebrow">PARCEL DEEP-DIVE · FISHTOWN / 19125</p>
+    <h1 class="pb-address">1834 E FIRTH ST</h1>
+    <p class="pb-subaddr">OPA 312015400 · LAT 39.9759 LON -75.1283 · ROW · 2BR/1BA · 1,140 SF</p>
+  </div>
+  <button class="pb-theme-toggle" id="themeBtn" aria-label="Toggle light and dark theme">
+    <span id="themeLabel">DARK MODE</span>
+  </button>
+</header>
+
+<div class="pb-shell">
+  <main class="pb-main">
+
+    <section class="pb-card pb-card--frame" aria-labelledby="assessHead">
+      <h2 class="pb-card-head" id="assessHead">
+        <span>Assessment vs. last sale</span>
+        <span class="pb-tally">TAX YEAR 2026</span>
+      </h2>
+      <div class="pb-metric-strip">
+        <div class="pb-metric">
+          <p class="pb-mlabel">Market value (assessed)</p>
+          <p class="pb-mval">$241,400</p>
+          <p class="pb-msub"><span class="pb-dotted" data-src="opa">OPA</span> · land $58k · bldg $183k</p>
+        </div>
+        <div class="pb-metric pb-metric--tint">
+          <p class="pb-mlabel">Last recorded sale</p>
+          <p class="pb-mval">$129,000</p>
+          <p class="pb-msub"><span class="pb-dotted" data-src="rtt">RECORDS DEPT</span> · 04 / 2014</p>
+        </div>
+      </div>
+      <div class="pb-metric-strip" style="border-top:0;">
+        <div class="pb-metric">
+          <p class="pb-mlabel">Assessed $ / SF</p>
+          <p class="pb-mval">$211</p>
+          <p class="pb-msub"><span class="pb-dotted" data-src="opa">OPA</span> · 1,140 SF livable</p>
+        </div>
+        <div class="pb-metric">
+          <p class="pb-mlabel">Change since last sale</p>
+          <p class="pb-mval">+87%</p>
+          <p class="pb-msub">over 12 yrs · ~5.4% / yr</p>
+        </div>
+      </div>
+      <div class="pb-actions" style="margin-top:var(--pb-space-5); gap:var(--pb-space-5);">
+        <span class="pb-src" data-src="opa" role="note">[OPA · 2026-06-12]</span>
+        <span class="pb-src" data-src="rtt" role="note">[RECORDS DEPT · RTT]</span>
+      </div>
+      <p class="pb-freshness">Where this comes from · OPA certified value, refreshed 6 days ago.</p>
+    </section>
+
+    <section class="pb-card" aria-labelledby="saleHead">
+      <h2 class="pb-card-head" id="saleHead">
+        <span>Sale history</span>
+        <span class="pb-tally">3 RECORDED TRANSFERS</span>
+      </h2>
+      <table class="pb-ledger">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Price</th>
+            <th scope="col">Type</th>
+            <th scope="col">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="num">04 / 2014</td>
+            <td class="num"><span class="pb-dotted" data-src="rtt">$129,000</span></td>
+            <td class="lbl"><span class="pb-pill pb-pill--neutral">ARMS-LENGTH</span></td>
+            <td class="num"><span class="pb-src" data-src="rtt">[RTT]</span></td>
+          </tr>
+          <tr>
+            <td class="num">11 / 2009</td>
+            <td class="num"><span class="pb-dotted" data-src="rtt">$1</span></td>
+            <td class="lbl"><span class="pb-pill pb-pill--aged">ESTATE</span></td>
+            <td class="num"><span class="pb-src" data-src="rtt">[RTT]</span></td>
+          </tr>
+          <tr>
+            <td class="num">08 / 2003</td>
+            <td class="num"><span class="pb-dotted" data-src="sheriff">$41,500</span></td>
+            <td class="lbl"><span class="pb-pill pb-pill--aged">SHERIFF '03</span></td>
+            <td class="num"><span class="pb-src" data-src="sheriff">[SHERIFF '03]</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="pb-freshness">Where this comes from · Records Dept deed index, refreshed 11 days ago.</p>
+    </section>
+
+    <section class="pb-twocol">
+      <div class="pb-card" aria-labelledby="liHead">
+        <h2 class="pb-card-head" id="liHead">
+          <span>Permits &amp; violations</span>
+          <span class="pb-tally">L&amp;I</span>
+        </h2>
+        <table class="pb-ledger">
+          <tbody>
+            <tr>
+              <td class="lbl">Open building permit</td>
+              <td class="num"><span class="pb-pill pb-pill--blue">ALTERATION</span></td>
+              <td class="num"><span class="pb-src" data-src="li">[L&amp;I '25]</span></td>
+            </tr>
+            <tr>
+              <td class="lbl">Open violation</td>
+              <td class="num"><span class="pb-pill pb-pill--danger">UNSAFE · 1</span></td>
+              <td class="num"><span class="pb-src" data-src="li">[L&amp;I '24]</span></td>
+            </tr>
+            <tr>
+              <td class="lbl">Closed violations</td>
+              <td class="num">2</td>
+              <td class="num"><span class="pb-src" data-src="li">[L&amp;I]</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="pb-freshness">Refreshed 3 days ago.</p>
+      </div>
+
+      <div class="pb-card" aria-labelledby="taxHead">
+        <h2 class="pb-card-head" id="taxHead">
+          <span>Taxes</span>
+          <span class="pb-tally">REVENUE DEPT</span>
+        </h2>
+        <table class="pb-ledger">
+          <tbody>
+            <tr>
+              <td class="lbl">2026 RE tax billed</td>
+              <td class="num"><span class="pb-dotted" data-src="rev">$3,378</span></td>
+              <td class="num"><span class="pb-src" data-src="rev">[REV]</span></td>
+            </tr>
+            <tr>
+              <td class="lbl">Status</td>
+              <td class="num"><span class="pb-pill pb-pill--danger">DELINQUENT</span></td>
+              <td class="num"><span class="pb-src" data-src="rev">[REV]</span></td>
+            </tr>
+            <tr>
+              <td class="lbl">Balance + penalty</td>
+              <td class="num"><span class="pb-dotted" data-src="rev">$7,910</span></td>
+              <td class="num"><span class="pb-src" data-src="rev">[REV]</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="pb-freshness">Two years behind. Refreshed 3 days ago.</p>
+      </div>
+    </section>
+
+    <section class="pb-card pb-card--frame" aria-labelledby="compHead">
+      <h2 class="pb-card-head" id="compHead">
+        <span>Comps · arms-length, &le; 0.3 mi</span>
+        <span class="pb-tally">N = 4 · 12 MO</span>
+      </h2>
+
+      <div class="pb-comp">
+        <div class="pb-comp-top">
+          <span class="pb-comp-addr">1841 E FIRTH ST</span>
+          <span class="pb-comp-psf">$248 / SF · $279K</span>
+        </div>
+        <div class="pb-bar-track"><div class="pb-bar-fill pb-bar-fill--blue" style="width:97%"></div></div>
+        <p class="pb-why"><span class="pb-whyflag">WHY</span>Same block, same row, 1,125 SF. Sold 03/2026, full reno. <span class="pb-src" data-src="rtt">[RTT]</span></p>
+      </div>
+
+      <div class="pb-comp">
+        <div class="pb-comp-top">
+          <span class="pb-comp-addr">2014 E SUSQUEHANNA AVE</span>
+          <span class="pb-comp-psf">$235 / SF · $267K</span>
+        </div>
+        <div class="pb-bar-track"><div class="pb-bar-fill pb-bar-fill--brick" style="width:91%"></div></div>
+        <p class="pb-why"><span class="pb-whyflag">MEDIAN</span>0.2 mi north, 1,135 SF, two-story row. The middle of the pack. <span class="pb-src" data-src="rtt">[RTT]</span></p>
+      </div>
+
+      <div class="pb-comp">
+        <div class="pb-comp-top">
+          <span class="pb-comp-addr">1320 E MONTGOMERY AVE</span>
+          <span class="pb-comp-psf">$229 / SF · $258K</span>
+        </div>
+        <div class="pb-bar-track"><div class="pb-bar-fill pb-bar-fill--sky" style="width:89%"></div></div>
+        <p class="pb-why"><span class="pb-whyflag">WHY</span>0.28 mi, 1,127 SF, unrenovated kitchen — closest in condition. <span class="pb-src" data-src="rtt">[RTT]</span></p>
+      </div>
+
+      <div class="pb-comp">
+        <div class="pb-comp-top">
+          <span class="pb-comp-addr">1908 E BERKS ST</span>
+          <span class="pb-comp-psf">$221 / SF · $251K</span>
+        </div>
+        <div class="pb-bar-track"><div class="pb-bar-fill pb-bar-fill--sky" style="width:86%"></div></div>
+        <p class="pb-why"><span class="pb-whyflag">WHY</span>0.3 mi west, 1,136 SF. Trimmed p5 outlier just above this. <span class="pb-src" data-src="rtt">[RTT]</span></p>
+      </div>
+
+      <div class="pb-deriv">
+        <button class="pb-deriv-trigger" id="derivBtn" aria-expanded="false" aria-controls="derivBody">
+          <span>
+            <span class="pb-mlabel" style="margin-bottom:6px;">PhillyBricks value estimate</span>
+            <span class="pb-deriv-est">$268,000</span>
+          </span>
+          <span class="pb-deriv-toggle" id="derivToggle">SHOW THE MATH +</span>
+        </button>
+        <div class="pb-deriv-body" id="derivBody" role="region" aria-label="Value estimate derivation">
+          <div class="pb-deriv-inner">
+            <span class="op" data-src="rtt">4 arms-length comps within 0.3 mi</span>, p5/p95 trimmed
+            &middot; median <span class="op" data-src="rtt">$235 / SF</span>
+            &times; <span class="op" data-src="opa">1,140 SF</span>
+            &minus; <span class="op" data-src="li">4% condition adjustment</span> for the open unsafe violation
+            = <strong>$268k</strong>. Numbers don't lie, people do — every operand above links back to its record.
+          </div>
+        </div>
+      </div>
+
+      <p class="pb-freshness">Where this comes from · comp set rebuilt nightly, refreshed 1 day ago.</p>
+    </section>
+
+    <section class="pb-card pb-card--frame" aria-labelledby="distHead">
+      <h2 class="pb-card-head" id="distHead">
+        <span>Distress score</span>
+        <span class="pb-tally">0–100 · HIGHER = MORE DISTRESS</span>
+      </h2>
+
+      <div class="pb-distress-score">
+        <p class="pb-mlabel">DISTRESS</p>
+        <p class="pb-mval">68</p>
+      </div>
+
+      <p class="pb-prose" style="margin:0 0 var(--pb-space-5);">
+        Three things weigh on this parcel: it's behind on taxes, it carries an open unsafe
+        violation, and it's read as vacant. Tap a segment to see the receipt.
+      </p>
+
+      <div class="pb-stack" role="img" aria-label="Stacked distress bar: tax-delinquency 32, vacancy 22, violations 14 of a 68 total.">
+        <div class="pb-seg pb-seg--red" data-seg="tax" style="flex:32" tabindex="0" role="button" aria-label="Tax-delinquency segment, contributes 32 points">TAX&nbsp;32</div>
+        <div class="pb-seg pb-seg--brick" data-seg="vac" style="flex:22" tabindex="0" role="button" aria-label="Vacancy segment, contributes 22 points">VAC&nbsp;22</div>
+        <div class="pb-seg pb-seg--gravel" data-seg="viol" style="flex:14" tabindex="0" role="button" aria-label="Violations segment, contributes 14 points">VIOL&nbsp;14</div>
+      </div>
+
+      <div class="pb-seg-key">
+        <button data-seg="tax"><span class="pb-swatch" style="background:var(--pb-red)"></span>Tax-delinquency</button>
+        <button data-seg="vac"><span class="pb-swatch" style="background:var(--pb-brick)"></span>Vacancy</button>
+        <button data-seg="viol"><span class="pb-swatch" style="background:var(--pb-gravel)"></span>L&amp;I violations</button>
+      </div>
+
+      <div class="pb-seg-detail" id="segDetail" aria-live="polite">
+        <h4 id="segTitle">Tax-delinquency</h4>
+        <div class="pb-deco-grid">
+          <div class="pb-deco-cell"><p class="pb-mlabel">RAW</p><span class="v" id="segRaw">$7,910 owed</span></div>
+          <div class="pb-deco-cell"><p class="pb-mlabel">NORMALIZED</p><span class="v" id="segNorm">0.80</span></div>
+          <div class="pb-deco-cell"><p class="pb-mlabel">WEIGHT</p><span class="v" id="segWt">0.40</span></div>
+          <div class="pb-deco-cell"><p class="pb-mlabel">CONTRIBUTION</p><span class="v" id="segContrib">32</span></div>
+        </div>
+        <p class="pb-deco-src" id="segSrc">SOURCE · <span class="pb-dotted" data-src="rev">[REV · 2026-06-15]</span></p>
+      </div>
+
+      <div class="pb-community">
+        <span class="pb-cs-mark">COMMUNITY SIGNAL</span>
+        <p>
+          Vacant three-plus years and two years behind on taxes — but the bones are good and the
+          block's already turning. Bring this one back and that's a home returned to Firth Street,
+          not another shell. 142 vacant on these blocks · 38 in active rehab this year.
+        </p>
+      </div>
+
+      <div class="pb-actions">
+        <button class="pb-btn pb-btn--primary" onclick="sendPrompt('Save 1834 E Firth St to my Fishtown watchlist')">SAVE THIS LEAD →</button>
+        <button class="pb-btn pb-btn--secondary" onclick="sendPrompt('Add a note to 1834 E Firth St')">ADD NOTE +</button>
+        <button class="pb-btn pb-btn--ghost" onclick="sendPrompt('Pull the full distress breakdown for 1834 E Firth St as JSON')">EXPORT RECORD</button>
+      </div>
+    </section>
+
+  </main>
+
+  <aside class="pb-rail" id="rail" aria-label="Teach-in-place context rail">
+    <h2 class="pb-rail-head">The file, explained</h2>
+
+    <div class="pb-rail-block" id="def-default">
+      <p class="pb-rail-term">START HERE</p>
+      <p class="pb-rail-def">
+        Tap any dotted term in the file and the plain-English version opens right here — like a
+        margin note from someone who actually lives on the block. Try <button class="pb-term" data-term="clr">CLR</button>,
+        <button class="pb-term" data-term="armslength">arms-length</button>, or
+        <button class="pb-term" data-term="distress">distress score</button>.
+      </p>
+    </div>
+
+    <div class="pb-rail-block">
+      <p class="pb-rail-term">CLR</p>
+      <hr class="pb-section-rule">
+      <p class="pb-rail-def">
+        Common Level Ratio — the factor the state uses to line up an assessed value with what
+        properties actually sell for. When the assessment looks high against the comps, the CLR is
+        the lever you check first.
+      </p>
+      <p class="pb-rail-src">SOURCE · PA State Tax Equalization Board, 2026</p>
+    </div>
+
+    <div class="pb-rail-block">
+      <p class="pb-rail-term">SOURCE STAMPS</p>
+      <p class="pb-rail-def">
+        Every figure on this page carries its origin. [OPA] is the assessor, [RTT] is the recorded
+        deed, [L&amp;I] is licenses &amp; inspections, [REV] is the Revenue Dept, [SHERIFF '03] is the
+        2003 sheriff sale. Numbers don't lie — people do. Here's the record.
+      </p>
+    </div>
+  </aside>
+</div>
+
+<footer class="pb-foot">
+  PHILLYBRICKS · KNOW THE BLOCK BEFORE YOU KNOCK · DATA: OPA · RTT · L&amp;I · REVENUE · SHERIFF
+</footer>
+
+<script>
+(function () {
+  var root = document.documentElement;
+
+  var btn = document.getElementById("themeBtn");
+  var label = document.getElementById("themeLabel");
+  function setLabel() {
+    label.textContent = root.getAttribute("data-theme") === "dark" ? "LIGHT MODE" : "DARK MODE";
+  }
+  setLabel();
+  btn.addEventListener("click", function () {
+    root.setAttribute("data-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    setLabel();
+  });
+
+  var derivBtn = document.getElementById("derivBtn");
+  var derivBody = document.getElementById("derivBody");
+  var derivToggle = document.getElementById("derivToggle");
+  derivBtn.addEventListener("click", function () {
+    var open = derivBody.classList.toggle("open");
+    derivBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    derivToggle.textContent = open ? "HIDE THE MATH −" : "SHOW THE MATH +";
+  });
+
+  var segData = {
+    tax:  { title: "Tax-delinquency", raw: "$7,910 owed", norm: "0.80", wt: "0.40", contrib: "32", src: "[REV · 2026-06-15]" },
+    vac:  { title: "Vacancy", raw: "3.2 yrs vacant", norm: "0.73", wt: "0.30", contrib: "22", src: "[L&I VACANT · 2026-05]" },
+    viol: { title: "L&I violations", raw: "1 open · UNSAFE", norm: "0.70", wt: "0.20", contrib: "14", src: "[L&I '24]" }
+  };
+  function showSeg(key) {
+    var d = segData[key];
+    if (!d) return;
+    document.getElementById("segTitle").textContent = d.title;
+    document.getElementById("segRaw").textContent = d.raw;
+    document.getElementById("segNorm").textContent = d.norm;
+    document.getElementById("segWt").textContent = d.wt;
+    document.getElementById("segContrib").textContent = d.contrib;
+    document.getElementById("segSrc").innerHTML = "SOURCE · <span class='pb-dotted'>" + d.src + "</span>";
+  }
+  document.querySelectorAll("[data-seg]").forEach(function (el) {
+    el.addEventListener("click", function () { showSeg(el.getAttribute("data-seg")); });
+    el.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showSeg(el.getAttribute("data-seg")); }
+    });
+  });
+
+  var defs = {
+    clr: {
+      term: "CLR — Common Level Ratio",
+      def: "The factor the state uses to line up an assessed value with what properties actually sell for. When the assessment looks high against the comps, the CLR is the lever you check first.",
+      src: "PA State Tax Equalization Board, 2026"
+    },
+    armslength: {
+      term: "Arms-length sale",
+      def: "A sale between two unrelated parties, each acting in their own interest — no family transfer, no $1 estate deed, no sheriff sale. The only kind we trust as a comp.",
+      src: "Records Dept deed index"
+    },
+    distress: {
+      term: "Distress score",
+      def: "A 0–100 read built from tax-delinquency, vacancy, and open violations, each normalized and weighted. Higher means more distress. Every piece is decomposable — tap a segment to see the receipt.",
+      src: "PhillyBricks model · OPA + L&I + REV"
+    }
+  };
+  var defaultBlock = document.getElementById("def-default");
+  function teach(termKey) {
+    var d = defs[termKey];
+    if (!d) return;
+    var block = document.createElement("div");
+    block.className = "pb-rail-block flash";
+    block.innerHTML = "<p class='pb-rail-term'>" + d.term + "</p><hr class='pb-section-rule'>" +
+      "<p class='pb-rail-def'>" + d.def + "</p><p class='pb-rail-src'>SOURCE · " + d.src + "</p>";
+    defaultBlock.insertAdjacentElement("afterend", block);
+    block.scrollIntoView({ block: "nearest" });
+    setTimeout(function () { block.classList.remove("flash"); }, 1400);
+  }
+  document.querySelectorAll(".pb-term").forEach(function (t) {
+    t.addEventListener("click", function () { teach(t.getAttribute("data-term")); });
+  });
+
+  var srcLabels = {
+    opa: "OPA · Office of Property Assessment",
+    rtt: "RTT · Recorded deed, Records Dept",
+    li: "L&I · Licenses & Inspections",
+    rev: "REV · Department of Revenue",
+    sheriff: "Sheriff sale record"
+  };
+  function openSource(key) {
+    var label = srcLabels[key] || key;
+    var block = document.createElement("div");
+    block.className = "pb-rail-block flash";
+    block.innerHTML = "<p class='pb-rail-term'>WHERE THIS COMES FROM</p>" +
+      "<p class='pb-rail-def'>" + label + ". This is the originating public record for the figure you tapped — open it to verify the raw entry.</p>" +
+      "<p class='pb-rail-src'>" + '<a href="https://atlas.phila.gov">View record on Atlas →</a>' + "</p>";
+    defaultBlock.insertAdjacentElement("afterend", block);
+    block.scrollIntoView({ block: "nearest" });
+    setTimeout(function () { block.classList.remove("flash"); }, 1400);
+  }
+  document.querySelectorAll("[data-src]").forEach(function (el) {
+    el.addEventListener("click", function () { openSource(el.getAttribute("data-src")); });
+    if (el.classList.contains("pb-src") || el.classList.contains("pb-dotted")) {
+      el.setAttribute("tabindex", "0");
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") { e.preventDefault(); openSource(el.getAttribute("data-src")); }
+      });
+    }
+  });
+
+  if (typeof window.sendPrompt !== "function") {
+    window.sendPrompt = function (t) { console.log("sendPrompt:", t); };
+  }
+})();
+</script>
+<script>
+(function(){
+  function fitOne(a,b){
+    if(!a||!b) return;
+    a.style.letterSpacing='normal';
+    var target=b.getBoundingClientRect().width;
+    if(target<=0) return;
+    var n=(a.textContent||'').replace(/\s/g,'').length||1;
+    for(var i=0;i<3;i++){
+      var w=a.getBoundingClientRect().width;
+      var cur=parseFloat(a.style.letterSpacing)||0;
+      a.style.letterSpacing=(cur+(target-w)/n)+'px';
+    }
+  }
+  function fit(){
+    fitOne(document.querySelector('.wordmark .l1'),document.querySelector('.wordmark .l2'));
+    fitOne(document.querySelector('.pb-mark .pb-philly'),document.querySelector('.pb-mark .pb-bricks'));
+  }
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(fit);}
+  window.addEventListener('load',fit);
+  window.addEventListener('resize',fit);
+})();
+</script>
+</body>
+</html>

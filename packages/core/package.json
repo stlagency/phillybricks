@@ -1,0 +1,25 @@
+{
+  "name": "@phillybricks/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Pure logic: CityAdapter contract + philadelphia adapter, comps, value estimate, distress scoring (versioned config). No I/O.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./adapters/philadelphia": "./src/adapters/philadelphia.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

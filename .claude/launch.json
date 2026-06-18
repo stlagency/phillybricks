@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "reconciled", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8231", "--directory", "/Users/aaroncohen/CLAUDEMAXING/cw_Philly/design/reconciled"], "port": 8231 }
+  ]
+}

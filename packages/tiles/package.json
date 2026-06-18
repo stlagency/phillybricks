@@ -1,0 +1,25 @@
+{
+  "name": "@phillybricks/tiles",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "tippecanoe → PMTiles → Cloudflare R2 (single object rebuilt nightly). No dynamic ST_AsMVT base map.",
+  "license": "AGPL-3.0-or-later",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "build:tiles": "node --experimental-strip-types src/build.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.726.0",
+    "@phillybricks/db": "workspace:*",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

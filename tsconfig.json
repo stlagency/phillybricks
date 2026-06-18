@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/core" },
+    { "path": "./packages/db" },
+    { "path": "./packages/ingestion" },
+    { "path": "./packages/tiles" },
+    { "path": "./apps/web" }
+  ]
+}
