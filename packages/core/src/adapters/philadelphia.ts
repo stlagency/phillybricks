@@ -741,13 +741,23 @@ const geoSources: GeoSourceSpec[] = [
 ];
 
 /**
- * Sheriff-sale scraper (PRD §4.2; not in open data). phillysheriff mortgage +
- * foreclosure pages (server-rendered Ninja Tables). Honor robots Crawl-delay: 10.
- * Assert `<thead>` column order before parse. `AssessmentID` (9-digit OPA) joins clean.
+ * Sheriff-sale scraper (PRD §4.2; not in open data). VERIFIED live 2026-06-18:
+ * server-rendered Ninja Tables, ALL rows in the HTML (mortgage ≈909, foreclosure ≈667),
+ * positional `<td>` cells with NO data-* keys → the column-order assertion is the
+ * only safety net (M2 gate). Use the NON-www host (www 301-redirects). robots.txt
+ * allows these paths with Crawl-delay: 10.
+ *
+ * `sale_type` (core 'mortgage' | 'tax') is DERIVED from WHICH PAGE, not the SaleType
+ * column: the mortgage page is all 'MORTGAGE FORECLOSURE'; the foreclosure page is tax
+ * sales whose SaleType varies (Linebarger / GRB / TAX COLLECTION… / TAX LIEN…), preserved
+ * raw in `source_sale_type`. `SaleStatus` ∈ {Preview, Postponed} → `sale_status` core vocab.
+ * `AssessmentID` is a clean 9-digit OPA → parcel_pk join. No Plaintiff/Defendant columns
+ * exist (those + opening_bid/judgment come only from Bid4Assets enrichment, OFF by default).
+ * NOTE: each page renders TWO theads (a clone/sticky header) — assert against the first.
  */
 const scraper: ScraperSpec = {
-  urls: ['https://www.phillysheriff.com/mortgage/', 'https://www.phillysheriff.com/foreclosure/'],
-  expectedColumns: ['SaleDate', 'AssessmentID', 'Address', 'BookWrit', 'Plaintiff', 'Defendant'],
+  urls: ['https://phillysheriff.com/mortgage/', 'https://phillysheriff.com/foreclosure/'],
+  expectedColumns: ['ID', 'BooknWrit', 'AssessmentID', 'Street', 'SaleType', 'SaleStatus', 'SaleDate'],
   crawlDelaySec: 10,
 };
 
