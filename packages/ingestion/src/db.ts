@@ -38,10 +38,17 @@ export interface DbClient {
 /**
  * Open a real connection from `DATABASE_URL`. `max: 1` keeps a single serialized
  * connection for the nightly worker; `onnotice` is silenced so NOTICEs from
- * `if not exists` DDL don't spam logs. Caller owns `end()`.
+ * `if not exists` DDL don't spam logs. `prepare: false` is REQUIRED for Supabase's
+ * transaction pooler (port 6543, which doesn't support session-level prepared
+ * statements); `ssl: 'require'` because the pooler mandates TLS. Caller owns `end()`.
  */
 export function connectFromEnv(): Sql {
-  return postgres(databaseUrlFromEnv(), { max: 1, onnotice: () => {} });
+  return postgres(databaseUrlFromEnv(), {
+    max: 1,
+    prepare: false,
+    ssl: 'require',
+    onnotice: () => {},
+  });
 }
 
 /** A `postgres.Sql` instance is assignable to `DbClient` — this narrows it. */
