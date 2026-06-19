@@ -428,6 +428,10 @@ html[data-theme='dark'] .pb-lensswitch button[aria-pressed='true'] { color: var(
 .pb-maphead .pb-kicker { font-family: var(--pb-font-serif); font-style: italic; font-size: var(--pb-text-base); color: var(--pb-slate); margin: 0 0 var(--pb-space-2); }
 .pb-crumbs { font-family: var(--pb-font-mono); font-size: var(--pb-text-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--pb-slate); display: flex; gap: 8px; align-items: center; }
 .pb-crumbs b { color: var(--pb-blue); font-weight: 700; }
+.pb-crumbs button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--pb-slate); background: none; border: none; padding: 0; cursor: pointer; }
+.pb-crumbs button:hover { color: var(--pb-blue); }
+.pb-crumbs button.pb-crumb-active { color: var(--pb-blue); font-weight: 700; }
+.pb-crumbs .pb-crumb-disabled { opacity: 0.45; cursor: default; }
 .pb-lensbar { display: flex; align-items: center; gap: var(--pb-space-5); padding: 0 var(--pb-space-7) var(--pb-space-5); flex-wrap: wrap; }
 .pb-map-outer { margin: 0 var(--pb-space-7); }
 .pb-timestrip-wrap { margin: var(--pb-space-7) var(--pb-space-7) 0; }

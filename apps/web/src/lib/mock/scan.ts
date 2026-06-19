@@ -223,6 +223,7 @@ export function buildScanResponse(
     features,
     period_min: '2018 Q1',
     period_max: '2026 Q2',
+    periods: ['2018 Q1', '2020 Q1', '2022 Q1', '2024 Q1', '2026 Q2'],
     metric_class: meta.metric_class,
     legend: { min: 0, median: 2, max: 4, unit: meta.unit },
   };

@@ -101,10 +101,12 @@ function fillColorExpr(ramp: string[]): maplibregl.ExpressionSpecification {
 export interface ScanMapProps {
   lens: LensMetric;
   geoType?: 'neighborhood' | 'zip' | 'tract';
+  /** Active period ('YYYY-MM'); omitted ⇒ the API's latest. */
+  period?: string;
   onSelect?: (f: ScanFeature | null) => void;
 }
 
-export function ScanMap({ lens, geoType = 'neighborhood', onSelect }: ScanMapProps) {
+export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: ScanMapProps) {
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
@@ -160,12 +162,12 @@ export function ScanMap({ lens, geoType = 'neighborhood', onSelect }: ScanMapPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [geoType, ready]);
 
-  // Fetch the lens values + (re)apply the join + paint on lens/theme change.
+  // Fetch the lens values + (re)apply the join + paint on lens/theme/period change.
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     applyData(mapRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lens, theme, ready, geoType]);
+  }, [lens, theme, ready, geoType, period]);
 
   /** Join /api/scan buckets into the boundary GeoJSON and (re)paint. */
   async function applyData(map: maplibregl.Map) {
@@ -173,7 +175,8 @@ export function ScanMap({ lens, geoType = 'neighborhood', onSelect }: ScanMapPro
     if (!fc) return;
     let scanByGeo = new Map<string, ScanFeature>();
     try {
-      const scan = await (await fetch(`/api/scan?geo=${geoType}&lens=${lens}`)).json();
+      const periodQ = period ? `&period=${encodeURIComponent(period)}` : '';
+      const scan = await (await fetch(`/api/scan?geo=${geoType}&lens=${lens}${periodQ}`)).json();
       scanByGeo = new Map((scan.features as ScanFeature[]).map((f) => [f.geo_id, f]));
     } catch {
       setStatus('error');

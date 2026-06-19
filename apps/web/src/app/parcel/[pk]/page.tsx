@@ -1,20 +1,26 @@
 /**
  * Route "/parcel/[pk]" — Property Deep-Dive (PRD §7.2). Server component:
- * resolves the parcel bundle (mock ParcelDeepDive today; GET /api/parcel/:pk
- * tomorrow) and hands it to the client <DeepDive> for the interactive teach-
- * rail / drawer / distress decomposition.
+ * resolves the parcel bundle from the live DB via lib/parcel-query.ts
+ * `loadDeepDive` (the same assembly the /api/parcel/:pk route returns) and hands
+ * it to the client <DeepDive> for the interactive teach-rail / drawer / distress
+ * decomposition. Unknown parcel → notFound().
  */
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { DeepDive } from './DeepDive';
-import { getDeepDive } from '../../../lib/mock/parcel';
+import { db } from '../../../lib/db';
+import { loadDeepDive } from '../../../lib/parcel-query';
 
 interface PageProps {
   params: Promise<{ pk: string }>;
 }
 
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pk } = await params;
-  const data = getDeepDive(pk);
+  const data = await loadDeepDive(db(), pk);
+  if (!data) return { title: 'Parcel not found — PhillyBricks' };
   return {
     title: `${data.parcel.address} · OPA ${data.parcel.parcel_pk} — PhillyBricks`,
     description: `Parcel deep-dive for ${data.parcel.address}: assessment vs. sale, sale history, permits & violations, taxes, comps + value estimate, and a decomposable distress score — every figure sourced to the public record.`,
@@ -23,6 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { pk } = await params;
-  const data = getDeepDive(pk);
+  const data = await loadDeepDive(db(), pk);
+  if (!data) notFound();
   return <DeepDive data={data} />;
 }

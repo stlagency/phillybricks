@@ -24,11 +24,12 @@ export async function GET(req: Request): Promise<Response> {
   const { metric, unit, metricClass } = LENS_METRIC[lens];
   const sql = db();
 
-  const range = await sql<{ lo: string | null; hi: string | null }[]>`
-    select min(period) as lo, max(period) as hi
-    from public.geo_metric where geo_type = ${geo} and metric = ${metric}`;
-  const period_min = range[0]?.lo ?? '';
-  const period_max = range[0]?.hi ?? '';
+  const periodRows = await sql<{ period: string }[]>`
+    select distinct period from public.geo_metric
+    where geo_type = ${geo} and metric = ${metric} order by period`;
+  const periods = periodRows.map((r) => r.period);
+  const period_min = periods[0] ?? '';
+  const period_max = periods[periods.length - 1] ?? '';
   const period = periodParam ?? period_max;
 
   let features: ScanFeature[] = [];
@@ -63,6 +64,7 @@ export async function GET(req: Request): Promise<Response> {
     features,
     period_min,
     period_max,
+    periods,
     metric_class: resolvedClass,
     legend: {
       min: present.length ? Math.min(...present) : null,
