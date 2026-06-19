@@ -3,9 +3,12 @@
  * (change-log / event history), refreshDerived. Selected generically by canonical
  * target table — no Philly source literal appears here.
  *
- * M1 NOTE: matview REFRESH is deferred to M3 (the worker role does not own
- * distress_signal/comp_candidate; PG16 blocks granting that), so `refreshDerived`
- * is a no-op for now (documented gotcha in docs/NEXT_SESSION.md).
+ * M3 NOTE: the per-source `refreshDerived` is intentionally a NO-OP. Refreshing the
+ * two population matviews (distress_signal, comp_candidate) once per source would mean
+ * 14× redundant full refreshes a night, so derived refresh + geo-stamp + geo_metric
+ * recompute run ONCE at the end of the nightly via `finalizeDerived` (finalize.ts,
+ * called by run.ts main()). The §4.1 "after promote" invariant still holds — finalize
+ * runs strictly after every source has promoted.
  */
 import type { SourceSpec, SourceMapping } from '@phillybricks/core/contracts';
 import { computeSoftRetire } from './adapters/opaBulk.js';
@@ -98,7 +101,8 @@ export function makeStepsForSpec(spec: SourceSpec): SourceSteps {
     },
     diff: diffForSpec(spec, mapping),
     async refreshDerived() {
-      // M1: matview refresh deferred to M3 (worker is not the matview owner).
+      // No-op by design: derived refresh is a single end-of-run finalizeDerived()
+      // (finalize.ts), not a per-source step. See the module header.
     },
   };
 }

@@ -122,6 +122,35 @@ export {
 // Per-source steps factory.
 export { makeStepsForSpec, softRetireParcels } from './steps.js';
 
+// M3 derived analytics: geo boundary load, point-in-polygon stamping, geo_metric,
+// and the end-of-nightly derived finalize (refresh matviews + recompute geo_metric).
+export {
+  geoBoundaryIsEmpty,
+  loadGeoBoundaries,
+  loadGeoBoundarySource,
+  type LoadBoundaryResult,
+} from './loaders/geoBoundary.js';
+export {
+  stampGeoColumn,
+  stampAllGeo,
+  STAMP_TABLES,
+  type StampResult,
+  type StampTable,
+} from './loaders/geoStamp.js';
+export {
+  recomputeGeoMetrics,
+  type RecomputeGeoMetricsOptions,
+  type RecomputeGeoMetricsResult,
+} from './loaders/geoMetric.js';
+export {
+  finalizeDerived,
+  refreshMatview,
+  REFRESH_MATVIEWS,
+  type FinalizeDerivedOptions,
+  type FinalizeDerivedResult,
+  type RefreshMatview,
+} from './finalize.js';
+
 // Resumable backfill (M1a).
 export {
   backfillSource,

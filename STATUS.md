@@ -1,6 +1,6 @@
 # Build status
 
-Ingestion-first per PRD §9. State history (change-logs) only accrues forward and is the one irrecoverable asset. **→ Resume point for the next session: [`docs/NEXT_SESSION.md`](docs/NEXT_SESSION.md) — M3 derived analytics (real distress/comps matviews + matview-ownership fix).**
+Ingestion-first per PRD §9. State history (change-logs) only accrues forward and is the one irrecoverable asset. **→ Resume point for the next session: [`docs/NEXT_SESSION.md`](docs/NEXT_SESSION.md) — M4 serving + map (PMTiles→R2, MapLibre 4-lens scan, read APIs). Needs Vercel Pro + R2 keys.**
 
 **Repo:** https://github.com/stlagency/phillybricks (public, AGPL-3.0, secret-scanning + push-protection on).
 **CI:** green — typecheck · lint · tests (443 pass/1 skip) · portability gate · static + **live `pg_catalog` RLS gate** (runs migrations against ephemeral PostGIS) · gitleaks full-history.
@@ -12,8 +12,8 @@ Ingestion-first per PRD §9. State history (change-logs) only accrues forward an
 | **M1** | Ingestion core wired live: all 14 sources ingest, per-source join rates measured + thresholds set, `parcel_change_log` accruing (2.3M baseline), nightly green end-to-end | ✅ **done** |
 | **M1a** | RTT backfill to 1974 (resumable keyset) | 🔄 running (re-runnable to `drained`) |
 | **M2** | Sheriff scraper (phillysheriff, NON-www; generic scrape engine + column-order gate + minRows floor + AbortController timeout; Bid4Assets OFF). Live: `sheriff_listing`=1,576, 1,125 parcels → `on_sheriff_list`. Adversarial review: 7 fixed / 5 dismissed | ✅ **done** |
-| **M3** | Derived analytics: distress signal + composite, comp_candidate, incremental geo_metric, geo_boundary + **matview-ownership/refresh fix** | 🔜 **next** |
-| **M4** | Serving + map: PMTiles → R2, MapLibre 4-lens scan, read APIs | ⏳ |
+| **M3** | Derived analytics: real `distress_signal` composite (SQL **generated** from `packages/core` `DISTRESS_CONFIG` → single source of truth with `scoreDistress`; **live parity 0/75**), `comp_candidate` (618,956), incremental `geo_metric` (644,814 rows, 11 metrics, classes a/b, back to 1974), `geo_boundary` (591) + point-in-polygon geo-stamping (583,503 parcels), **matview-ownership/refresh fix** (worker owns → `REFRESH … CONCURRENTLY` verified). 5-dimension adversarial review | ✅ **done** |
+| **M4** | Serving + map: PMTiles → R2, MapLibre 4-lens scan, read APIs (**Vercel Pro + R2 keys needed**) | 🔜 **next** |
 | **M5** | Property deep-dive page + bundle endpoint | ⏳ |
 | **M6** | Leads + mini-CRM + CSV export + BYO skip-trace proxy | ⏳ |
 | **M7** | Accounts, Stripe subscription + verified webhook, saved areas, alerts (Resend digest) | ⏳ |

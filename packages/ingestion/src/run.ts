@@ -30,6 +30,7 @@ import {
 import { makeCartoFetcher, makeOpaFetcher } from './fetchers.js';
 import { makeScrapeFetcher } from './adapters/scrape.js';
 import { makeStepsForSpec } from './steps.js';
+import { finalizeDerived } from './finalize.js';
 import {
   runSourcePipeline,
   type PipelineHooks,
@@ -264,6 +265,19 @@ export async function main(): Promise<void> {
     );
     for (const r of reports) {
       console.log(`  ${r.source}: ${r.status} (in=${r.rowsIn}, promoted=${r.rowsPromoted})${r.error ? ` — ${r.error}` : ''}`);
+    }
+
+    // Derived finalize runs ONCE, after every source promoted (PRD §4.1 invariant):
+    // geo-stamp → refresh comp_candidate + distress_signal (CONCURRENTLY) → geo_metric.
+    // A finalize failure must NOT fail the whole nightly (history already accrued).
+    try {
+      const fin = await finalizeDerived(db, { log: (m) => console.log(`  ${m}`) });
+      console.log(
+        `Derived finalize complete: refresh ${fin.refreshes.comp_candidate}/${fin.refreshes.distress_signal}, ` +
+          `geo_metric ${fin.geoMetric.classAStatements + fin.geoMetric.classBStatements} statements.`,
+      );
+    } catch (err) {
+      console.error(`Derived finalize FAILED (history is safe; will retry next run): ${err instanceof Error ? err.message : err}`);
     }
   } finally {
     await sql.end({ timeout: 5 });

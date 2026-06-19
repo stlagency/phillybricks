@@ -41,6 +41,15 @@ export {
 } from './scoring/config.js';
 export { scoreDistress, type DistressSignalInput } from './scoring/distress.js';
 
+// Distress matview DDL generated from the SAME config as scoreDistress (PRD §3.4).
+export {
+  buildDistressSignalDDL,
+  distressCompositeSql,
+  normalizeSql,
+  normalizeNumeric,
+  compositeNumeric,
+} from './scoring/distressSql.js';
+
 // Comps + transparent value estimate (PRD §5.2).
 export {
   selectComps,

@@ -801,8 +801,11 @@ const geoSources: GeoSourceSpec[] = [
   {
     kind: 'neighborhood',
     url: 'https://raw.githubusercontent.com/opendataphilly/open-geo-data/master/philadelphia-neighborhoods/philadelphia-neighborhoods.geojson',
-    idField: 'name',
-    nameField: 'name',
+    // Live-verified 2026-06-18: this FeatureCollection (159 MultiPolygon features)
+    // keys neighborhood identity on the UPPERCASE `NAME` property (e.g. 'PASSYUNK
+    // SQUARE'); there is no lowercase `name`. `MAPNAME` is the friendlier display label.
+    idField: 'NAME',
+    nameField: 'MAPNAME',
   },
   {
     kind: 'zip',
