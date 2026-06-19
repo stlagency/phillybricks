@@ -128,6 +128,6 @@ Every figure on `/parcel/[pk]` binds to live `ParcelDeepDive` data or an honest 
 - **ZeptoMail** `ZEPTOMAIL_TOKEN` + verified `bandbox.pro` sending domain (DKIM/SPF) — **M7** (alert digest).
 - **Stripe** keys — **M8** only (monetization deferred; not needed for M7).
 - **www.bandbox.pro DNS** ⚠ **BLOCKED** — domains added to Vercel, but DNS records not created (no DNS-capable Cloudflare token here; the connected Cloudflare integration is D1/KV/R2/Workers only). **Create at the Cloudflare `bandbox.pro` zone:** `www` CNAME → `c83d3d1db37f4237.vercel-dns-016.com.` (proxy OFF / DNS-only); apex `@` A → `216.150.1.1` + `216.150.16.1`. Until wired, the live URL is `bandbox-app.vercel.app`.
-- **Vercel↔GitHub auto-deploy** — `vercel git connect` failed (authorize the Vercel GitHub App for `stlagency/bandbox`). Until then deploy manually: `vercel deploy --prod --yes` from the repo root.
+- ~~**Vercel↔GitHub auto-deploy**~~ — **DONE 2026-06-19** (`vercel git connect` succeeded after the GitHub App was reconnected; push to `main` auto-deploys to prod).
 - ~~`gh repo rename` + Vercel project rename~~ — **DONE 2026-06-19** (repo `stlagency/bandbox`, Vercel project `bandbox`, rebrand deployed live).
 - **healthchecks.io** monitor URL (`HEALTHCHECKS_URL` secret) — wire the liveness dead-man's-switch when convenient.
