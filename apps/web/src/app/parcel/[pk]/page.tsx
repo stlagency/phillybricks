@@ -5,6 +5,7 @@
  * it to the client <DeepDive> for the interactive teach-rail / drawer / distress
  * decomposition. Unknown parcel → notFound().
  */
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { DeepDive } from './DeepDive';
@@ -17,9 +18,13 @@ interface PageProps {
 
 export const dynamic = 'force-dynamic';
 
+// Per-request memoization so generateMetadata + Page share ONE bundle assembly
+// (the deep-dive query is ~10 round-trips incl. the comp candidate scan).
+const getDeepDive = cache((pk: string) => loadDeepDive(db(), pk));
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pk } = await params;
-  const data = await loadDeepDive(db(), pk);
+  const data = await getDeepDive(pk);
   if (!data) return { title: 'Parcel not found — PhillyBricks' };
   return {
     title: `${data.parcel.address} · OPA ${data.parcel.parcel_pk} — PhillyBricks`,
@@ -29,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function Page({ params }: PageProps) {
   const { pk } = await params;
-  const data = await loadDeepDive(db(), pk);
+  const data = await getDeepDive(pk);
   if (!data) notFound();
   return <DeepDive data={data} />;
 }

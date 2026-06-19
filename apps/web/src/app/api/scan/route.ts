@@ -30,7 +30,10 @@ export async function GET(req: Request): Promise<Response> {
   const periods = periodRows.map((r) => r.period);
   const period_min = periods[0] ?? '';
   const period_max = periods[periods.length - 1] ?? '';
-  const period = periodParam ?? period_max;
+  // Fall back to the latest period if the requested one doesn't exist for this
+  // metric (lenses have different period grains; a stale ?period= must not paint
+  // an empty/all-gray map — return the latest real data instead).
+  const period = periodParam && periods.includes(periodParam) ? periodParam : period_max;
 
   let features: ScanFeature[] = [];
   let present: number[] = [];

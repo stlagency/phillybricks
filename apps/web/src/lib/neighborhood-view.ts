@@ -29,6 +29,21 @@ const TYPE_TITLE: Record<GeoType, string> = {
   zip: 'ZIP code',
 };
 
+/** Largest-remainder (Hamilton) apportionment: shares (summing to ~1) → integer
+ *  percents that sum to exactly `total`. Keeps the legend + bar internally
+ *  consistent (no 99%/101% rounding artifacts). */
+function apportion(shares: number[], total = 100): number[] {
+  if (shares.length === 0) return [];
+  const raw = shares.map((s) => s * total);
+  const out = raw.map((r) => Math.floor(r));
+  let rem = total - out.reduce((a, b) => a + b, 0);
+  const byFrac = raw
+    .map((r, i) => ({ i, frac: r - Math.floor(r) }))
+    .sort((a, b) => b.frac - a.frac);
+  for (let k = 0; k < rem && k < byFrac.length; k++) out[byFrac[k]!.i]! += 1;
+  return out;
+}
+
 function ordinal(n: number): string {
   const s = ['th', 'st', 'nd', 'rd'];
   const v = n % 100;
@@ -52,12 +67,25 @@ export function geoDetailToView(d: GeoDetail): NeighborhoodDetail {
   const psf = by.get('median_price_per_sqft');
 
   // --- distress block: percentile headline + composition-share bar ---
+  // Rescale each component to its SHARE of the geo's total distress, drop the
+  // sub-0.5% noise (it would round to 0% with an invisible bar segment), then
+  // apportion to integer percents summing to exactly 100. `contribution` carries
+  // pct/100 so DistressBlock's round(contribution*100) renders the exact integers;
+  // `weight` is set to the same share so the segment tooltip's number matches the
+  // legend % (the model weight is a parcel-page concept, not a geo composition one).
   const real = d.distress;
   const denom = real.score01 > 0 ? real.score01 : 1;
-  const components = real.components
-    .map((c) => ({ ...c, contribution: c.contribution / denom }))
-    .filter((c) => c.contribution > 0.0001)
-    .sort((a, b) => b.contribution - a.contribution);
+  const kept = real.components
+    .map((c) => ({ c, share: c.contribution / denom }))
+    .filter((x) => x.share >= 0.005)
+    .sort((a, b) => b.share - a.share);
+  const sumKept = kept.reduce((s, x) => s + x.share, 0) || 1;
+  const pcts = apportion(kept.map((x) => x.share / sumKept));
+  const components = kept.map((x, i) => ({
+    ...x.c,
+    contribution: (pcts[i] ?? 0) / 100,
+    weight: (pcts[i] ?? 0) / 100,
+  }));
   const distress: DistressResult = {
     parcel_pk: real.parcel_pk,
     score01: d.distress_percentile / 100,

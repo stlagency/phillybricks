@@ -50,6 +50,7 @@ export function MarketScan() {
   const [period, setPeriod] = useState<string | undefined>(undefined);
   const [timeMeta, setTimeMeta] = useState<TimeMeta | null>(null);
   const [detail, setDetail] = useState<ReturnType<typeof geoDetailToView> | null>(null);
+  const [railLoading, setRailLoading] = useState(false);
 
   // (A) Active-lens period bounds for the TimeStrip; reset the period to latest
   // whenever the lens or geo type changes (bounds are per-lens).
@@ -89,19 +90,23 @@ export function MarketScan() {
     };
   }, [geoType]);
 
-  // (C) Selected geo → detail rail.
+  // (C) Selected geo → detail rail. Dim (not blank) the rail while the new geo's
+  // detail loads so it never shows a different geo than the under-map readout.
   useEffect(() => {
     if (!selected) return;
     let cancelled = false;
+    setRailLoading(true);
     (async () => {
       try {
         const d = (await (
           await fetch(`/api/geo/${selected.geo_type}/${encodeURIComponent(selected.geo_id)}`)
         ).json()) as GeoDetail;
-        if (cancelled || !d || (d as unknown as { error?: string }).error) return;
-        setDetail(geoDetailToView(d));
+        if (cancelled) return;
+        if (d && !(d as unknown as { error?: string }).error) setDetail(geoDetailToView(d));
       } catch {
         /* keep the prior detail rather than flashing empty */
+      } finally {
+        if (!cancelled) setRailLoading(false);
       }
     })();
     return () => {
@@ -181,7 +186,12 @@ export function MarketScan() {
 
         {/* Right rail: neighborhood detail, wired to /api/geo/:type/:id via
             geoDetailToView. DistressBlock's useRail() safely no-ops here. */}
-        <aside className="pb-rightrail" aria-label="Neighborhood detail">
+        <aside
+          className="pb-rightrail"
+          aria-label="Neighborhood detail"
+          aria-busy={railLoading}
+          style={railLoading && detail ? { opacity: 0.55, transition: 'opacity 0.15s ease' } : undefined}
+        >
           {detail ? (
             <>
               <div className="pb-nh-head">

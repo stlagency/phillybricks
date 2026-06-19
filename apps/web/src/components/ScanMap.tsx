@@ -110,8 +110,13 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
   const theme = useTheme();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
-  const boundaryRef = useRef<FeatureCollection | null>(null);
+  // Geometry is stamped with the geoType it was loaded for, so a paint that
+  // races ahead of a geo-type switch (boundaries still in flight) can bail
+  // instead of joining new scan values onto the old geometry.
+  const boundaryRef = useRef<{ geoType: string; fc: FeatureCollection } | null>(null);
   const [ready, setReady] = useState(false);
+  // Bumped when fresh boundaries land, so the value/paint effect re-runs.
+  const [dataVersion, setDataVersion] = useState(0);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
 
   // Initialize the map once.
@@ -142,16 +147,17 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
     };
   }, []);
 
-  // Load boundary geometry whenever the geo type changes.
+  // Load boundary geometry whenever the geo type changes. Only sets the stamped
+  // ref + bumps dataVersion; the value/paint effect (which has the full dep set)
+  // owns every applyData call, so painting never runs from a stale closure.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const fc = (await (await fetch(`/api/boundaries?geo=${geoType}`)).json()) as FeatureCollection;
         if (cancelled) return;
-        boundaryRef.current = fc;
-        // re-trigger the join effect by bumping ready (geometry changed).
-        if (mapRef.current) applyData(mapRef.current);
+        boundaryRef.current = { geoType, fc };
+        setDataVersion((v) => v + 1);
       } catch {
         if (!cancelled) setStatus('error');
       }
@@ -159,20 +165,23 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [geoType, ready]);
+  }, [geoType]);
 
-  // Fetch the lens values + (re)apply the join + paint on lens/theme/period change.
+  // Fetch the lens values + (re)apply the join + paint on lens/theme/period/geo
+  // change and once fresh geometry arrives (dataVersion).
   useEffect(() => {
     if (!ready || !mapRef.current) return;
     applyData(mapRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lens, theme, ready, geoType, period]);
+  }, [lens, theme, ready, geoType, period, dataVersion]);
 
   /** Join /api/scan buckets into the boundary GeoJSON and (re)paint. */
   async function applyData(map: maplibregl.Map) {
-    const fc = boundaryRef.current;
-    if (!fc) return;
+    // Bail if geometry hasn't caught up to the active geoType (a switch in flight)
+    // — otherwise we'd join this geoType's scan values onto the previous geometry.
+    const stamped = boundaryRef.current;
+    if (!stamped || stamped.geoType !== geoType) return;
+    const fc = stamped.fc;
     let scanByGeo = new Map<string, ScanFeature>();
     try {
       const periodQ = period ? `&period=${encodeURIComponent(period)}` : '';
