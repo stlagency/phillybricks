@@ -4,10 +4,10 @@ PhillyBricks is AGPL-3.0 and runs end-to-end on infrastructure you control. This
 guide covers the **docker-compose** path: a PostGIS database, the ingestion worker,
 and the Next.js web app — plus how to point the `CityAdapter` at a **different city**.
 
-The managed reference deployment (Supabase Pro + Vercel Pro + Cloudflare R2 + GitHub
-Actions, ~$45/mo) is described in `PRD.md §8`. Self-hosting replaces those managed
-pieces with the local stack below; everything else (the schema, the gates, the
-adapter seam) is identical.
+The managed reference deployment (Supabase Pro + Vercel Pro + GitHub Actions, ~$45/mo;
+map tiles ride on the same Supabase project via Supabase Storage) is described in
+`PRD.md §8`. Self-hosting replaces those managed pieces with the local stack below;
+everything else (the schema, the gates, the adapter seam) is identical.
 
 ---
 
@@ -18,8 +18,8 @@ adapter seam) is identical.
 - Outbound network access (the worker pulls from public Philadelphia open-data
   endpoints; no API key is required for Carto or the OPA S3 bulk CSV).
 
-No secrets are required just to bring the stack up. Stripe / Resend / R2 / skip-trace
-keys are only needed for the paid + alerting surfaces (`PRD.md §6, §7`).
+No secrets are required just to bring the stack up. Stripe / Resend / Supabase Storage /
+skip-trace keys are only needed for the paid + alerting surfaces (`PRD.md §6, §7`).
 
 ---
 
@@ -45,7 +45,7 @@ Optional, per surface:
 |---|---|
 | Subscriptions | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_ID` |
 | Alert email digests | `RESEND_API_KEY`, `RESEND_FROM` |
-| Map tiles on object storage | `R2_*` (or serve PMTiles from any static host) |
+| Map tiles on object storage | `SUPABASE_S3_*` / `SUPABASE_STORAGE_*` (or serve PMTiles from any static host) |
 | Liveness alerting | `HEALTHCHECKS_URL` |
 | BYO skip-trace | `SUPABASE_VAULT_KEY_ID` (+ per-user encrypted keys) |
 
@@ -184,9 +184,9 @@ serves the new city — only the adapter changed.
   worker, Next `output: 'standalone'` + multi-stage for web) are finalized in the
   worker (M1) and web (M4) milestones.
 - **PMTiles / map tiles.** The reference deployment writes a single nightly PMTiles
-  object to Cloudflare R2 (`PRD.md §6`). Self-hosting, point `R2_PUBLIC_BASE_URL` at
-  any static host that supports HTTP range requests, or serve the `.pmtiles` file from
-  a local static server.
+  object to Supabase Storage (`PRD.md §6`). Self-hosting, point
+  `SUPABASE_STORAGE_PUBLIC_BASE_URL` at any static host that supports HTTP range
+  requests, or serve the `.pmtiles` file from a local static server.
 - **Backups.** The change-log history tables (`PRD.md §3.3`) are the one irreplaceable
   asset. Self-hosting, take your own `pg_dump`/volume snapshots on a schedule — the
   managed deployment relies on Supabase daily backups (`PRD.md §8`).

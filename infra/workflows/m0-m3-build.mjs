@@ -312,8 +312,8 @@ YOUR DIRECTORY: packages/tiles (src/). Package name @phillybricks/tiles.
 Deliver:
 - src/build.ts — the nightly tile build: query public.parcel (geom) + the choropleth-relevant fields from
   the DB (via the installed 'postgres' client + DATABASE_URL), emit newline-delimited GeoJSON, shell out to
-  tippecanoe to produce a SINGLE parcels.pmtiles, and upload that ONE object to Cloudflare R2 (S3-compatible,
-  via @aws-sdk/client-s3 using R2_* env). Runs AFTER derived-refresh. No dynamic ST_AsMVT base map.
+  tippecanoe to produce a SINGLE parcels.pmtiles, and upload that ONE object to Supabase Storage (S3-compatible,
+  via @aws-sdk/client-s3 using SUPABASE_S3_* env; forcePathStyle: true). Runs AFTER derived-refresh. No dynamic ST_AsMVT base map.
 - src/geoBoundaries.ts — build tiny static GeoJSON/PMTiles for the aggregate boundaries (zip, neighborhood,
   tract) from public.geo_boundary.
 - src/index.ts — exports buildParcelTiles(), buildBoundaryTiles().

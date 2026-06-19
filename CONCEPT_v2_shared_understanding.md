@@ -79,12 +79,12 @@ Commercial reuse/resale is **permitted** (Executive Order 1-12 mandates unrestri
 - **Per-lookup economics (for BYO):** BatchData ~$0.07–0.18/record; REISkip ~$0.15/skip; Endato ~$0.10–0.25/match.
 
 ### 3c. Tiling + ingestion architecture
-- **Base map:** pre-generate **PMTiles via tippecanoe** (~23 MB for ~758K parcel/building features, ~54s build), store as a single file on **Cloudflare R2** (free tier: 10 GB / 1M writes / 10M reads), serve to **MapLibre** via HTTP Range requests. MapLibre renders PMTiles ~2× faster than deck.gl; reserve **deck.gl for advanced overlays** only.
+- **Base map:** pre-generate **PMTiles via tippecanoe** (~23 MB for ~758K parcel/building features, ~54s build), store as a single file on **Supabase Storage** (S3-compatible; rides the existing Supabase Pro plan — 100 GB storage + 250 GB egress included, $0.09/GB egress beyond), serve to **MapLibre** via HTTP Range requests. MapLibre renders PMTiles ~2× faster than deck.gl; reserve **deck.gl for advanced overlays** only.
 - **Aggregates:** materialized views per geography (ZIP ~48, neighborhood ~150, tract ~1,300 rows) → ship boundaries as tiny static GeoJSON/PMTiles.
 - **Avoid:** dynamic Supabase `ST_AsMVT` as the base map ($0.09/GB uncached egress). Use **Martin** (fastest) or pg_tileserv only for dynamic per-parcel tiles if ever needed.
 - **Heavy ingestion orchestration:** **GitHub Actions cron** (free minutes on public repos; 6 h job cap; UTC-only; 10–30 min start delays; auto-disables after 60 days idle → add a keep-alive) running the S3 bulk load + ArcGIS pagination + sheriff scraper, writing to Supabase Postgres. Always-on worker fallback: Fly.io ~$2/mo, Railway $5/mo, Render $7/mo.
 - **DB sizing/cost:** Supabase **Pro required** ($25/mo, 8 GB — free tier auto-pauses after 7 days + 500 MB cap). Event rows RTT 5.1M + crime 3.5M + 311 5.8M ≈ 14.4M ≈ 2–4 GB indexed; **window crime/311 + roll up snapshots** to stay under 8 GB.
-- **Total infra ≈ $25/mo** (Supabase Pro) + R2 free + GitHub Actions free (public repo) + Vercel hobby/pro + Stripe usage fees. Fits low-markup.
+- **Total infra ≈ $25/mo** (Supabase Pro, which also covers tile storage/egress — 100 GB / 250 GB included) + GitHub Actions free (public repo) + Vercel hobby/pro + Stripe usage fees. Fits low-markup.
 
 ---
 
@@ -132,7 +132,7 @@ phillysheriff scrape ┘   • upserts + nightly state snapshots
               ┌───────────────┼────────────────┐
               ▼               ▼                 ▼
       tippecanoe → PMTiles   PostgREST /      Stripe (subs)
-      → Cloudflare R2        Next API         Supabase Auth
+      → Supabase Storage     Next API         Supabase Auth
               │               │
               ▼               ▼
         MapLibre (base) + deck.gl (overlays) · Next on Vercel
@@ -146,7 +146,7 @@ phillysheriff scrape ┘   • upserts + nightly state snapshots
 0. **Foundations:** repo + AGPL + secret hygiene + adapter-seam skeleton; create Supabase Pro project; enable PostGIS.
 1. **Ingestion (do first):** parcel-key normalizer + validation join → OPA (S3) → `rtt_summary` (backfill + incremental) → L&I set → tax delinquency/balances → crime/311 (windowed) → licenses → sheriff scraper → nightly snapshot tables. Wire GitHub Actions cron. **Let it run to start accruing history.**
 2. **Derived analytics:** comps view, geo aggregates (materialized), distress signals + composite, $/sqft distributions, momentum, change-detection diffs for alerts.
-3. **Serving + map:** PMTiles build job → R2; MapLibre multi-res map + 4 lenses; PostgREST/Next API.
+3. **Serving + map:** PMTiles build job → Supabase Storage; MapLibre multi-res map + 4 lenses; PostgREST/Next API.
 4. **Property deep-dive** + comps + transparent rule-based estimate.
 5. **Leads** scan→score→list + mini-CRM.
 6. **Accounts + saved areas + subscription (Stripe) + alerts (digest).**
@@ -155,7 +155,7 @@ phillysheriff scrape ┘   • upserts + nightly state snapshots
 ---
 
 ## 7. Cost envelope (low-markup check)
-Supabase Pro **$25/mo** + **Vercel Pro $20/mo** (Hobby forbids commercial/payment use) · Cloudflare R2 **free** · GitHub Actions **free (public repo)** · Resend **free/cheap** · Stripe usage fees. ⇒ baseline **~$45/mo**. Conditional: Supabase Small compute +$15 if nightly refresh strains Micro; PITR +$100 only if chosen. Scales with DB size (window/roll-up to control).
+Supabase Pro **$25/mo** + **Vercel Pro $20/mo** (Hobby forbids commercial/payment use) · tiles on Supabase Storage (included in Pro: 100 GB storage + 250 GB egress) · GitHub Actions **free (public repo)** · Resend **free/cheap** · Stripe usage fees. ⇒ baseline **~$45/mo**. Conditional: Supabase Small compute +$15 if nightly refresh strains Micro; PITR +$100 only if chosen. Scales with DB size (window/roll-up to control).
 
 > **Engineering specs are superseded by `PRD.md` (v1.1)** on technical detail. Notably: history is captured as **change-logs, not full nightly snapshots** (same goal — forward-accruing trends + alerts); RTT joins ~60% on `parcel_number` so we also ingest OPA `pin` and set **empirical per-source join gates**; Carto pagination keys on `cartodb_id`. This brief remains the source of truth for *product scope*; the PRD governs *how*.
 

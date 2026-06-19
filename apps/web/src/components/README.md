@@ -10,7 +10,7 @@ prop surface to the route that will feed it (PRD §6).
 
 | Component | Prop source today | Production route / field (PRD §6) |
 |---|---|---|
-| `BlueprintMap`, `LensSwitcher`, `MapLegend`, `TimeStrip` | `src/lib/mock/scan.ts` (`HOODS`, `LENS_*`, `buildScanResponse`) | `GET /api/scan?geo=&lens=&period=` → `ScanResponse.features[].bucket` for the choropleth; `period_min/max` for `TimeStrip`; `legend` + `metric_class` for `MapLegend` / the "tracking since" note. Parcels/boundaries served as **PMTiles on R2 via MapLibre**; this SVG is the design reference for the choropleth + instrument chrome. |
+| `BlueprintMap`, `LensSwitcher`, `MapLegend`, `TimeStrip` | `src/lib/mock/scan.ts` (`HOODS`, `LENS_*`, `buildScanResponse`) | `GET /api/scan?geo=&lens=&period=` → `ScanResponse.features[].bucket` for the choropleth; `period_min/max` for `TimeStrip`; `legend` + `metric_class` for `MapLegend` / the "tracking since" note. Parcels/boundaries served as **PMTiles on Supabase Storage via MapLibre**; this SVG is the design reference for the choropleth + instrument chrome. |
 | `FilterRail` | local UI state | Filter values become `/api/scan` + `/api/leads` query params. |
 | `DistressBlock` (scan rail) | `pointBreezeDetail.distress` | tract-aggregated `DistressResult` (the `distress_signal` matview rolled to the tract). |
 | `DistressBar` (deep-dive) | `firthStDeepDive.distress` | `GET /api/parcel/:pk` → `ParcelDeepDive.distress` (the exact §5.3 `DistressResult` shape — `{component, raw_value, normalized, weight, contribution, source_url}`). |

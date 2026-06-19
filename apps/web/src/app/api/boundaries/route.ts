@@ -2,7 +2,7 @@
  * GET /api/boundaries?geo= — geo-unit polygons as a GeoJSON FeatureCollection
  * (PRD §6 "aggregate boundaries", §7.1). The small (≤591 polygon) choropleth
  * geometry the scan map colors from /api/scan. The per-parcel high-zoom layer is
- * the PMTiles object on R2 (packages/tiles), not this route.
+ * the PMTiles object on Supabase Storage (packages/tiles), not this route.
  */
 import { NextResponse } from 'next/server';
 import { db } from '../../../lib/db';

@@ -8,11 +8,11 @@
  *      the client needs to color a parcel from public.geo_metric.
  *   2. Pipe that ndjson straight into tippecanoe's stdin, producing a SINGLE
  *      `parcels.pmtiles` archive.
- *   3. Upload that ONE object to Cloudflare R2 (S3-compatible).
+ *   3. Upload that ONE object to Supabase Storage (S3-compatible).
  *
  * No dynamic ST_AsMVT base map — the whole base map is this static, CDN-served,
- * HTTP-range-read PMTiles object, rebuilt once per night (well under R2's 1M
- * Class-A ops/mo, PRD §6 "Tiles").
+ * HTTP-range-read PMTiles object, rebuilt once per night. One PUT per source per
+ * night is negligible against the existing Supabase Pro plan (PRD §6 "Tiles").
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * TIPPECANOE — REQUIRED IN THE CI/RUNNER IMAGE.
@@ -48,14 +48,14 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import postgres, { type Sql } from 'postgres';
 import {
   assertTippecanoeInstalled,
-  makeR2Client,
-  r2ConfigFromEnv,
-  uploadFileToR2,
-  type R2Config,
+  makeStorageClient,
+  storageConfigFromEnv,
+  uploadFileToStorage,
+  type StorageConfig,
   type TileUploadResult,
-} from './r2.js';
+} from './storage.js';
 
-/** The single object key written to R2 every night. Stable so the CDN URL is stable. */
+/** The single object key written to Storage every night. Stable so the CDN URL is stable. */
 export const PARCEL_TILES_KEY = 'parcels.pmtiles';
 /** Vector layer name inside the archive; the web client (MapLibre) references this. */
 export const PARCEL_LAYER = 'parcels';
@@ -68,14 +68,14 @@ export interface BuildParcelTilesOptions {
   databaseUrl?: string;
   /** Reuse an open postgres client (the nightly worker's). If given, it is NOT closed here. */
   sql?: Sql;
-  /** Override R2 config (defaults to r2ConfigFromEnv()). */
-  r2?: R2Config;
+  /** Override Storage config (defaults to storageConfigFromEnv()). */
+  storage?: StorageConfig;
   /** Override the tippecanoe binary name/path (default 'tippecanoe'). */
   tippecanoeBin?: string;
-  /** Override the R2 object key (default PARCEL_TILES_KEY). */
+  /** Override the Storage object key (default PARCEL_TILES_KEY). */
   key?: string;
   /**
-   * Skip the R2 upload (build the local .pmtiles only). For local/dry runs;
+   * Skip the Storage upload (build the local .pmtiles only). For local/dry runs;
    * the nightly job leaves this false.
    */
   skipUpload?: boolean;
@@ -88,7 +88,7 @@ export interface BuildParcelTilesResult {
   featureCount: number;
   /** Local path of the produced archive (in a temp dir, removed after upload). */
   localPath: string;
-  /** R2 upload result, or null when skipUpload. */
+  /** Storage upload result, or null when skipUpload. */
   upload: TileUploadResult | null;
   tippecanoeVersion: string;
 }
@@ -126,7 +126,7 @@ function parcelFeatureQuery(sql: Sql): AsyncIterable<{ feature: string }[]> {
 }
 
 /**
- * Build parcels.pmtiles and (unless skipUpload) upload it to R2 as a single object.
+ * Build parcels.pmtiles and (unless skipUpload) upload it to Supabase Storage as a single object.
  * Streams DB rows → tippecanoe stdin → PMTiles, so peak memory stays flat.
  */
 export async function buildParcelTiles(
@@ -172,12 +172,12 @@ export async function buildParcelTiles(
 
     let upload: TileUploadResult | null = null;
     if (!opts.skipUpload) {
-      const cfg = opts.r2 ?? r2ConfigFromEnv();
-      const client = makeR2Client(cfg);
-      upload = await uploadFileToR2(client, cfg, localPath, key);
+      const cfg = opts.storage ?? storageConfigFromEnv();
+      const client = makeStorageClient(cfg);
+      upload = await uploadFileToStorage(client, cfg, localPath, key);
       client.destroy();
       log(
-        `uploaded ${upload.bytes.toLocaleString()} bytes → r2://${upload.bucket}/${upload.key}`,
+        `uploaded ${upload.bytes.toLocaleString()} bytes → s3://${upload.bucket}/${upload.key}`,
       );
     }
 
@@ -277,7 +277,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     .then((r) => {
       console.log(
         `✅ parcels.pmtiles built (${r.featureCount.toLocaleString()} features)` +
-          (r.upload ? ` and uploaded to r2://${r.upload.bucket}/${r.upload.key}` : ' (upload skipped)'),
+          (r.upload ? ` and uploaded to s3://${r.upload.bucket}/${r.upload.key}` : ' (upload skipped)'),
       );
     })
     .catch((err) => {

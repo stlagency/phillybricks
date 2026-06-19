@@ -22,6 +22,6 @@ Ground-truthed against live endpoints 2026-06-17/18 for the Philly real-estate i
 
 **Skip-trace:** no vendor's standard ToS permits self-serve SaaS resale of owner phone/email (GLBA/DPPA credentialing cascade; FTC fined Spokeo $800K). BYO-key is the clean path.
 
-**Tiling/infra:** PMTiles (tippecanoe) on Cloudflare R2 → MapLibre via HTTP range; avoid dynamic `ST_AsMVT` as base map (egress cost). Heavy ingestion via GitHub Actions cron (free on public repo) → Supabase **Pro required** ($25/mo, 8 GB; free tier auto-pauses + 500 MB cap). Window crime/311 to stay under 8 GB. **Vercel Pro required ($20/mo) — Hobby forbids commercial/payment use.** Baseline infra **~$45/mo** (Supabase Pro + Vercel Pro). RTT→OPA joins only ~60% on `parcel_number`; also ingest OPA `pin`. Carto keyset pagination must use `cartodb_id` (recording_date is non-unique).
+**Tiling/infra:** PMTiles (tippecanoe) on Supabase Storage → MapLibre via HTTP range; avoid dynamic `ST_AsMVT` as base map (egress cost). Heavy ingestion via GitHub Actions cron (free on public repo) → Supabase **Pro required** ($25/mo, 8 GB; free tier auto-pauses + 500 MB cap). Window crime/311 to stay under 8 GB. **Vercel Pro required ($20/mo) — Hobby forbids commercial/payment use.** Baseline infra **~$45/mo** (Supabase Pro + Vercel Pro). RTT→OPA joins only ~60% on `parcel_number`; also ingest OPA `pin`. Carto keyset pagination must use `cartodb_id` (recording_date is non-unique).
 
 **License:** Philly open data permits commercial reuse/resale with disclaimers (no City endorsement/marks).

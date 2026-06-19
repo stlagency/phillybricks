@@ -14,7 +14,7 @@
  * motion: fills swap instantly (handled by the global media query).
  *
  * The geometry here is the mockup's stylized blueprint layout. In production
- * the parcels/boundaries are PMTiles on R2 rendered by MapLibre (PRD §6); this
+ * the parcels/boundaries are PMTiles on Supabase Storage rendered by MapLibre (PRD §6); this
  * SVG is the faithful design reference for the choropleth + instrument chrome.
  */
 import { useEffect, useState } from 'react';

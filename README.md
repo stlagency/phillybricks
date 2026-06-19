@@ -21,14 +21,14 @@ Off-market and distressed sales never hit the MLS, and MLS comps are gated to li
 
 ## Stack
 
-Next.js (App Router) on Vercel · Supabase Postgres + PostGIS · MapLibre + PMTiles (Cloudflare R2) + deck.gl overlays · GitHub Actions cron ingestion · Stripe · Resend. pnpm monorepo, TypeScript end-to-end. ~$45/mo to run.
+Next.js (App Router) on Vercel · Supabase Postgres + PostGIS · MapLibre + PMTiles (Supabase Storage) + deck.gl overlays · GitHub Actions cron ingestion · Stripe · Resend. pnpm monorepo, TypeScript end-to-end. ~$45/mo to run.
 
 ```
 apps/web            Next.js — market scan, deep-dive, leads, alerts
 packages/core       pure logic: CityAdapter, comps, value estimate, distress scoring (frozen contracts)
 packages/db         SQL migrations (raw/public/app/ops), RLS/grants, matviews, generated types
 packages/ingestion  nightly worker + source adapters (Carto, S3 bulk, phillysheriff scrape)
-packages/tiles      tippecanoe → PMTiles → R2
+packages/tiles      tippecanoe → PMTiles → Supabase Storage
 infra/              GitHub Actions, CI gates, self-host
 ```
 

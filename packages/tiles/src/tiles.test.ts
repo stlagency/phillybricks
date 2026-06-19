@@ -1,32 +1,33 @@
 /**
  * Pure unit tests for @phillybricks/tiles — NO DB, NO network, NO tippecanoe.
- * Covers env parsing, R2 endpoint/key derivation, and the loud-failure guards.
+ * Covers env parsing, object-key derivation, and the loud-failure guards.
  *
  * Lives under src/ (not test/) to stay within the package's tsconfig rootDir;
  * vitest still discovers *.test.ts here.
  */
 import { describe, it, expect } from 'vitest';
 import {
-  r2ConfigFromEnv,
-  r2Endpoint,
+  storageConfigFromEnv,
   assertTippecanoeInstalled,
   PMTILES_CONTENT_TYPE,
-} from './r2.js';
+} from './storage.js';
 import { PARCEL_TILES_KEY, PARCEL_LAYER, requireDatabaseUrl } from './build.js';
 import { boundaryTilesKey, BOUNDARY_GEO_TYPES } from './geoBoundaries.js';
 
-const FULL_R2_ENV: NodeJS.ProcessEnv = {
-  R2_ACCOUNT_ID: 'acct123',
-  R2_ACCESS_KEY_ID: 'ak',
-  R2_SECRET_ACCESS_KEY: 'sk',
-  R2_BUCKET: 'phillybricks-tiles',
+const FULL_STORAGE_ENV: NodeJS.ProcessEnv = {
+  SUPABASE_S3_ENDPOINT: 'https://ctcvrdsrylauqpuxbauz.storage.supabase.co/storage/v1/s3',
+  SUPABASE_S3_REGION: 'us-east-1',
+  SUPABASE_S3_ACCESS_KEY_ID: 'ak',
+  SUPABASE_S3_SECRET_ACCESS_KEY: 'sk',
+  SUPABASE_STORAGE_BUCKET: 'phillybricks-tiles',
 };
 
-describe('r2ConfigFromEnv', () => {
-  it('reads all four R2_* vars from the provided env', () => {
-    const cfg = r2ConfigFromEnv(FULL_R2_ENV);
+describe('storageConfigFromEnv', () => {
+  it('reads all five SUPABASE_S3_* / SUPABASE_STORAGE_BUCKET vars from the provided env', () => {
+    const cfg = storageConfigFromEnv(FULL_STORAGE_ENV);
     expect(cfg).toEqual({
-      accountId: 'acct123',
+      endpoint: 'https://ctcvrdsrylauqpuxbauz.storage.supabase.co/storage/v1/s3',
+      region: 'us-east-1',
       accessKeyId: 'ak',
       secretAccessKey: 'sk',
       bucket: 'phillybricks-tiles',
@@ -34,31 +35,25 @@ describe('r2ConfigFromEnv', () => {
   });
 
   it('throws an actionable error listing every missing var', () => {
-    expect(() => r2ConfigFromEnv({})).toThrow(/R2_ACCOUNT_ID/);
-    expect(() => r2ConfigFromEnv({})).toThrow(/R2_BUCKET/);
+    expect(() => storageConfigFromEnv({})).toThrow(/SUPABASE_S3_ENDPOINT/);
+    expect(() => storageConfigFromEnv({})).toThrow(/SUPABASE_STORAGE_BUCKET/);
   });
 
   it('names only the actually-missing var in the missing-list', () => {
-    const partial: NodeJS.ProcessEnv = { ...FULL_R2_ENV };
-    delete partial.R2_SECRET_ACCESS_KEY;
-    // Pull the "Missing R2 env var(s): …" list (before the period) and assert on it,
-    // not on the trailing .env.example inventory which mentions every var by name.
+    const partial: NodeJS.ProcessEnv = { ...FULL_STORAGE_ENV };
+    delete partial.SUPABASE_S3_SECRET_ACCESS_KEY;
+    // Pull the "Missing Supabase Storage env var(s): …" list (before the period) and
+    // assert on it, not on the trailing .env.example inventory which mentions every var.
     let message = '';
     try {
-      r2ConfigFromEnv(partial);
+      storageConfigFromEnv(partial);
     } catch (err) {
       message = err instanceof Error ? err.message : String(err);
     }
     const missingList = message.split('.')[0] ?? '';
-    expect(missingList).toMatch(/R2_SECRET_ACCESS_KEY/);
-    expect(missingList).not.toMatch(/R2_BUCKET/);
-    expect(missingList).not.toMatch(/R2_ACCOUNT_ID/);
-  });
-});
-
-describe('r2Endpoint', () => {
-  it('builds the account-scoped S3-compatible endpoint', () => {
-    expect(r2Endpoint('acct123')).toBe('https://acct123.r2.cloudflarestorage.com');
+    expect(missingList).toMatch(/SUPABASE_S3_SECRET_ACCESS_KEY/);
+    expect(missingList).not.toMatch(/SUPABASE_STORAGE_BUCKET/);
+    expect(missingList).not.toMatch(/SUPABASE_S3_ENDPOINT/);
   });
 });
 

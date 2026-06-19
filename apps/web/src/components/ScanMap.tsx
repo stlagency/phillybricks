@@ -10,7 +10,7 @@
  * quantile bucket) on geo_id. Fill is the lens's 5-stop ramp (theme-aware,
  * matching the blueprint design's LENS_RAMPS); the draft-navy ground + survey-blue
  * borders keep the instrument feel without an external tile provider (the high-zoom
- * per-parcel layer is the PMTiles object on R2 — packages/tiles — added with deploy).
+ * per-parcel layer is the PMTiles object on Supabase Storage — packages/tiles — added with deploy).
  *
  * Recolors on lens + theme change; click a neighborhood → onSelect(feature).
  */

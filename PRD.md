@@ -44,13 +44,13 @@ geo files (1-time) ───┘   normalize → stage → validate(gate) → pro
         ┌─────────────────────┼───────────────────────┐
         ▼                     ▼                         ▼
  tippecanoe → PMTiles    PostgREST + Next API      Stripe · Supabase Auth · Resend (email)
- → Cloudflare R2 (CDN)        │
+ → Supabase Storage (CDN)     │
         ▼                     ▼
  MapLibre (base) + deck.gl (overlays) · Next on Vercel (Pro)
 ```
 External heartbeat (healthchecks.io free) pinged on each successful run → alerts on *absence* of a run.
 
-**Monorepo (pnpm workspaces):** `apps/web` (Next App Router, MapLibre+deck.gl) · `packages/db` (SQL migrations, RLS/grants, matview defs, generated TS types) · `packages/ingestion` (worker, adapters, scraper, diff/alert, run-logging) · `packages/core` (pure logic: comps, value estimate, distress scoring, arms-length/estate derivation, `CityAdapter`) · `packages/tiles` (tippecanoe → PMTiles → R2) · `infra/` (Actions workflows, docker-compose self-host, docs). TypeScript end-to-end.
+**Monorepo (pnpm workspaces):** `apps/web` (Next App Router, MapLibre+deck.gl) · `packages/db` (SQL migrations, RLS/grants, matview defs, generated TS types) · `packages/ingestion` (worker, adapters, scraper, diff/alert, run-logging) · `packages/core` (pure logic: comps, value estimate, distress scoring, arms-length/estate derivation, `CityAdapter`) · `packages/tiles` (tippecanoe → PMTiles → Supabase Storage) · `infra/` (Actions workflows, docker-compose self-host, docs). TypeScript end-to-end.
 
 ### 2.1 `CityAdapter` contract (the portability seam — no Philly literal lives outside `packages/core/adapters/`)
 ```ts
@@ -204,7 +204,7 @@ Each **raw signal** is individually toggleable + shown on the parcel page: `tax_
   - **`POST /api/skiptrace/:pk`** — requires `authenticated` + `subscription.status='active'`; resolves the vendor base URL from a **server-side allowlist keyed by the `vendor` enum** (never DB/user-controlled host); **decrypts the key only here (SECURITY DEFINER / service-context)**, calls the vendor, returns contact data to the session, **never persists the PII and never logs the key**; per-user rate-limit + daily cap; POST + same-origin/CSRF-protected.
   - **Stripe webhook** → `app.subscription`: reads **raw body**, verifies `stripe.webhooks.constructEvent(rawBody, sig, signingSecret)` (reject on failure), **idempotent on event id**, runs as **service_role**; `app.subscription` has no anon/authenticated write grant.
   - **Email digest** (§7.4): GitHub-Actions post-diff step (or Edge Function) queries new `alert_event` per `alert_subscription` since `last_sent_at`, renders, sends via **Resend**, advances `last_sent_at`.
-- **Tiles:** parcels as **PMTiles on R2** — a **single object rebuilt nightly** by `packages/tiles` after derived-refresh (well under R2's 1M Class-A ops/mo), served via CDN + HTTP range to MapLibre. Aggregate boundaries as small static GeoJSON/PMTiles. **No dynamic `ST_AsMVT` base map** (egress). Martin reserved for future dynamic needs.
+- **Tiles:** parcels as **PMTiles on Supabase Storage** — a **single object rebuilt nightly** by `packages/tiles` after derived-refresh (a public, S3-compatible Storage bucket; uploaded via the existing `@aws-sdk/client-s3` with `forcePathStyle: true`), served via CDN + HTTP range to MapLibre (Supabase Storage honors range requests, so PMTiles works unchanged). Aggregate boundaries as small static GeoJSON/PMTiles. **No dynamic `ST_AsMVT` base map** (egress). Martin reserved for future dynamic needs.
 
 ---
 
@@ -234,9 +234,9 @@ v1 baseline = inline transparency (explainers + raw-record links + methodology p
 
 ## 8. Non-functional requirements
 - **License/repo:** AGPL-3.0, public from commit 1. **Secret controls:** GitHub **secret scanning + push protection** on; **gitleaks/trufflehog as a required CI check** (a CI scan alone runs after push — push-protection is the real gate); **full-history scan on first publish**; incident path = rotate immediately. Secrets only in env / Actions secrets / Supabase Vault. `.env.example` (placeholders) + `SELF_HOST.md` (docker-compose: Postgres+PostGIS, worker, web).
-- **Environment variables (inventory):** `.env.example` ships placeholders for `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooled), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET`, `HEALTHCHECKS_URL`, `KEEPALIVE_TOKEN`, and the `SUPABASE_VAULT` key id for decrypting BYO skip-trace keys. (Carto needs no key; the OPA S3 bulk is public.) Track name · owner · required? · storage location for each.
+- **Environment variables (inventory):** `.env.example` ships placeholders for `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooled), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `SUPABASE_S3_ENDPOINT`/`SUPABASE_S3_REGION`/`SUPABASE_S3_ACCESS_KEY_ID`/`SUPABASE_S3_SECRET_ACCESS_KEY`/`SUPABASE_STORAGE_BUCKET`/`SUPABASE_STORAGE_PUBLIC_BASE_URL` (Storage S3 access keys, minted in Project Settings → Storage → S3 Access Keys — distinct from the anon/service_role keys), `HEALTHCHECKS_URL`, `KEEPALIVE_TOKEN`, and the `SUPABASE_VAULT` key id for decrypting BYO skip-trace keys. (Carto needs no key; the OPA S3 bulk is public.) Track name · owner · required? · storage location for each.
 - **Backup posture (decided for v1):** accept Supabase **daily backups / 7-day RPO**; **skip PITR (+$100)** for now. The change-log history tables (§3.3) are the one irreplaceable asset and are protected by the §4.1 liveness dead-man's-switch (alerts on a missed run); revisit PITR post-revenue.
-- **Cost (corrected):** **~$45/mo baseline** = Supabase Pro **$25** + Vercel Pro **$20** (Hobby forbids commercial/payment use). R2 free, GitHub Actions free (public repo), Resend free/cheap tier. *Conditional:* Supabase **Small** compute (+$15) if nightly refresh strains Micro; **PITR (+$100)** only if chosen (else accept daily-backup/7-day RPO — decided in M0). The deferred subscription price (§11) is set against this true floor.
+- **Cost (corrected):** **~$45/mo baseline** = Supabase Pro **$25** + Vercel Pro **$20** (Hobby forbids commercial/payment use). Tiles ride on the existing Supabase Pro plan (100 GB storage + 250 GB egress included; $0.09/GB egress beyond) — no separate object-store vendor; heavy public tile traffic shares the Supabase project's egress with the warehouse. GitHub Actions free (public repo), Resend free/cheap tier. *Conditional:* Supabase **Small** compute (+$15) if nightly refresh strains Micro; **PITR (+$100)** only if chosen (else accept daily-backup/7-day RPO — decided in M0). The deferred subscription price (§11) is set against this true floor.
 - **DB size budget (per-table tally, replaces the old 2–4 GB line):** RTT 5.1M + L&I ~6M + crime ~1.8M (post-10y window) + 311 (windowed) + tax_balances 684K + business_licenses 431K + parcel 584K (GIST geom) + change-logs + `geo_metric` ≈ tens of millions of rows; budget against Pro 8 GB with overage at $0.125/GB. **`raw.*` = land-transform-discard** for the huge sources (retain raw only for the scraper where re-parsing matters). M1/M3 DoD asserts on-disk size.
 - **Performance:** scan choropleth <1s; deep-dive <1.5s; comps <1.5s; map base from CDN PMTiles. Non-blocking refreshes (CONCURRENTLY / incremental `geo_metric`).
 - **Skip-trace threat model:** vendor keys encrypted at rest (protects backups/disk); decrypted only inside the server-side proxy at call time; a proxy-role compromise would expose keys in use — mitigated by least-privilege grants, no key logging, short-lived in-memory use. CONCEPT "zero legal exposure" → restated: **"liability for vendor contract/credentialing/permissible-purpose sits with the user; platform exposure sharply reduced."** Require a **per-user attestation** (lawful real-estate outreach only; no FCRA-regulated use) before enabling skip-trace.
@@ -259,7 +259,7 @@ v1 baseline = inline transparency (explainers + raw-record links + methodology p
 
 **— `impeccable` UX exploration here —** (fed by real M3 data shapes + the §5.3/§6 response contracts).
 
-**M4 — Serving + map.** PMTiles build (single object/night, after refresh) → R2; MapLibre multi-res map + 4 lenses + time control + filters; PostgREST/Next read APIs. *DoD:* scan interactive across zooms, all 4 lenses, single-object tile write verified.
+**M4 — Serving + map.** PMTiles build (single object/night, after refresh) → Supabase Storage; MapLibre multi-res map + 4 lenses + time control + filters; PostgREST/Next read APIs. *DoD:* scan interactive across zooms, all 4 lenses, single-object tile write verified.
 
 **M5 — Property deep-dive.** Bundle endpoint + page; raw-record links; glossary tooltips. *DoD:* any parcel renders full underwrite view with sourced figures + distress decomposition.
 

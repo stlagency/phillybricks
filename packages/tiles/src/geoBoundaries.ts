@@ -3,7 +3,8 @@
  * GeoJSON/PMTiles"; §7.1 multi-resolution ZIP→neighborhood→tract→parcel).
  *
  * Builds one tiny PMTiles archive per geo type (zip, neighborhood, tract) from
- * public.geo_boundary and uploads each as a single static object to R2. These are
+ * public.geo_boundary and uploads each as a single static object to Supabase
+ * Storage. These are
  * the low-zoom choropleth layers the client colors from public.geo_metric for the
  * active lens; the per-parcel layer (build.ts) covers the high zooms.
  *
@@ -30,19 +31,19 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import postgres, { type Sql } from 'postgres';
 import {
   assertTippecanoeInstalled,
-  makeR2Client,
-  r2ConfigFromEnv,
-  uploadFileToR2,
-  type R2Config,
+  makeStorageClient,
+  storageConfigFromEnv,
+  uploadFileToStorage,
+  type StorageConfig,
   type TileUploadResult,
-} from './r2.js';
+} from './storage.js';
 import { requireDatabaseUrl } from './build.js';
 
 /** The geo aggregation units, matching GeoType in the frozen city-adapter contract. */
 export const BOUNDARY_GEO_TYPES = ['zip', 'neighborhood', 'tract'] as const;
 export type BoundaryGeoType = (typeof BOUNDARY_GEO_TYPES)[number];
 
-/** R2 object key for a geo type's boundary archive, e.g. 'boundaries/zip.pmtiles'. */
+/** Storage object key for a geo type's boundary archive, e.g. 'boundaries/zip.pmtiles'. */
 export function boundaryTilesKey(geoType: BoundaryGeoType): string {
   return `boundaries/${geoType}.pmtiles`;
 }
@@ -51,11 +52,11 @@ export interface BuildBoundaryTilesOptions {
   databaseUrl?: string;
   /** Reuse an open postgres client (the nightly worker's). If given, it is NOT closed here. */
   sql?: Sql;
-  r2?: R2Config;
+  storage?: StorageConfig;
   tippecanoeBin?: string;
   /** Restrict to a subset of geo types (default: all three). */
   geoTypes?: readonly BoundaryGeoType[];
-  /** Skip the R2 upload (build local .pmtiles only). */
+  /** Skip the Storage upload (build local .pmtiles only). */
   skipUpload?: boolean;
   log?: (msg: string) => void;
 }
@@ -87,7 +88,7 @@ function boundaryFeatureQuery(sql: Sql, geoType: BoundaryGeoType): AsyncIterable
 
 /**
  * Build + upload one tiny PMTiles archive per geo type. Each is a single static
- * R2 object. Returns per-layer counts/paths for the nightly run log.
+ * Supabase Storage object. Returns per-layer counts/paths for the nightly run log.
  */
 export async function buildBoundaryTiles(
   opts: BuildBoundaryTilesOptions = {},
@@ -106,11 +107,11 @@ export async function buildBoundaryTiles(
   const workDir = await mkdtemp(join(tmpdir(), 'phillybricks-boundaries-'));
   const layers: BoundaryLayerResult[] = [];
 
-  let client: ReturnType<typeof makeR2Client> | null = null;
-  let cfg: R2Config | null = null;
+  let client: ReturnType<typeof makeStorageClient> | null = null;
+  let cfg: StorageConfig | null = null;
   if (!opts.skipUpload) {
-    cfg = opts.r2 ?? r2ConfigFromEnv();
-    client = makeR2Client(cfg);
+    cfg = opts.storage ?? storageConfigFromEnv();
+    client = makeStorageClient(cfg);
   }
 
   try {
@@ -140,8 +141,8 @@ export async function buildBoundaryTiles(
 
       let upload: TileUploadResult | null = null;
       if (client && cfg) {
-        upload = await uploadFileToR2(client, cfg, localPath, key);
-        log(`uploaded ${upload.bytes.toLocaleString()} bytes → r2://${upload.bucket}/${upload.key}`);
+        upload = await uploadFileToStorage(client, cfg, localPath, key);
+        log(`uploaded ${upload.bytes.toLocaleString()} bytes → s3://${upload.bucket}/${upload.key}`);
       }
 
       layers.push({ geoType, featureCount, localPath, upload });
