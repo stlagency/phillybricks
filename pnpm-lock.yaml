@@ -122,6 +122,9 @@ importers:
       '@phillybricks/db':
         specifier: workspace:*
         version: link:../db
+      '@phillybricks/tiles':
+        specifier: workspace:*
+        version: link:../tiles
       cheerio:
         specifier: ^1.0.0
         version: 1.2.0

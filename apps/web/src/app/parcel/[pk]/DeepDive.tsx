@@ -295,7 +295,7 @@ export function DeepDive({ data }: { data: ParcelDeepDive }) {
             headingId="compHead"
             aria-labelledby="compHead"
           >
-            {data.comps.comps.map((c) => {
+            {data.comps.comps.map((c, i) => {
               const flag = c.reason.is_median ? 'MEDIAN' : 'WHY';
               const widthPct = c.price_per_sqft
                 ? Math.round((c.price_per_sqft / 256) * 100)
@@ -306,7 +306,7 @@ export function DeepDive({ data }: { data: ParcelDeepDive }) {
                   ? 'pb-bar-fill--blue'
                   : 'pb-bar-fill--sky';
               return (
-                <div className="pb-comp" key={c.parcel_pk}>
+                <div className="pb-comp" key={`${c.parcel_pk}-${i}`}>
                   <div className="pb-comp-top">
                     <span className="pb-comp-addr">{c.address}</span>
                     <span className="pb-comp-psf">

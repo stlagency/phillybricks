@@ -31,6 +31,7 @@ import { makeCartoFetcher, makeOpaFetcher } from './fetchers.js';
 import { makeScrapeFetcher } from './adapters/scrape.js';
 import { makeStepsForSpec } from './steps.js';
 import { finalizeDerived } from './finalize.js';
+import { buildParcelTiles, buildBoundaryTiles } from '@phillybricks/tiles';
 import {
   runSourcePipeline,
   type PipelineHooks,
@@ -278,6 +279,31 @@ export async function main(): Promise<void> {
       );
     } catch (err) {
       console.error(`Derived finalize FAILED (history is safe; will retry next run): ${err instanceof Error ? err.message : err}`);
+    }
+
+    // Tile rebuild (PMTiles → Supabase Storage), the LAST step of the nightly
+    // (PRD §6 "single object rebuilt nightly"). Opt-in — only when the storage env
+    // is configured, so a local DB-only nightly skips cleanly — and NON-FATAL: a
+    // tile failure (incl. a missing tippecanoe) must never fail the nightly; the
+    // map keeps serving the prior tiles and the irreplaceable change-log already
+    // accrued. Each builder self-connects (own max:1 client) so the heavy 583K-row
+    // cursor never contends with the worker's pooled connection.
+    if (process.env.SUPABASE_S3_ACCESS_KEY_ID) {
+      try {
+        const p = await buildParcelTiles({ log: (m) => console.log(`  ${m}`) });
+        const b = await buildBoundaryTiles({ log: (m) => console.log(`  ${m}`) });
+        const bn = b.layers.reduce((n, l) => n + l.featureCount, 0);
+        console.log(
+          `Tile rebuild complete: parcels ${p.featureCount.toLocaleString()} features` +
+            `${p.upload ? ` → ${p.upload.key}` : ''}; boundaries ${b.layers.length} layers (${bn} features).`,
+        );
+      } catch (err) {
+        console.error(
+          `Tile rebuild FAILED (non-fatal; map serves the prior tiles): ${err instanceof Error ? err.message : err}`,
+        );
+      }
+    } else {
+      console.log('Tile rebuild skipped (SUPABASE_S3_* not configured).');
     }
   } finally {
     await sql.end({ timeout: 5 });

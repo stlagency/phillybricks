@@ -257,10 +257,10 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
 
   /**
    * High-zoom per-parcel layer from parcels.pmtiles on Supabase Storage (the
-   * single nightly object, PRD §6). A faint fill is the click target → parcel
-   * deep-dive; survey-blue outlines draw the parcel grid. Shown only at zoom ≥ 14
-   * so it sits "under" the choropleth read at city scale and reveals on zoom-in.
-   * No-ops if the public tiles base isn't configured (NEXT_PUBLIC_TILES_BASE_URL).
+   * single nightly object, PRD §6). The OPA spine geometry is a POINT per parcel
+   * (centroid, not a footprint), so parcels render as survey-blue dots — one per
+   * property — shown only at zoom ≥ 14 over the faded choropleth, each a click
+   * target → parcel deep-dive. No-ops if NEXT_PUBLIC_TILES_BASE_URL isn't set.
    */
   function addParcelLayer(map: maplibregl.Map) {
     if (!TILES_BASE || map.getSource('parcels')) return;
@@ -270,26 +270,17 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
       promoteId: 'parcel_pk',
     });
     map.addLayer({
-      id: 'parcels-fill',
-      type: 'fill',
+      id: 'parcels-circle',
+      type: 'circle',
       source: 'parcels',
       'source-layer': PARCEL_SOURCE_LAYER,
       minzoom: 14,
       paint: {
-        'fill-color': DRAFT_LINE,
-        'fill-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 0.18, 0.02],
-      },
-    });
-    map.addLayer({
-      id: 'parcels-line',
-      type: 'line',
-      source: 'parcels',
-      'source-layer': PARCEL_SOURCE_LAYER,
-      minzoom: 14,
-      paint: {
-        'line-color': DRAFT_LINE,
-        'line-width': ['interpolate', ['linear'], ['zoom'], 14, 0.5, 17, 1.4],
-        'line-opacity': 0.8,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 14, 1.3, 16, 3, 18, 5],
+        'circle-color': DRAFT_LINE,
+        'circle-opacity': ['case', ['boolean', ['feature-state', 'hover'], false], 1, 0.7],
+        'circle-stroke-color': DRAFT_BG,
+        'circle-stroke-width': ['interpolate', ['linear'], ['zoom'], 14, 0, 16, 0.6],
       },
     });
     wireParcelInteractions(map);
@@ -299,7 +290,7 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
   function wireParcelInteractions(map: maplibregl.Map) {
     let hovered: string | number | undefined;
     const fs = (id: string | number) => ({ source: 'parcels', sourceLayer: PARCEL_SOURCE_LAYER, id });
-    map.on('mousemove', 'parcels-fill', (e) => {
+    map.on('mousemove', 'parcels-circle', (e) => {
       map.getCanvas().style.cursor = 'pointer';
       const f = e.features?.[0];
       if (!f) return;
@@ -307,12 +298,12 @@ export function ScanMap({ lens, geoType = 'neighborhood', period, onSelect }: Sc
       hovered = f.id as string | number;
       map.setFeatureState(fs(hovered), { hover: true });
     });
-    map.on('mouseleave', 'parcels-fill', () => {
+    map.on('mouseleave', 'parcels-circle', () => {
       map.getCanvas().style.cursor = '';
       if (hovered !== undefined) map.setFeatureState(fs(hovered), { hover: false });
       hovered = undefined;
     });
-    map.on('click', 'parcels-fill', (e) => {
+    map.on('click', 'parcels-circle', (e) => {
       const pk = (e.features?.[0]?.properties as { parcel_pk?: string | number } | undefined)?.parcel_pk;
       if (pk !== undefined && pk !== null) router.push(`/parcel/${pk}`);
     });

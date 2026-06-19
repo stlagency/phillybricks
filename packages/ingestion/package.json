@@ -17,6 +17,7 @@
   "dependencies": {
     "@phillybricks/core": "workspace:*",
     "@phillybricks/db": "workspace:*",
+    "@phillybricks/tiles": "workspace:*",
     "cheerio": "^1.0.0",
     "csv-parse": "^5.6.0",
     "postgres": "^3.4.5",
