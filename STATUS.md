@@ -1,6 +1,8 @@
 # Build status
 
-Ingestion-first per PRD §9. State history (change-logs) only accrues forward and is the one irrecoverable asset. **→ Live at https://phillybricks.vercel.app. Resume point: [`docs/NEXT_SESSION.md`](docs/NEXT_SESSION.md) — M0–M6 complete + live; next milestone M7 (accounts: Supabase Auth + Stripe sub + Resend digest). M6's paid surfaces — CSV export, mini-CRM save, BYO skip-trace — are built + verified behind a one-file auth seam (`apps/web/src/lib/auth.ts`); M7 wires the real session into it.**
+Ingestion-first per PRD §9. State history (change-logs) only accrues forward and is the one irrecoverable asset. **→ Live at https://phillybricks.vercel.app. Resume point: [`docs/NEXT_SESSION.md`](docs/NEXT_SESSION.md) — M0–M6 complete + live.**
+
+> **⚠ Pending rescope (decided 2026-06-19, NOT yet executed) — do before M7.** See **[`docs/SCOPE_NEXT.md`](docs/SCOPE_NEXT.md)**: (1) rename **PhillyBricks → Bandbox** + domain **www.bandbox.pro** (name only; voice/design unchanged); (2) **monetization postponed** — relax the paid gates to authenticated-free, keep Stripe dormant, defer to M8; (3) **Resend → ZeptoMail**. This file still says PhillyBricks/Resend/Stripe (the on-disk truth today); it's rewritten on execution.
 
 **Repo:** https://github.com/stlagency/phillybricks (public, AGPL-3.0, secret-scanning + push-protection on).
 **CI:** green — typecheck · lint · tests (443 pass/1 skip) · portability gate · static + **live `pg_catalog` RLS gate** (runs migrations against ephemeral PostGIS) · gitleaks full-history.

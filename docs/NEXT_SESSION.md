@@ -1,5 +1,19 @@
 # PhillyBricks — resume here (next session)
 
+> ## ⚠ DO THIS FIRST — pending rescope (decided 2026-06-19, not yet executed)
+> Before M7, a fresh session must execute **three scoped changes**. The full plan +
+> exhaustive touchpoint inventory is in **[`docs/SCOPE_NEXT.md`](SCOPE_NEXT.md)** — follow it.
+> 1. **Rename PhillyBricks → Bandbox**, domain → **www.bandbox.pro** (name + domain only;
+>    Philly voice/tagline/design UNCHANGED; wordmark BAND/BOX; package scope `@phillybricks/*`→`@bandbox/*`; keep internal infra names `phillybricks_worker`/`phillybricks-tiles`/`pb-*`).
+> 2. **Monetization postponed** — relax the two paid gates (`requireEntitlement`→`requireUser`)
+>    so CSV export + skip-trace are **free for authenticated users**; keep Stripe/`app.subscription` as a **dormant seam**; move Stripe to a deferred **M8**.
+> 3. **Resend → ZeptoMail** for the alert digest (docs/env now; the send code is built in M7).
+>
+> Best landed as **one "rebrand + descope" PR** first; then build the redefined M7.
+> The rest of THIS doc still says PhillyBricks/Resend/Stripe because that's the on-disk
+> state today — it gets rewritten when the change above is executed. **M7 is redefined
+> (no payments) in `SCOPE_NEXT.md`.**
+
 **M0 → M6 are complete and live in production.** The nightly ingests all 14 open-data sources + the sheriff scraper into a live Supabase warehouse, the four correctness gates are wired, `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6), the derived layer (distress composite, comps, geo_metric, geo boundaries) is built + live-verified, the **serving + map layer is shipped** (5 read APIs + MapLibre 4-lens scan + per-parcel tiles), the **property deep-dive (M5)** renders every figure bound to live sourced data with zero fabrication, and the **leads + mini-CRM + CSV export + BYO skip-trace (M6)** app-layer is built + verified — all deployed at **https://phillybricks.vercel.app**. **Your next milestone is M7 — accounts: Supabase Auth + Stripe subscription + Resend alert digest.** The single thing M7 unlocks is the auth seam in `apps/web/src/lib/auth.ts` (today the paid surfaces correctly 401/403); see **Next milestone — M7** below.
 
 Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope), `design/DESIGN.md` (UI) + root `TOKENS.css` (design tokens), `docs/DATA_SOURCES.md` (data facts). Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`, `philly-infra`) loads automatically.
