@@ -57,9 +57,9 @@ All four frozen contracts are served from real M3 data and verified against prod
 - **Env (production, set via `vercel env add`):** `DATABASE_URL` (pooler), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Redeploy: `vercel pull --yes --environment=production --cwd apps/web` then `vercel deploy --prod --yes` from the repo root. (Git auto-deploy is NOT connected; `vercel git connect` to enable. Preview-env vars not set yet.)
 
 ### YOUR TASK — finish M4: tiles + map polish
-1. **Tiles (needs R2 — in progress):** `packages/tiles` (parcel + boundary builders) is BUILT — needs `tippecanoe` on PATH + the R2 env (`R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET`). Run after the nightly finalize: single `parcels.pmtiles` + 3 boundary archives. Then add the high-zoom per-parcel layer under the choropleth in `ScanMap` (PMTiles via the `pmtiles` protocol).
+1. **Tiles (R2 bucket DONE 2026-06-19; one human step left):** `packages/tiles` (parcel + boundary builders) is BUILT. **`tippecanoe` v2.79.0 is installed** (`/opt/homebrew/bin/tippecanoe`). **R2 bucket `phillybricks-tiles` created** via the Cloudflare MCP (`r2_bucket_create`) — sidestepped the dashboard "enable R2" error; the API token reaches R2 fine. **Still needs the S3 API token (`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`) + `R2_ACCOUNT_ID`** — the MCP can create buckets but NOT S3 access keys, so Aaron mints one in the dashboard: R2 → API → Manage API Tokens → Create (Object Read & Write, scoped to `phillybricks-tiles`); the page shows the account ID + S3 endpoint, secret shown once. Put all four (incl. `R2_BUCKET=phillybricks-tiles`) in `apps/web/.env.local` + Vercel. Then run after the nightly finalize: single `parcels.pmtiles` + 3 boundary archives, and add the high-zoom per-parcel layer under the choropleth in `ScanMap` (PMTiles via the `pmtiles` protocol).
 2. **Map polish** (`apps/web/src/components/ScanMap.tsx`):
-   - **[USER-REQUESTED] "Reset zoom" button** — a control that re-fits the map to `PHILLY_BOUNDS` (`map.fitBounds(PHILLY_BOUNDS, { padding: 24 })`); the user confirmed the live map looks good and wants this. Style it to the design system (draft/instrument chrome), place near the NavigationControl.
+   - ~~**[USER-REQUESTED] "Reset zoom" button**~~ — **DONE 2026-06-19** (`52f6e8f`). `makeResetControl()` custom IControl, draft-chrome styled, stacked under NavigationControl top-left, `map.fitBounds(PHILLY_BOUNDS, { padding: 24 })`. Live-verified: zoom in → Reset → re-fit.
    - Time control (period from `/api/scan` `period_min`/`period_max`; class-(b) lenses labeled "tracking since …").
    - Filter panel; geo-type zoom switching (neighborhood→zip→tract — the APIs already accept `geo=`).
    - Wire the right rail to the clicked geo's real detail (currently still `pointBreezeDetail` mock; `onSelect` already fires with the `ScanFeature`).
@@ -83,6 +83,6 @@ All four frozen contracts are served from real M3 data and verified against prod
 
 ## Human pause-points still open
 - **Vercel Pro** + env (`SUPABASE_URL`=`https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable + service_role) — **M4**.
-- **R2** bucket + keys — **M4** tiles.
+- **R2** — bucket `phillybricks-tiles` DONE (2026-06-19); ONLY the S3 API token (access key id + secret) + account ID remain (mint in dashboard, see task #1) — **M4** tiles.
 - **Stripe** + **Resend** keys — **M7**.
 - **healthchecks.io** monitor URL (`HEALTHCHECKS_URL` secret) — wire the liveness dead-man's-switch when convenient.
