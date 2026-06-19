@@ -31,11 +31,12 @@ Ingestion-first per PRD §9. State history (change-logs) only accrues forward an
 ## Human pause-points
 
 1. ~~Supabase Pro project + `DATABASE_URL`~~ — **DONE** (provisioned, migrated, worker role + pooler wired; marginal cost was **$10/mo**, not $25 — STL Agentic was already Pro → true floor ≈ $30/mo).
-2. **Vercel Pro** project + env — at **M4** (deploy/serving).
+2. **Vercel Pro** project + env — at **M4** (deploy/serving). ~~Project renamed → `bandbox` + rebrand deployed live~~ **DONE 2026-06-19**.
 3. **Supabase Storage** bucket + S3 access keys (minted in the Supabase dashboard → Project Settings → Storage → S3 Access Keys) — at **M4** (tiles).
-4. **ZeptoMail** Send-Mail token (`ZEPTOMAIL_TOKEN`) + a verified `bandbox.pro` sending domain (DKIM/SPF) — at **M7** (alert digest).
-5. **Stripe** API keys — at **M8** only (monetization deferred; not needed for M7).
-6. **www.bandbox.pro DNS** — add the Vercel CNAME/A record at the Cloudflare zone (needs a DNS-capable Cloudflare token; the connected Cloudflare integration is storage/compute only). Until then the live URL is `bandbox-app.vercel.app`.
-7. **healthchecks.io** monitor URL (`HEALTHCHECKS_URL`) — wire the liveness dead-man's-switch when convenient.
+4. **www.bandbox.pro DNS** ⚠ **OPEN/BLOCKED** — `www.bandbox.pro` + apex are added to the Vercel `bandbox` project but the DNS records are NOT created (no DNS-capable Cloudflare token in this environment — the connected Cloudflare integration is storage/compute only). **Create at the Cloudflare `bandbox.pro` zone:** `www` CNAME → `c83d3d1db37f4237.vercel-dns-016.com.` (proxy OFF / DNS-only); apex `@` A → `216.150.1.1` + `216.150.16.1`. Until then the live URL is `https://bandbox-app.vercel.app` (and legacy `phillybricks.vercel.app`).
+5. **Vercel↔GitHub auto-deploy** ⚠ **OPEN** — `vercel git connect` failed (the Vercel GitHub App needs authorizing for the renamed `stlagency/bandbox` repo). Deploy manually meanwhile: `vercel deploy --prod --yes` from the repo root. Authorize the app once to enable push-to-deploy.
+6. **ZeptoMail** Send-Mail token (`ZEPTOMAIL_TOKEN`) + a verified `bandbox.pro` sending domain (DKIM/SPF) — at **M7** (alert digest).
+7. **Stripe** API keys — at **M8** only (monetization deferred; not needed for M7).
+8. **healthchecks.io** monitor URL (`HEALTHCHECKS_URL`) — wire the liveness dead-man's-switch when convenient.
 
 Everything else proceeds autonomously.

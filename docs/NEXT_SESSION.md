@@ -8,11 +8,13 @@
 >    so CSV export + skip-trace are **free for authenticated users**; Stripe/`app.subscription` are kept as a **dormant seam** (deprecated, not deleted); Stripe moved to a deferred **M8**.
 > 3. **Resend → ZeptoMail** for the alert digest (docs/env now; the send code is built in M7).
 >
-> **Memory/secrets migration (§0) is done** — `memory/` + the two `.secret` files now live under the
-> `cc-Bandbox` path-encoded dir.
-> **Still open (human / blocked):** `www.bandbox.pro` **DNS** record at Cloudflare (no DNS token in this
-> environment — live URL stays `bandbox-app.vercel.app` until wired); the **`gh repo rename` / Vercel project
-> rename** (do alongside merging this PR); the **ZeptoMail** account + `ZEPTOMAIL_TOKEN` (M7-time).
+> **Done:** memory/secrets migration (§0); PR merged (`stlagency/bandbox#1`, squash `15f080f`);
+> **repo renamed → `stlagency/bandbox`**; **Vercel project renamed → `bandbox`** + rebrand **deployed
+> live**; on-brand alias `bandbox-app.vercel.app` claimed; `www.bandbox.pro` + apex added to the project.
+> **Still open (human / blocked):** `www.bandbox.pro` **DNS** at Cloudflare (no DNS token in this
+> environment — live URL stays `bandbox-app.vercel.app` until wired; exact records in the pause-points
+> below); **Vercel↔GitHub auto-deploy** (`vercel git connect` needs the GitHub App authorized for the
+> renamed repo); the **ZeptoMail** account + `ZEPTOMAIL_TOKEN` (M7-time).
 
 **M0 → M6 are complete and live in production.** The nightly ingests all 14 open-data sources + the sheriff scraper into a live Supabase warehouse, the four correctness gates are wired, `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6), the derived layer (distress composite, comps, geo_metric, geo boundaries) is built + live-verified, the **serving + map layer is shipped** (5 read APIs + MapLibre 4-lens scan + per-parcel tiles), the **property deep-dive (M5)** renders every figure bound to live sourced data with zero fabrication, and the **leads + mini-CRM + CSV export + BYO skip-trace (M6)** app-layer is built + verified — all deployed at **https://bandbox-app.vercel.app**. **Your next milestone is M7 — accounts + alerts (free): Supabase Auth + ZeptoMail alert digest (no Stripe — monetization is M8).** The single thing M7 unlocks is the auth seam in `apps/web/src/lib/auth.ts` (today the login-gated surfaces correctly 401); see **Next milestone — M7** below.
 
@@ -125,6 +127,7 @@ Every figure on `/parcel/[pk]` binds to live `ParcelDeepDive` data or an honest 
 - **Supabase Storage (tiles) — fully DONE, nothing open.** PUBLIC bucket `phillybricks-tiles` + S3 keys (in `apps/web/.env.local`, gitignored) + tiles built/uploaded + `NEXT_PUBLIC_TILES_BASE_URL` on Vercel + **GH Actions secrets `SUPABASE_S3_ACCESS_KEY_ID`/`SUPABASE_S3_SECRET_ACCESS_KEY` set (2026-06-19)** so the nightly rebuild runs in CI. Tiles ride the EXISTING Supabase Pro plan (100 GB storage + 250 GB egress included; $0.09/GB beyond) — baseline stays **~$45/mo (Supabase Pro $25 + Vercel Pro $20)**, one fewer vendor (heavy public tile egress shares the Supabase project with the warehouse). Cloudflare R2 fully removed.
 - **ZeptoMail** `ZEPTOMAIL_TOKEN` + verified `bandbox.pro` sending domain (DKIM/SPF) — **M7** (alert digest).
 - **Stripe** keys — **M8** only (monetization deferred; not needed for M7).
-- **www.bandbox.pro DNS** — add the Vercel CNAME/A record at the Cloudflare zone. Needs a **DNS-capable Cloudflare token** (the connected Cloudflare integration is storage/compute only — D1/KV/R2/Workers — no zones/DNS). Until wired, the live URL is `bandbox-app.vercel.app`.
-- **`gh repo rename` + Vercel project rename** — run alongside merging the rebrand PR (`gh repo rename bandbox`, `git remote set-url`, Vercel API project rename + add `www.bandbox.pro`).
+- **www.bandbox.pro DNS** ⚠ **BLOCKED** — domains added to Vercel, but DNS records not created (no DNS-capable Cloudflare token here; the connected Cloudflare integration is D1/KV/R2/Workers only). **Create at the Cloudflare `bandbox.pro` zone:** `www` CNAME → `c83d3d1db37f4237.vercel-dns-016.com.` (proxy OFF / DNS-only); apex `@` A → `216.150.1.1` + `216.150.16.1`. Until wired, the live URL is `bandbox-app.vercel.app`.
+- **Vercel↔GitHub auto-deploy** — `vercel git connect` failed (authorize the Vercel GitHub App for `stlagency/bandbox`). Until then deploy manually: `vercel deploy --prod --yes` from the repo root.
+- ~~`gh repo rename` + Vercel project rename~~ — **DONE 2026-06-19** (repo `stlagency/bandbox`, Vercel project `bandbox`, rebrand deployed live).
 - **healthchecks.io** monitor URL (`HEALTHCHECKS_URL` secret) — wire the liveness dead-man's-switch when convenient.
