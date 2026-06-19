@@ -6,7 +6,7 @@
  * another user simply does not match and returns 404. PATCH is CSRF-guarded.
  */
 import { NextResponse } from 'next/server';
-import type { SavedLead, SavedLeadStatus } from '@phillybricks/core/contracts';
+import type { SavedLead, SavedLeadStatus } from '@bandbox/core/contracts';
 import { db } from '../../../../../lib/db';
 import { requireUser, sameOrigin, authError } from '../../../../../lib/auth';
 

@@ -6,7 +6,7 @@
  * `distressSql.test.ts` asserts the migration block equals this output, so a config
  * weight/cap change fails CI until the migration is regenerated:
  *
- *   pnpm --filter @phillybricks/core exec tsx scripts/print-distress-sql.ts
+ *   pnpm --filter @bandbox/core exec tsx scripts/print-distress-sql.ts
  */
 import { buildDistressSignalDDL } from '../src/scoring/distressSql.js';
 

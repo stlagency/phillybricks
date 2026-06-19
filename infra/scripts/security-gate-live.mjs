@@ -23,7 +23,7 @@
  * Connection: DATABASE_URL (a localhost CI Postgres). Uses the installed `postgres`
  * client. Because this repo uses pnpm with a non-hoisted store, `postgres` is not
  * resolvable as a bare specifier from infra/scripts/; we anchor resolution at the
- * @phillybricks/db package (which declares it as a direct dependency) via
+ * @bandbox/db package (which declares it as a direct dependency) via
  * createRequire. This keeps the script dependency-free of its own package.json.
  *
  * Usage (from repo root, after migrations have been applied):

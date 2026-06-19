@@ -1,6 +1,6 @@
 /**
  * Mock CompsResult fixture — shaped EXACTLY like
- * @phillybricks/core/contracts `CompsResult` (PRD §5.2).
+ * @bandbox/core/contracts `CompsResult` (PRD §5.2).
  *
  * Typed mock data for the design surfaces only. In production this arrives
  * from `GET /api/comps?pk=…` and is embedded in ParcelDeepDive.comps.
@@ -8,7 +8,7 @@
  * Mirrors the deep-dive mockup: 4 arms-length comps within 0.3 mi, p5/p95
  * trimmed, median $235/SF, estimate $268k after a −4% condition haircut.
  */
-import type { CompsResult } from '@phillybricks/core/contracts';
+import type { CompsResult } from '@bandbox/core/contracts';
 
 export const firthStComps: CompsResult = {
   subject_pk: '312015400',

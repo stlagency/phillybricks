@@ -7,8 +7,8 @@
  * source only when scraper.sourceName matches its SourceSpec.name.
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { buildRegistries, runWorker, type SourceFetcher, type WorkerDeps } from '../src/run.js';
 import { makeStepsForSpec } from '../src/steps.js';
 import type { AlertEvent, StagedBatch } from '../src/pipeline.js';

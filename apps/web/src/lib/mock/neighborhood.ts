@@ -8,8 +8,8 @@
  * parcel page. In production this composes from `/api/scan` (area metrics +
  * trend) plus the `distress_signal` matview aggregated to the tract.
  */
-import type { DistressResult } from '@phillybricks/core/contracts';
-import type { Sourced } from '@phillybricks/core/contracts';
+import type { DistressResult } from '@bandbox/core/contracts';
+import type { Sourced } from '@bandbox/core/contracts';
 
 export interface NeighborhoodPill {
   label: string;

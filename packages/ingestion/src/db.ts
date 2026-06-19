@@ -8,11 +8,11 @@
  * test suite never opens a socket).
  *
  * No secrets in source — the connection string is read from `process.env`
- * (PRD §0.3). We re-export `databaseUrlFromEnv` from `@phillybricks/db` so the
+ * (PRD §0.3). We re-export `databaseUrlFromEnv` from `@bandbox/db` so the
  * env-var name lives in exactly one place.
  */
 import postgres, { type Sql } from 'postgres';
-import { databaseUrlFromEnv } from '@phillybricks/db';
+import { databaseUrlFromEnv } from '@bandbox/db';
 
 /**
  * The structural subset of `postgres`'s `Sql` the worker uses. Steps accept a

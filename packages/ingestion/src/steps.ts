@@ -10,7 +10,7 @@
  * called by run.ts main()). The §4.1 "after promote" invariant still holds — finalize
  * runs strictly after every source has promoted.
  */
-import type { SourceSpec, SourceMapping } from '@phillybricks/core/contracts';
+import type { SourceSpec, SourceMapping } from '@bandbox/core/contracts';
 import { computeSoftRetire } from './adapters/opaBulk.js';
 import type { DbClient } from './db.js';
 import type { SourceSteps, StagedBatch } from './pipeline.js';

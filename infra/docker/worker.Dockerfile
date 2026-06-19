@@ -1,4 +1,4 @@
-# PhillyBricks ingestion worker image (also runs db migrations).
+# Bandbox ingestion worker image (also runs db migrations).
 # Used by docker-compose.yml services: `worker` and `migrate`.
 #
 # STATUS: scaffold. The base + dependency install is real and works; the only
@@ -29,4 +29,4 @@ RUN pnpm install --frozen-lockfile
 
 # Default command is overridden by compose (run:nightly / migrate). Provide a
 # sensible default so `docker run <image>` does something legible.
-CMD ["pnpm", "--filter", "@phillybricks/ingestion", "run:nightly"]
+CMD ["pnpm", "--filter", "@bandbox/ingestion", "run:nightly"]

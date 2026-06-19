@@ -1,15 +1,15 @@
 'use client';
 
 /**
- * Wordmark — PHILLY stacked over BRICKS in Tanker (DESIGN.md §Wordmark).
- * PHILLY is letter-spaced so its rendered width EXACTLY equals BRICKS, so the
- * two stacked words share one right edge (a solid monolithic block). We measure
- * after document.fonts.ready (and on resize) and set PHILLY's letter-spacing =
- * (BRICKS_width − PHILLY_width) / 6, iterating a few times to converge — the
- * same equalizer the mockups run.
+ * Wordmark — BAND stacked over BOX in Tanker (DESIGN.md §Wordmark).
+ * BAND (line 1) is letter-spaced so its rendered width EXACTLY equals BOX, so
+ * the two stacked words share one right edge (a solid monolithic block). We
+ * measure after document.fonts.ready (and on resize) and set line-1's
+ * letter-spacing = (BOX_width − BAND_width) / n, where n = line-1 letter count,
+ * iterating a few times to converge — the same equalizer the mockups run.
  *
  * Two visual variants:
- *  - "band"  : on the Navy top band (PHILLY in on-navy, BRICKS in red/brick).
+ *  - "band"  : on the Navy top band (BAND in on-navy, BOX in red/brick).
  *  - "boxed" : a bone box with ink border + offset shadow (deep-dive header).
  */
 import { useCallback, useEffect, useRef } from 'react';
@@ -69,13 +69,13 @@ export function Wordmark({ variant = 'band', size, className }: WordmarkProps) {
     <span
       className={`${boxed ? 'pb-mark-boxed' : 'pb-wordmark'}${className ? ` ${className}` : ''}`}
       style={style}
-      aria-label="PhillyBricks"
+      aria-label="Bandbox"
     >
       <span className="pb-l1" ref={philRef} aria-hidden="true">
-        PHILLY
+        BAND
       </span>
       <span className="pb-l2" ref={brickRef} aria-hidden="true">
-        BRICKS
+        BOX
       </span>
     </span>
   );

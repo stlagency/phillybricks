@@ -12,7 +12,7 @@
 --      scoreDistress uses) by scripts/print-distress-sql.ts, embedded VERBATIM
 --      between the GENERATED markers. distressSql.test.ts fails CI if this block
 --      drifts from the generator; regenerate with:
---        pnpm --filter @phillybricks/core exec tsx scripts/print-distress-sql.ts
+--        pnpm --filter @bandbox/core exec tsx scripts/print-distress-sql.ts
 --   4. Matview ownership → phillybricks_worker (guarded by a role-exists check so the
 --      migration stays portable: the CI ephemeral PostGIS has no such role and skips
 --      it). Reassigning ownership is what lets the worker run REFRESH MATERIALIZED

@@ -1,6 +1,8 @@
 -- 0007_app_user.sql
 -- User data (app.*), RLS owner-only (PRD §3.5, §3.6).
 -- Every app.* table: ENABLE RLS + an owner-only policy using (user_id = auth.uid()).
+-- DEFERRED: Stripe postponed; app.subscription is ready but UNUSED until
+-- monetization (M8). The gated surfaces are free for authenticated users today.
 -- app.subscription is written ONLY by the service_role webhook (no anon/authenticated
 -- write grant). app.skiptrace_key.encrypted_key must NEVER be selectable by
 -- anon/authenticated (decrypt happens only inside a SECURITY DEFINER proxy, PRD §6).

@@ -12,7 +12,7 @@
  *
  * Only canonical relation/column names appear here — no source literal.
  */
-import type { GeoType } from '@phillybricks/core/contracts';
+import type { GeoType } from '@bandbox/core/contracts';
 import type { DbClient } from '../db.js';
 
 /** Canonical (table, geoColumn) pairs that carry stamped geo ids. */

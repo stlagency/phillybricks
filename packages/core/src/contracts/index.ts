@@ -1,5 +1,5 @@
 /**
- * Frozen shared contracts for PhillyBricks. Imported by ingestion, db, tiles, web.
+ * Frozen shared contracts for Bandbox. Imported by ingestion, db, tiles, web.
  * Author: orchestrator (M0). Extend additively; do not reshape in place.
  */
 export * from './city-adapter.js';

@@ -13,7 +13,7 @@
  *
  * Both inject their transport so the default test suite stays offline.
  */
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import type { DbClient } from './db.js';
 import type { StagedBatch } from './pipeline.js';
 import type { SourceFetcher } from './run.js';

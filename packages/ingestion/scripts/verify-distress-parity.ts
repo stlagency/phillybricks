@@ -5,10 +5,10 @@
  * the matview row, re-scores in TS, and asserts score01/score100 match.
  *
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/verify-distress-parity.ts
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/verify-distress-parity.ts
  */
-import { scoreDistress, DISTRESS_COMPONENT_KEYS } from '@phillybricks/core';
-import type { DistressComponentKey } from '@phillybricks/core/contracts';
+import { scoreDistress, DISTRESS_COMPONENT_KEYS } from '@bandbox/core';
+import type { DistressComponentKey } from '@bandbox/core/contracts';
 import { asDbClient, connectFromEnv } from '../src/db.js';
 
 /** Columns that arrive as numeric/bigint (postgres.js → string) and must be coerced. */

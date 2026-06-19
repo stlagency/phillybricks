@@ -1,5 +1,5 @@
 {
-  "name": "@phillybricks/tiles",
+  "name": "@bandbox/tiles",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.726.0",
-    "@phillybricks/db": "workspace:*",
+    "@bandbox/db": "workspace:*",
     "postgres": "^3.4.5"
   },
   "devDependencies": {

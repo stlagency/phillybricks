@@ -22,7 +22,7 @@
  * parcel-key index, the alert + tile hooks) so the whole pipeline is unit-tested
  * without a live database or network.
  */
-import type { CityAdapter, SourceSpec } from '@phillybricks/core/contracts';
+import type { CityAdapter, SourceSpec } from '@bandbox/core/contracts';
 import {
   evaluateGate,
   joinRatesPayload,

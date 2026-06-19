@@ -1,5 +1,5 @@
 /**
- * PhillyBricks migration runner (PRD §2, §9 M0).
+ * Bandbox migration runner (PRD §2, §9 M0).
  *
  * Applies packages/db/migrations/NNNN_*.sql in lexical order over DATABASE_URL,
  * exactly once each, recording applied files in an ops.schema_migration ledger.

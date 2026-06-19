@@ -19,7 +19,7 @@
  * Only canonical relation/column names appear here — no source literal. Geo columns
  * (neighborhood_id/zip_id/tract_id) come from a fixed allowlist, never user input.
  */
-import type { GeoType } from '@phillybricks/core/contracts';
+import type { GeoType } from '@bandbox/core/contracts';
 import type { DbClient } from '../db.js';
 
 interface GeoCol {

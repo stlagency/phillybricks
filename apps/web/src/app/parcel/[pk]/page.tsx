@@ -25,9 +25,9 @@ const getDeepDive = cache((pk: string) => loadDeepDive(db(), pk));
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { pk } = await params;
   const data = await getDeepDive(pk);
-  if (!data) return { title: 'Parcel not found — PhillyBricks' };
+  if (!data) return { title: 'Parcel not found — Bandbox' };
   return {
-    title: `${data.parcel.address} · OPA ${data.parcel.parcel_pk} — PhillyBricks`,
+    title: `${data.parcel.address} · OPA ${data.parcel.parcel_pk} — Bandbox`,
     description: `Parcel deep-dive for ${data.parcel.address}: assessment vs. sale, sale history, permits & violations, taxes, comps + value estimate, and a decomposable distress score — every figure sourced to the public record.`,
   };
 }

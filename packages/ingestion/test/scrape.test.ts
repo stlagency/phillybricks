@@ -5,8 +5,8 @@
  * safety net (positional cells), so the adversarial case here is header drift.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { ScraperSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { ScraperSpec } from '@bandbox/core/contracts';
 import { makeScrapeFetcher, parseScrapeTable, type HttpGet } from '../src/adapters/scrape.js';
 import { FakeDb, readFixture } from './helpers.js';
 

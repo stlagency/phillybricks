@@ -1,5 +1,5 @@
 /**
- * PhillyBricks component kit barrel. See ./README.md for the API-wiring map
+ * Bandbox component kit barrel. See ./README.md for the API-wiring map
  * (which props will later come from /api/parcel/:pk, /api/scan, etc.).
  */
 export { TopBand } from './TopBand';

@@ -9,7 +9,7 @@
  * the geo's total distress contribution, summing to 1.0) — the same convention
  * the original mock used. Provenance (raw counts, source stamps) is preserved.
  */
-import type { GeoDetail, GeoType, GeoMetricCell, DistressResult } from '@phillybricks/core/contracts';
+import type { GeoDetail, GeoType, GeoMetricCell, DistressResult } from '@bandbox/core/contracts';
 import type {
   NeighborhoodDetail,
   NeighborhoodPill,

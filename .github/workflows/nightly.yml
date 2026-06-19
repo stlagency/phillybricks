@@ -1,4 +1,4 @@
-# PhillyBricks nightly ingestion (PRD §4.1, §4.2, §10).
+# Bandbox nightly ingestion (PRD §4.1, §4.2, §10).
 #
 # Runs the ingestion worker, then performs a REPO-MUTATING keep-alive commit
 # (the schedule trigger alone does NOT reset GitHub's 60-day idle auto-disable —
@@ -97,7 +97,7 @@ jobs:
 
       - name: Run ingestion worker (nightly)
         # Cursor-resumable; idempotent upserts on natural source ids (PRD §4.1).
-        run: pnpm --filter @phillybricks/ingestion run:nightly
+        run: pnpm --filter @bandbox/ingestion run:nightly
 
       # REPO-MUTATING keep-alive (PRD §4.1, §10). MUST run even if ingestion failed,
       # so the cron never silently auto-disables. The commit diff is the whole point.
@@ -119,7 +119,7 @@ jobs:
       - name: Keep-alive — commit heartbeat
         if: ${{ always() }}
         run: |
-          git config user.name "phillybricks-bot"
+          git config user.name "bandbox-bot"
           git config user.email "bot@users.noreply.github.com"
           git add infra/heartbeat/last-run.txt
           if git diff --cached --quiet; then

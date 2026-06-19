@@ -1,12 +1,12 @@
 /**
- * @phillybricks/ingestion — the nightly worker + source adapters (PRD §4).
+ * @bandbox/ingestion — the nightly worker + source adapters (PRD §4).
  *
  * Pipeline (one source): normalize → load raw/staging → validate(per-source
  * JOIN-RATE gate) → promote canonical (atomic) → diff→change-log/alert → refresh
  * derived → trigger tile build. The per-source join-rate gate is one of the four
  * correctness gates; it quarantines + alerts below threshold and NEVER halts.
  *
- * Philly source literals live ONLY in @phillybricks/core's `philadelphia`
+ * Philly source literals live ONLY in @bandbox/core's `philadelphia`
  * adapter; this package imports them, never hard-codes them.
  */
 

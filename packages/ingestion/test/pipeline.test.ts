@@ -6,8 +6,8 @@
  * promotes NOTHING and still does not halt.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { runSourcePipeline, type PipelineHooks, type SourceSteps, type StagedBatch } from '../src/pipeline.js';
 import { loadJsonFixture, loadParcelIndexFixture, FakeDb } from './helpers.js';
 

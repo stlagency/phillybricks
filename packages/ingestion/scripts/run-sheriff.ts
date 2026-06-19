@@ -7,15 +7,15 @@
  * phillysheriff.com and, when DATABASE_URL is set, the prod warehouse.
  *
  *   # parse-only (no DB) — confirms today's live HTML still matches the recon header:
- *   pnpm --filter @phillybricks/ingestion exec tsx scripts/run-sheriff.ts parse-only
+ *   pnpm --filter @bandbox/ingestion exec tsx scripts/run-sheriff.ts parse-only
  *
  *   # full live run → upsert into public.sheriff_listing + verify it feeds distress:
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/run-sheriff.ts
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/run-sheriff.ts
  *
  * Not part of the build (outside tsconfig include). Idempotent: re-running re-upserts.
  */
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import { asDbClient, connectFromEnv } from '../src/db.js';
 import { makeScrapeFetcher } from '../src/adapters/scrape.js';
 import { makeStepsForSpec } from '../src/steps.js';

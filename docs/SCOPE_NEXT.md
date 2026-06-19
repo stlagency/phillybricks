@@ -1,6 +1,14 @@
 # Scope for next session — Rebrand → Bandbox, descope monetization, Resend → ZeptoMail
 
-**Status: PLAN ONLY. Nothing here is executed yet** (this session was scope-only). A
+> **✅ EXECUTED 2026-06-19** on branch `rebrand-bandbox-descope`. All three changes landed:
+> the PhillyBricks→Bandbox rebrand (`@bandbox/*` scope; internal `phillybricks_worker`/
+> `phillybricks-tiles`/`pb-*` kept), the monetization descope (`requireEntitlement`→`requireUser`,
+> Stripe dormant → M8), and the Resend→ZeptoMail docs/env swap. The §0 memory/secrets migration
+> ran. **Still open:** `www.bandbox.pro` DNS at Cloudflare (no DNS token in-env), the `gh`/Vercel
+> renames (do with the PR merge), and the ZeptoMail token (M7-time). This file is retained as the
+> historical plan of record; it intentionally still uses both old and new names for clarity.
+
+**Status (original): PLAN ONLY. Nothing here is executed yet** (this session was scope-only). A
 fresh session executes it. Derived from an exhaustive read-only inventory of the repo
 (grep counts cited below). The current docs (`PRD.md`, `README.md`, `STATUS.md`, code,
 `.env.example`) still describe the **PhillyBricks / Resend / monetization-planned** state

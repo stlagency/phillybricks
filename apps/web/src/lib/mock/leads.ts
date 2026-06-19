@@ -1,12 +1,12 @@
 /**
  * Mock LeadsResponse fixture — shaped EXACTLY like
- * @phillybricks/core/contracts `LeadsResponse` (PRD §6, GET /api/leads).
+ * @bandbox/core/contracts `LeadsResponse` (PRD §6, GET /api/leads).
  *
  * Typed mock data for design surfaces only. Not yet wired to a route in this
  * milestone (the leads surface is M6); included so the contract is exercised
  * and the Ledger/Pill components have a realistic feed to render later.
  */
-import type { LeadsResponse } from '@phillybricks/core/contracts';
+import type { LeadsResponse } from '@bandbox/core/contracts';
 import { leadDistressByPk } from './distress';
 
 export const sampleLeads: LeadsResponse = {

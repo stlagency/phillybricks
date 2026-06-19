@@ -1,4 +1,4 @@
-# PhillyBricks.net — Brand & Design System
+# Bandbox.pro — Brand & Design System
 ### Architectural brutalism · flat & graphic · third-generation South Philadelphian voice
 **Status:** Folded into the unified system. **`design/DESIGN.md` ("The Survey Table, Warmed") is the canonical visual source of truth** — it merges this brutalist language with the "Rowhouse" transparency mechanics per the owner's decision; `TOKENS.css` holds the canonical tokens. This doc stays authoritative for **brand voice, the PHILLY/BRICKS logo, and rationale**; on merged visual decisions (dark mode, lens colors, the transparency components) DESIGN.md wins.
 
@@ -7,7 +7,7 @@
 ## 1. Positioning in one line
 The parcel-level intelligence tool for people who knew what a rowhouse was worth before Zillow had a Philadelphia office.
 
-PhillyBricks is an *off-market, public-record* intelligence instrument — not an MLS clone. The brand has to feel like a serious civic-data instrument (assessor's office meets Bloomberg terminal) wearing the face of a South Philadelphia block: hard edges, brick red, concrete gray, no decoration it didn't earn.
+Bandbox is an *off-market, public-record* intelligence instrument — not an MLS clone. The brand has to feel like a serious civic-data instrument (assessor's office meets Bloomberg terminal) wearing the face of a South Philadelphia block: hard edges, brick red, concrete gray, no decoration it didn't earn.
 
 ---
 

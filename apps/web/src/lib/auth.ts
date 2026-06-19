@@ -1,18 +1,22 @@
 /**
- * Auth + entitlement seam for the paid surfaces (PRD §6, §7.5). The gated routes
+ * Auth seam for the login-gated surfaces (PRD §6, §7.5). The gated routes
  * (CSV export, mini-CRM writes, BYO skip-trace) all call THESE helpers, so wiring
  * real Supabase Auth in M7 is a one-file change — nothing else moves.
  *
- * Pre-auth (today) there is no login UI, so `getUserId()` returns null and every
- * gated route returns 401, EXCEPT when the documented local-verification seams are
- * set. Those seams are production-safe: with the env vars unset (the prod default)
- * the routes enforce real auth.
+ * Monetization is DEFERRED to M8: those surfaces are free for any authenticated
+ * user (`requireUser`), and the subscription machinery (`hasActiveSubscription`/
+ * `requireEntitlement`, `app.subscription`, the Stripe dep) stays in place but
+ * UNENFORCED — a dormant seam re-armed in M8 by flipping the two call sites back.
  *
- *   PHILLYBRICKS_DEV_USER_ID  — treat every request as this user (local testing).
- *   PHILLYBRICKS_DEV_ENTITLED — '1' ⇒ treat the dev user as actively subscribed.
+ * Pre-auth (today) there is no login UI, so `getUserId()` returns null and every
+ * gated route returns 401, EXCEPT when the documented local-verification seam is
+ * set. It is production-safe: with the env var unset (the prod default) the routes
+ * enforce real auth.
+ *
+ *   BANDBOX_DEV_USER_ID  — treat every request as this user (local testing).
  *
  * In M7, `getUserId` resolves the Supabase session (cookie or `Authorization:
- * Bearer <jwt>` → `auth.uid()`), and the dev seams are dropped.
+ * Bearer <jwt>` → `auth.uid()`), and the dev seam is dropped.
  */
 import { db } from './db';
 
@@ -33,7 +37,7 @@ export function authError(status: 401 | 403, code: string): Response {
  * a real Supabase session lookup; the signature is the stable seam.
  */
 export async function getUserId(_req: Request): Promise<string | null> {
-  const dev = process.env.PHILLYBRICKS_DEV_USER_ID;
+  const dev = process.env.BANDBOX_DEV_USER_ID;
   if (dev) return dev;
   // M7: verify a Supabase JWT (cookie/bearer) and return its `sub` claim.
   return null;
@@ -46,18 +50,28 @@ export async function requireUser(req: Request): Promise<SessionUser | Response>
   return { userId };
 }
 
-/** Active-subscription check (the paid gate, PRD §7.5). Server connection reads
- *  app.subscription directly (it is not the `authenticated` role, so the check is
- *  explicit, not RLS-implicit). */
+/**
+ * Active-subscription check (the paid gate, PRD §7.5). Server connection reads
+ * app.subscription directly (it is not the `authenticated` role, so the check is
+ * explicit, not RLS-implicit).
+ *
+ * @deprecated Dormant until monetization (M8). Nothing calls this today —
+ * `app.subscription` is kept ready but the gates use `requireUser`. Re-arm in M8.
+ */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
-  if (process.env.PHILLYBRICKS_DEV_ENTITLED === '1') return true;
   const rows = await db()<{ one: number }[]>`
     select 1 as one from app.subscription
     where user_id = ${userId} and status = 'active' limit 1`;
   return rows.length > 0;
 }
 
-/** 401 if unauthenticated, 403 if not subscribed; otherwise the SessionUser. */
+/**
+ * 401 if unauthenticated, 403 if not subscribed; otherwise the SessionUser.
+ *
+ * @deprecated Dormant until monetization (M8). The gated routes use `requireUser`
+ * (free for authenticated users) while Stripe is deferred. Re-arm in M8 by
+ * swapping the two call sites back to this.
+ */
 export async function requireEntitlement(req: Request): Promise<SessionUser | Response> {
   const u = await requireUser(req);
   if (u instanceof Response) return u;

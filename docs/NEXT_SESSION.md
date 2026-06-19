@@ -1,25 +1,20 @@
-# PhillyBricks — resume here (next session)
+# Bandbox — resume here (next session)
 
-> ## ⚠ DO THIS FIRST — pending rescope (decided + confirmed 2026-06-19, not yet executed)
-> Before M7, a fresh session must execute **three scoped changes**. The full plan +
-> exhaustive touchpoint inventory is in **[`docs/SCOPE_NEXT.md`](SCOPE_NEXT.md)** — follow it.
-> **Literal first step = `SCOPE_NEXT.md` §0:** the working folder was renamed, so migrate
-> `~/.claude/projects/-Users-aaroncohen-CLAUDEMAXING-cw-Philly/memory` → the new
-> path-encoded dir, or the project memory + the `.secret` files (DATABASE_URL, Supabase
-> Management token) won't load. All decisions are confirmed (keep internal names, keep the
-> login gate, defer monetization to M8, `@bandbox/*` scope, repo+Vercel rename, Cloudflare DNS).
-> 1. **Rename PhillyBricks → Bandbox**, domain → **www.bandbox.pro** (name + domain only;
->    Philly voice/tagline/design UNCHANGED; wordmark BAND/BOX; package scope `@phillybricks/*`→`@bandbox/*`; keep internal infra names `phillybricks_worker`/`phillybricks-tiles`/`pb-*`).
-> 2. **Monetization postponed** — relax the two paid gates (`requireEntitlement`→`requireUser`)
->    so CSV export + skip-trace are **free for authenticated users**; keep Stripe/`app.subscription` as a **dormant seam**; move Stripe to a deferred **M8**.
+> ## ✅ Rescope DONE (executed 2026-06-19) — rebrand + descope + ZeptoMail
+> The three scoped changes from **[`docs/SCOPE_NEXT.md`](SCOPE_NEXT.md)** are executed and on this branch:
+> 1. **Renamed PhillyBricks → Bandbox**, canonical domain **www.bandbox.pro** (name + domain only;
+>    South-Philly voice/tagline/brutalist design UNCHANGED; wordmark **BAND/BOX**; package scope `@bandbox/*`; internal infra names `phillybricks_worker`/`phillybricks-tiles`/`pb-*` kept on purpose).
+> 2. **Monetization postponed** — the two paid gates were relaxed (`requireEntitlement`→`requireUser`)
+>    so CSV export + skip-trace are **free for authenticated users**; Stripe/`app.subscription` are kept as a **dormant seam** (deprecated, not deleted); Stripe moved to a deferred **M8**.
 > 3. **Resend → ZeptoMail** for the alert digest (docs/env now; the send code is built in M7).
 >
-> Best landed as **one "rebrand + descope" PR** first; then build the redefined M7.
-> The rest of THIS doc still says PhillyBricks/Resend/Stripe because that's the on-disk
-> state today — it gets rewritten when the change above is executed. **M7 is redefined
-> (no payments) in `SCOPE_NEXT.md`.**
+> **Memory/secrets migration (§0) is done** — `memory/` + the two `.secret` files now live under the
+> `cc-Bandbox` path-encoded dir.
+> **Still open (human / blocked):** `www.bandbox.pro` **DNS** record at Cloudflare (no DNS token in this
+> environment — live URL stays `bandbox.vercel.app` until wired); the **`gh repo rename` / Vercel project
+> rename** (do alongside merging this PR); the **ZeptoMail** account + `ZEPTOMAIL_TOKEN` (M7-time).
 
-**M0 → M6 are complete and live in production.** The nightly ingests all 14 open-data sources + the sheriff scraper into a live Supabase warehouse, the four correctness gates are wired, `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6), the derived layer (distress composite, comps, geo_metric, geo boundaries) is built + live-verified, the **serving + map layer is shipped** (5 read APIs + MapLibre 4-lens scan + per-parcel tiles), the **property deep-dive (M5)** renders every figure bound to live sourced data with zero fabrication, and the **leads + mini-CRM + CSV export + BYO skip-trace (M6)** app-layer is built + verified — all deployed at **https://phillybricks.vercel.app**. **Your next milestone is M7 — accounts: Supabase Auth + Stripe subscription + Resend alert digest.** The single thing M7 unlocks is the auth seam in `apps/web/src/lib/auth.ts` (today the paid surfaces correctly 401/403); see **Next milestone — M7** below.
+**M0 → M6 are complete and live in production.** The nightly ingests all 14 open-data sources + the sheriff scraper into a live Supabase warehouse, the four correctness gates are wired, `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6), the derived layer (distress composite, comps, geo_metric, geo boundaries) is built + live-verified, the **serving + map layer is shipped** (5 read APIs + MapLibre 4-lens scan + per-parcel tiles), the **property deep-dive (M5)** renders every figure bound to live sourced data with zero fabrication, and the **leads + mini-CRM + CSV export + BYO skip-trace (M6)** app-layer is built + verified — all deployed at **https://bandbox.vercel.app**. **Your next milestone is M7 — accounts + alerts (free): Supabase Auth + ZeptoMail alert digest (no Stripe — monetization is M8).** The single thing M7 unlocks is the auth seam in `apps/web/src/lib/auth.ts` (today the login-gated surfaces correctly 401); see **Next milestone — M7** below.
 
 Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope), `design/DESIGN.md` (UI) + root `TOKENS.css` (design tokens), `docs/DATA_SOURCES.md` (data facts). Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`, `philly-infra`) loads automatically.
 
@@ -27,7 +22,7 @@ Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope),
 
 ## What's DONE (don't redo)
 
-- **Repo:** https://github.com/stlagency/phillybricks — public, AGPL, secret-scanning + push-protection. CI green (typecheck/lint/test · portability gate · static + live `pg_catalog` RLS gate · gitleaks).
+- **Repo:** https://github.com/stlagency/bandbox — public, AGPL, secret-scanning + push-protection. CI green (typecheck/lint/test · portability gate · static + live `pg_catalog` RLS gate · gitleaks).
 - **Monorepo:** `packages/core` (CityAdapter `philadelphia` + transfer flags + distress/comps + **declarative `SourceMapping` column-maps** for all 14 sources + coercion/geom-marker helpers), `packages/db` (11 migrations + runner), `packages/ingestion` (mapping-driven upsert engine, change-log/event diff, Carto-keyset + OPA-bulk fetchers, per-source steps, resumable backfill, nightly worker), `packages/tiles`, `apps/web`, `infra/`. `pnpm run verify` is green (db 101 · core 229 · tiles 11 · ingestion 80 tests · portability + security gates).
 - **Production Supabase live** (`ctcvrdsrylauqpuxbauz`): **11 migrations** applied (through `0011_m3_derived.sql`; 0010 added `tax_delinquency`/`tax_balance`/`business_license`, 0011 the derived layer). 18 public tables RLS-enabled + grant-locked.
 - **M1 ingestion COMPLETE + verified live (2026-06-18):**
@@ -43,14 +38,14 @@ Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope),
 - **Portability:** all Philly source literals (column names, table names, the decoy `parcel_id_num`) live ONLY in `packages/core/src/adapters/`. Ingestion is generic: it consumes each source's `SourceMapping.mapRow` (raw→canonical) + `windowPredicate`; the gate fails the build on a leak.
 - **OPA is the spine** → `expectedJoinRate: undefined` (exempt from the parcel-join gate, which would read 0% on first load). Its gate is the freshness gate (Last-Modified + row-count ±5%) in `makeOpaFetcher`; it promotes in chunked statements (no single giant tx), soft-retires, accrues change-log, then the parcel-key index is refreshed so keyed sources measure against real parcels.
 - **Cursor advances only after a successful promote** (a quarantine/failure leaves it, so the delta re-fetches). OPA stores its Last-Modified in `source_cursor.watermark`.
-- **Local run:** `DATABASE_URL="$(cat <memory>/database-url.secret)" NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter @phillybricks/ingestion run run:nightly` (set `NIGHTLY_MAX_PAGES` to bound per-run carto fetch; default 40).
+- **Local run:** `DATABASE_URL="$(cat <memory>/database-url.secret)" NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter @bandbox/ingestion run run:nightly` (set `NIGHTLY_MAX_PAGES` to bound per-run carto fetch; default 40).
 
 ## M2 — sheriff-sale scraper (DONE 2026-06-18, verified live)
 - **Generic scrape engine** `packages/ingestion/src/adapters/scrape.ts` (`parseScrapeTable` + `makeScrapeFetcher`): browser UA + redirect-follow + **AbortController timeout (30s)**, Crawl-delay 10 honored between pages, asserts the FIRST `<thead>` == `expectedColumns` (throws on drift — the gate), parses positional `<td>` rows, tags each with `__sale_type`/`__source_url`. **Per-page `minRows` floor** (mortgage 100 / tax 50) throws on a near-empty parse (header intact but tbody markup changed → loud `failed`+alert, never a silent green no-op). All-or-nothing across pages (idempotent re-scrape recovers next run).
 - **Adapter** (`philadelphia.ts`): `sheriffMapping` + a `scrape`/`weekly` `sheriff_sales` SourceSpec + the `ScraperSpec` (`sourceName`/`pages[{url,saleType,minRows}]`/`expectedColumns`/`crawlDelaySec`). `sale_type` DERIVED from the page; `source_sale_type` = raw. **DIRTY-AssessmentID rule**: parcel_pk only from a clean all-digit id (alpha/`>9`-digit → NULL, kept). **`listing_id` grain = `sheriff:<saleType>:<AssessmentID>:<BooknWrit>:<sale_status>:<sale_date>`** — LIVE-verified collision-free (0 of 1576). ⚠️ The coarse `<AssessmentID>:<BooknWrit>` first attempt silently dropped **27%** of rows: the same writ legitimately appears as BOTH a `preview` and a `postponed` listing (often at different dates) — status+date keep them distinct; the `ID` column is unusable (churns + collides 21×).
 - **Wiring** (`run.ts`): dedicated `runScrapeSource` (no join-rate gate, no soft-retire, no cursor) on `isScrape`; `buildRegistries` wires it iff `scraper.sourceName === spec.name`.
 - **Tests:** `test/scrape.test.ts` (parser/fetcher: drift throws, clone-thead, minRows floor, crawl-delay), `test/run.test.ts` (orchestration: scrape success/empty/throw-doesn't-halt, buildRegistries wiring), sheriff block in `core/test/ingest-mapping.test.ts` (DoD cases + collision regressions). **Adversarial review: 7 findings confirmed + fixed, 5 dismissed** (timeout, empty-scrape-alert via minRows floor, cross-page collision via saleType-in-key, orchestration tests).
-- **Live (2026-06-18):** `public.sheriff_listing` = **1576** (mortgage 909 = 495 postponed + 414 preview; tax 667 = 401 + 266); **24 kept with null parcel_pk**; **1542/1552 join** to `public.parcel` (99.4%); **1125 distinct parcels → `distress_signal.on_sheriff_list`**. Idempotent re-run holds at 1576. Ops verifier: `pnpm --filter @phillybricks/ingestion exec tsx scripts/run-sheriff.ts [parse-only|keycheck|diagnose]`.
+- **Live (2026-06-18):** `public.sheriff_listing` = **1576** (mortgage 909 = 495 postponed + 414 preview; tax 667 = 401 + 266); **24 kept with null parcel_pk**; **1542/1552 join** to `public.parcel` (99.4%); **1125 distinct parcels → `distress_signal.on_sheriff_list`**. Idempotent re-run holds at 1576. Ops verifier: `pnpm --filter @bandbox/ingestion exec tsx scripts/run-sheriff.ts [parse-only|keycheck|diagnose]`.
 
 ## M3 — derived analytics (DONE 2026-06-18, verified live)
 - **Matview ownership/refresh fix:** `distress_signal`/`comp_candidate` reassigned to `phillybricks_worker` (via the MCP `postgres` session — which is a MEMBER of the worker; needed `grant phillybricks_worker to postgres with set true` + `grant create on schema public to phillybricks_worker`, then `ALTER MATERIALIZED VIEW … OWNER TO`). `finalizeDerived` now runs `REFRESH MATERIALIZED VIEW CONCURRENTLY` (worker owns them) — **verified concurrent/concurrent live**. The per-source `refreshDerived` is a deliberate NO-OP; derived refresh + geo-stamp + geo_metric run ONCE at end-of-nightly via `finalizeDerived` (run.ts main()), not 14×.
@@ -58,7 +53,7 @@ Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope),
 - **comp_candidate:** recreated with `address`; 618,956 arms-length candidates across 158 neighborhoods.
 - **geo_boundary + geo-stamping:** `geo_boundary` loaded (159 Azavea neighborhoods MultiPolygon, 48 ZIP, 384 tract — geom widened to MultiPolygon). Point-in-polygon stamped 583,503/583,617 parcels + all crime/311 (`loaders/geoStamp.ts`, incremental by default). NOTE: the neighborhood geoSource `idField` was stale (`name` → `NAME`) — fixed in the adapter.
 - **geo_metric (incremental, classes a/b):** 644,814 rows, 11 metrics across 591 geo units. Class-(a) monthly back to 1974 (median_sale_price, **median_price_per_sqft** [price lens], **permit_count** [momentum], crime_count, request_count, sheriff_deed_share); class-(b) current snapshot (**distress_share** [distress], **livability_index** [livability], delinquency_share, open_violation_share, assessment_median). Nightly recomputes class-(a) trailing 3mo + class-(b) snapshot; one-time `backfill` did all months. **Known limit:** the trailing-3mo window won't refresh medians for months older than 3mo when a late/back-dated deed lands — heal via a periodic `finalize-derived.ts backfill` or the planned weekly RTT re-sync.
-- **Runners:** `pnpm --filter @phillybricks/ingestion exec tsx scripts/finalize-derived.ts [backfill]` (full vs nightly-incremental) and `scripts/verify-distress-parity.ts`.
+- **Runners:** `pnpm --filter @bandbox/ingestion exec tsx scripts/finalize-derived.ts [backfill]` (full vs nightly-incremental) and `scripts/verify-distress-parity.ts`.
 
 ## M4 reference — read-API + deploy detail (all DONE; see the M4 status summary further below)
 All frozen contracts are served from real M3 data, verified against prod:
@@ -67,17 +62,17 @@ All frozen contracts are served from real M3 data, verified against prod:
 - `GET /api/comps?pk` → `CompsResult` (`computeComps` in `lib/comps-query.ts`: subject + same-hood-OR-2mi candidate pool → core `selectComps`; ORDER BY for determinism). Verified deterministic + transparent estimate.
 - `GET /api/leads` → `LeadsResponse` (distress_signal ⋈ parcel, score-ordered, signal/neighborhood/min-score filters). `signal=on_sheriff_list` → 1,117.
 - `GET /api/boundaries?geo` → GeoJSON FeatureCollection (the choropleth geometry; 159/48/384 polygons).
-- DB access: `lib/db.ts` (server-only `postgres`, reads DATABASE_URL). `next.config.mjs` adds `extensionAlias` (`.js`→`.ts`) so RUNTIME value imports from `@phillybricks/core` resolve (type-only imports don't need it). `lib/distress-row.ts` coerces numeric/bigint matview columns before `scoreDistress`.
-- Local run: `apps/web/.env.local` (gitignored) has DATABASE_URL + NEXT_PUBLIC_SUPABASE_URL/ANON_KEY; `pnpm --filter @phillybricks/web dev`, then the `.claude/launch.json` `web` preview server.
+- DB access: `lib/db.ts` (server-only `postgres`, reads DATABASE_URL). `next.config.mjs` adds `extensionAlias` (`.js`→`.ts`) so RUNTIME value imports from `@bandbox/core` resolve (type-only imports don't need it). `lib/distress-row.ts` coerces numeric/bigint matview columns before `scoreDistress`.
+- Local run: `apps/web/.env.local` (gitignored) has DATABASE_URL + NEXT_PUBLIC_SUPABASE_URL/ANON_KEY; `pnpm --filter @bandbox/web dev`, then the `.claude/launch.json` `web` preview server.
 
 ### M4 deploy — DONE 2026-06-18 (live)
-- **Live:** https://phillybricks.vercel.app — Vercel project `phillybricks` (id `prj_DiIbXmTug1Qa6DVQm68VRP5kyre1`, team `stlagencys-projects` / `team_3ImQlRRb1pm2aV5oxd5aeL2r`). All 5 read APIs verified serving real prod data on the deployment.
+- **Live:** https://bandbox.vercel.app — Vercel project `bandbox` (id `prj_DiIbXmTug1Qa6DVQm68VRP5kyre1`, team `stlagencys-projects` / `team_3ImQlRRb1pm2aV5oxd5aeL2r`). All 5 read APIs verified serving real prod data on the deployment.
 - **Build:** Vercel NATIVE build (not `--prebuilt`). Project `rootDirectory=apps/web` + `framework=nextjs` (set via the Vercel API — no CLI flag for rootDirectory; the CLI token is at `~/Library/Application Support/com.vercel.cli/auth.json`). Deploy from the REPO ROOT (`vercel deploy --prod --yes`) so the whole pnpm workspace uploads and Vercel installs/builds `apps/web`. `--prebuilt` from `apps/web` FAILS on a `.pnpm/...` symlink ENOENT — don't use it for this monorepo. `next.config.mjs` sets `outputFileTracingRoot` to the repo root for the standalone server-file trace.
 - **Env (production, set via `vercel env add`):** `DATABASE_URL` (pooler), `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Redeploy: `vercel pull --yes --environment=production --cwd apps/web` then `vercel deploy --prod --yes` from the repo root. (Git auto-deploy is NOT connected; `vercel git connect` to enable. Preview-env vars not set yet.)
 
 ## M4 — serving + map (COMPLETE + live 2026-06-19)
 
-Shipped + deployed at https://phillybricks.vercel.app (commits `52f6e8f`, `0c1e165`, `b6d6461`, `bfe3087`, `4629b4d`; full verify green, adversarially reviewed):
+Shipped + deployed at https://bandbox.vercel.app (commits `52f6e8f`, `0c1e165`, `b6d6461`, `bfe3087`, `4629b4d`; full verify green, adversarially reviewed):
 - **Read APIs (all live):** `/api/scan`, `/api/parcel/:pk`, `/api/comps`, `/api/leads`, `/api/boundaries`, plus **`/api/geo/:type/:id`** → frozen `GeoDetail` (the right-rail; `apps/web/src/lib/geo-query.ts` aggregates `distress_signal` to a geo with caps/weights read from `DISTRESS_CONFIG`, zero hardcoded scoring constants; `distress.score01`==`geo_metric.distress_share`, a separate rank-based `distress_percentile` is the rail headline). `apps/web/src/lib/neighborhood-view.ts` maps `GeoDetail`→the rail view-model.
 - **MapLibre scan** (`apps/web/src/components/ScanMap.tsx`): Reset-zoom control; period-indexed `TimeStrip` (threads `?period=` into `/api/scan`; the scan route resolves a stale/unknown period to `period_max`); geo-type switch via interactive breadcrumb (neighborhood/tract); real rail wired to `/api/geo`; **per-parcel POINT-DOT layer** (z≥14 circle layer — the OPA geom is a POINT/centroid, NOT a polygon, so fill/line draw nothing) with click→`/parcel/[pk]`; choropleth fades on zoom-in so dots read.
 - **Tiles on Supabase Storage** (S3-compatible, same project; Cloudflare R2 dropped). Bucket `phillybricks-tiles` (PUBLIC, range-served): `parcels.pmtiles` (583,507 features) + `boundaries/{zip,neighborhood,tract}.pmtiles`. Builder `packages/tiles/src/storage.ts`; config: endpoint `https://ctcvrdsrylauqpuxbauz.storage.supabase.co/storage/v1/s3`, region `us-east-1`, `forcePathStyle:true`; client reads the public base via `NEXT_PUBLIC_TILES_BASE_URL`.
@@ -102,13 +97,16 @@ Every figure on `/parcel/[pk]` binds to live `ParcelDeepDive` data or an honest 
 - **CSV export** `GET /api/leads/export` (`requireEntitlement`): server-**streamed** over a cursor, columns = `parcel_pk,address,owner_1,mailing_address,<9 component contributions 0–100>,distress_composite,key_signals`; **no skip-trace PII**, RFC-4180 + **formula-injection neutralized** (`lib/leads-csv.ts`), 25k row-cap (`X-Row-Cap`).
 - **Mini-CRM**: `app.saved_lead` UPSERT on `(user_id,parcel_pk)` (migration `0012`) — `POST/GET /api/leads/save`, `PATCH/DELETE /api/leads/saved/[id]`; ownership enforced **in SQL** (server role bypasses RLS).
 - **BYO skip-trace** `POST /api/skiptrace/[pk]` (`lib/skiptrace.ts`): guard order sameOrigin → entitlement → attestation → stored-key; vendor base URL from a **server allowlist** (batchdata/reiskip/endato — SSRF closed, never DB/user); `decryptKey()` is the Vault seam; per-user daily cap (in-memory store — M7 makes it shared/DB); the key + returned PII are **never logged or persisted** (12 unit tests; adversarial security review).
-- **Auth seam** `lib/auth.ts`: `requireUser`/`requireEntitlement`/`hasSkiptraceAttestation`/`sameOrigin`. Local verification via `PHILLYBRICKS_DEV_USER_ID` / `PHILLYBRICKS_DEV_ENTITLED` (prod-safe: unset ⇒ real enforcement).
+- **Auth seam** `lib/auth.ts`: `requireUser` (the live gate) + `requireEntitlement`/`hasActiveSubscription` (**@deprecated — dormant until M8**) + `hasSkiptraceAttestation`/`sameOrigin`. Local verification via `BANDBOX_DEV_USER_ID` (prod-safe: unset ⇒ real enforcement). The export + skip-trace routes now call `requireUser` (login-gated, free).
 
-## Next milestone — M7: accounts, subscription, alerts
-- **Supabase Auth** → fill in `getUserId(req)` in `apps/web/src/lib/auth.ts` (resolve the session cookie / `Authorization: Bearer <jwt>` → `auth.uid()`); drop the dev-override seams. That single change lights up CSV export, mini-CRM save, and skip-trace.
-- **Stripe** low-flat sub + **verified webhook** (raw body, `constructEvent`, idempotent on event id, service_role write to `app.subscription`) → `hasActiveSubscription` already reads it. **Stripe keys needed** (`.env.example` has placeholders). Wire the skip-trace **attestation** UI (writes `app.profile.attested_skiptrace_at`) + **Supabase Vault** for `decryptKey` + a **shared/DB skip-trace daily-cap** store (the in-memory one is per-instance).
-- **Saved areas** (3 modes) + **alerts**: nightly diff → `app.alert_event` → **Resend** digest (List-Unsubscribe / CAN-SPAM) + in-app feed. **Resend key needed**.
-- DoD: subscribe → save area → receive a real-change digest; forged webhook rejected; skip-trace works end-to-end with a user key and leaks no key/PII.
+## Next milestone — M7: accounts + alerts (free — no payments)
+- **Supabase Auth** → fill in `getUserId(req)` in `apps/web/src/lib/auth.ts` (resolve the session cookie / `Authorization: Bearer <jwt>` → `auth.uid()`); drop the `BANDBOX_DEV_USER_ID` seam. That single change lights up the (now free, login-gated) CSV export, mini-CRM save, and skip-trace.
+- Wire the skip-trace **attestation** UI (writes `app.profile.attested_skiptrace_at`) + **Supabase Vault** for `decryptKey` + a **shared/DB skip-trace daily-cap** store (the in-memory one is per-instance).
+- **Saved areas** (3 modes) + **alerts**: nightly diff → `app.alert_event` → **ZeptoMail** digest (raw HTTPS `POST https://api.zeptomail.com/v1.1/email`, `Authorization: Zoho-enczapikey <ZEPTOMAIL_TOKEN>`; List-Unsubscribe / CAN-SPAM) + in-app feed + `/api/unsubscribe`. **`ZEPTOMAIL_TOKEN` + verified `bandbox.pro` sender needed**.
+- **No Stripe in M7.** DoD: sign in → save area → receive a real-change digest; unsubscribe works; skip-trace works end-to-end with a user key and leaks no key/PII.
+
+## Deferred milestone — M8: monetization (when validated)
+- **Stripe** low-flat sub + **verified webhook** (raw body, `constructEvent`, idempotent on event id, service_role write to `app.subscription`) → `hasActiveSubscription` already reads it (dormant). Re-arm by flipping the two `requireUser` gates back to `requireEntitlement`. **Stripe keys needed** (`.env.example` has the placeholders, commented out). Price set against the ~$45/mo floor.
 
 ### Gotchas
 - **Matview REFRESH ownership (RESOLVED in M3):** the worker now OWNS `distress_signal`/`comp_candidate` so it can `REFRESH … CONCURRENTLY`. Reassignment is in migration `0011` (role-exists-guarded, exception-tolerant) BUT on prod the Supabase `apply_migration` role cannot `SET ROLE phillybricks_worker`, so the block skipped and ownership was done OUT-OF-BAND via the MCP `postgres` session: `grant phillybricks_worker to postgres with set true;` then `grant create on schema public to phillybricks_worker;` (the new owner needs CREATE on the schema) then `ALTER MATERIALIZED VIEW … OWNER TO phillybricks_worker;`. If `0011` is ever re-applied to a fresh prod, redo those three on the MCP session. CONCURRENTLY must be a bare statement (never inside a function/txn) — `finalizeDerived` issues it via `db.unsafe` (autocommit).
@@ -120,10 +118,13 @@ Every figure on `/parcel/[pk]` binds to live `ParcelDeepDive` data or an honest 
 - Live DB via Supabase MCP `execute_sql`: `select count(*) from public.parcel;` (=583,617), `select count(*) from public.parcel_change_log;` (≥2.3M), and `select source, status, rows_promoted from ops.ingest_run order by id desc limit 20;`.
 - Sheriff: `select count(*) from public.sheriff_listing;` (≈1,576, refreshes weekly), `select sale_type, sale_status, count(*) from public.sheriff_listing group by 1,2;`.
 - RTT backfill: drained — `select count(*) from public.transfer;` (=5,100,759; 709,901 arms-length).
-- M3 derived (all live): `select count(*) from public.distress_signal;` (=583,617), `select count(*) from public.comp_candidate;` (=618,956), `select count(*) from public.geo_metric;` (=644,814), `select count(*) from public.geo_boundary;` (=591). Distress parity: `pnpm --filter @phillybricks/ingestion exec tsx scripts/verify-distress-parity.ts` (0 mismatches). Re-run derived: `… scripts/finalize-derived.ts` (incremental, CONCURRENTLY) or `… backfill` (full).
+- M3 derived (all live): `select count(*) from public.distress_signal;` (=583,617), `select count(*) from public.comp_candidate;` (=618,956), `select count(*) from public.geo_metric;` (=644,814), `select count(*) from public.geo_boundary;` (=591). Distress parity: `pnpm --filter @bandbox/ingestion exec tsx scripts/verify-distress-parity.ts` (0 mismatches). Re-run derived: `… scripts/finalize-derived.ts` (incremental, CONCURRENTLY) or `… backfill` (full).
 
 ## Human pause-points still open
 - **Vercel Pro** + env (`SUPABASE_URL`=`https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable + service_role) — **M4** (deploy DONE; env set).
 - **Supabase Storage (tiles) — fully DONE, nothing open.** PUBLIC bucket `phillybricks-tiles` + S3 keys (in `apps/web/.env.local`, gitignored) + tiles built/uploaded + `NEXT_PUBLIC_TILES_BASE_URL` on Vercel + **GH Actions secrets `SUPABASE_S3_ACCESS_KEY_ID`/`SUPABASE_S3_SECRET_ACCESS_KEY` set (2026-06-19)** so the nightly rebuild runs in CI. Tiles ride the EXISTING Supabase Pro plan (100 GB storage + 250 GB egress included; $0.09/GB beyond) — baseline stays **~$45/mo (Supabase Pro $25 + Vercel Pro $20)**, one fewer vendor (heavy public tile egress shares the Supabase project with the warehouse). Cloudflare R2 fully removed.
-- **Stripe** + **Resend** keys — **M7**.
+- **ZeptoMail** `ZEPTOMAIL_TOKEN` + verified `bandbox.pro` sending domain (DKIM/SPF) — **M7** (alert digest).
+- **Stripe** keys — **M8** only (monetization deferred; not needed for M7).
+- **www.bandbox.pro DNS** — add the Vercel CNAME/A record at the Cloudflare zone. Needs a **DNS-capable Cloudflare token** (the connected Cloudflare integration is storage/compute only — D1/KV/R2/Workers — no zones/DNS). Until wired, the live URL is `bandbox.vercel.app`.
+- **`gh repo rename` + Vercel project rename** — run alongside merging the rebrand PR (`gh repo rename bandbox`, `git remote set-url`, Vercel API project rename + add `www.bandbox.pro`).
 - **healthchecks.io** monitor URL (`HEALTHCHECKS_URL` secret) — wire the liveness dead-man's-switch when convenient.

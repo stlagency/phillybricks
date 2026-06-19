@@ -10,13 +10,13 @@ const nextConfig = {
   // the real (de-symlinked) hoisted deps into the standalone output (Vercel's native
   // monorepo build uses this; required so server file tracing resolves the .pnpm store).
   outputFileTracingRoot: join(__dirname, '..', '..'),
-  // @phillybricks/core ships untranspiled TS via package "exports"; let Next compile it.
-  transpilePackages: ['@phillybricks/core'],
+  // @bandbox/core ships untranspiled TS via package "exports"; let Next compile it.
+  transpilePackages: ['@bandbox/core'],
   experimental: {
     // core is consumed as source (.ts) across the workspace.
     externalDir: true,
   },
-  // @phillybricks/core's TS source uses NodeNext `.js` import specifiers (e.g.
+  // @bandbox/core's TS source uses NodeNext `.js` import specifiers (e.g.
   // `export * from './contracts/index.js'`); teach webpack to resolve those to the
   // real `.ts`/`.tsx` files so runtime VALUE imports (scoreDistress, selectComps)
   // from the workspace package resolve. (Type-only imports are erased and don't need this.)

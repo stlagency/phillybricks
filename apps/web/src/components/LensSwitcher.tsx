@@ -6,7 +6,7 @@
  * marker block (a chunk, not a thin stripe); exactly one active so color means
  * one thing. Controlled component: parent owns the active lens.
  */
-import type { LensMetric } from '@phillybricks/core/contracts';
+import type { LensMetric } from '@bandbox/core/contracts';
 
 const LENSES: { id: LensMetric; label: string; dotVar: string }[] = [
   { id: 'price', label: 'Price', dotVar: 'var(--pb-lens-price)' },

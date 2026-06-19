@@ -8,7 +8,7 @@
  * a native tooltip with the full {component, raw, weight, source} decomposition
  * and pushes the receipt into the context rail.
  */
-import type { DistressResult, DistressComponent } from '@phillybricks/core/contracts';
+import type { DistressResult, DistressComponent } from '@bandbox/core/contracts';
 import { useRail } from './ContextRail';
 
 const SEG_COLORS = ['var(--pb-red)', '#C13A2E', 'var(--pb-brick)', 'var(--pb-gravel)'];

@@ -4,7 +4,7 @@
  * This module is a THIN delegating wrapper. The canonical rule lives in exactly
  * two places that must agree byte-for-byte:
  *   1. the SQL `norm_parcel(text)` function (packages/db migration 0002), and
- *   2. `philadelphia.normParcelKey` in @phillybricks/core.
+ *   2. `philadelphia.normParcelKey` in @bandbox/core.
  * To guarantee parity we DO NOT re-implement the rule here — we delegate to the
  * adapter. (A duplicated regex would be a place for the two to silently drift;
  * the golden tests assert the delegation, not a fork.)
@@ -15,7 +15,7 @@
  * that is NOT an OPA account) can never be coerced into a colliding 9-digit key.
  * Which raw columns are safe to feed in is the adapter's `keyColumns` decision.
  */
-import type { CityAdapter } from '@phillybricks/core/contracts';
+import type { CityAdapter } from '@bandbox/core/contracts';
 
 /** Why a raw key failed to become a usable `parcel_pk`. */
 export type QuarantineReason = 'malformed_key' | 'unjoined';

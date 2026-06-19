@@ -7,7 +7,7 @@
  * "tracking since …" UI label.
  */
 import { NextResponse } from 'next/server';
-import type { ScanResponse, ScanFeature } from '@phillybricks/core/contracts';
+import type { ScanResponse, ScanFeature } from '@bandbox/core/contracts';
 import { db } from '../../../lib/db';
 import { LENS_METRIC, isLens, isGeoType, quantileBuckets, median } from '../../../lib/scan-meta';
 

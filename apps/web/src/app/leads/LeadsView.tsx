@@ -5,11 +5,12 @@
  * debounced-fetches the scored list (/api/leads) and the honest per-signal counts
  * (/api/leads?facets=1) on every filter change, and renders the controlled
  * <FilterRail/> (left) beside the <LeadsTable/> (right). "Export CSV" hits
- * /api/leads/export with the same filters; a 401/403 surfaces "Subscription
- * required" rather than a download. Pagination is Load-more (append pages).
+ * /api/leads/export with the same filters; export is free for authenticated
+ * users (monetization deferred to M8), so a 401 surfaces "Sign in to export"
+ * rather than a download. Pagination is Load-more (append pages).
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { LeadRow, LeadsResponse, LeadFacets } from '@phillybricks/core/contracts';
+import type { LeadRow, LeadsResponse, LeadFacets } from '@bandbox/core/contracts';
 import { FilterRail, type FilterRailValue } from '../../components/FilterRail';
 import { LeadsTable } from '../../components/LeadsTable';
 import { Button } from '../../components/Button';
@@ -118,7 +119,7 @@ export function LeadsView() {
     try {
       const res = await fetch(`/api/leads/export?${filterKey}`);
       if (res.status === 401 || res.status === 403) {
-        setExportMsg('Subscription required');
+        setExportMsg('Sign in to export');
         return;
       }
       if (!res.ok) {

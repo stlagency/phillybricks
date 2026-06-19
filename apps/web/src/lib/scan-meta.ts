@@ -6,7 +6,7 @@
  * metric names, not Philly source literals. `metric_class` lets the UI label the
  * forward-accruing (class-b) lenses "tracking since …".
  */
-import type { LensMetric } from '@phillybricks/core/contracts';
+import type { LensMetric } from '@bandbox/core/contracts';
 
 export interface LensMeta {
   metric: string;

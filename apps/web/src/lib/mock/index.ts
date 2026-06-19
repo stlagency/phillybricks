@@ -1,6 +1,6 @@
 /**
  * Barrel for typed mock fixtures. Every object here is shaped EXACTLY like a
- * frozen contract in @phillybricks/core/contracts and stands in for a live API
+ * frozen contract in @bandbox/core/contracts and stands in for a live API
  * response until the DB layer lands:
  *
  *   ParcelDeepDive  ← GET /api/parcel/:pk    (parcel.ts)

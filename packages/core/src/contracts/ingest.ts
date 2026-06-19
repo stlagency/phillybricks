@@ -13,7 +13,7 @@
  * on insert) or a `GeomMarker` (geometry that must be materialized as a SQL
  * expression, never a plain bound value). Returning `null` from `mapRow` SKIPS the
  * row (e.g. structurally unusable). Coercion + geom-marker helpers live in
- * `@phillybricks/core` (`ingest/mapping`) so the adapter and the engine agree.
+ * `@bandbox/core` (`ingest/mapping`) so the adapter and the engine agree.
  *
  * FROZEN CONTRACT: extend additively.
  */

@@ -3,8 +3,8 @@
  * not-newer object; Carto keyset windowing, cursor resume, and geom-valid counting.
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { Readable } from 'node:stream';
 import { makeCartoFetcher, makeOpaFetcher } from '../src/fetchers.js';
 import type { FetchLike } from '../src/adapters/carto.js';

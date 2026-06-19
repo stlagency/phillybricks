@@ -3,7 +3,7 @@
  * rendering (never a bound scalar), ON CONFLICT DO UPDATE, row-skip, chunking.
  */
 import { describe, it, expect } from 'vitest';
-import { ewktGeom, geoJsonGeom, type SourceMapping } from '@phillybricks/core';
+import { ewktGeom, geoJsonGeom, type SourceMapping } from '@bandbox/core';
 import { buildMappedUpsert, upsertMapped } from '../src/loaders/upsert.js';
 import { FakeDb } from './helpers.js';
 

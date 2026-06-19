@@ -1,6 +1,6 @@
 export const meta = {
-  name: 'phillybricks-build',
-  description: 'Build PhillyBricks M0→M3 across packages, then adversarially verify the 4 correctness gates',
+  name: 'bandbox-build',
+  description: 'Build Bandbox M0→M3 across packages, then adversarially verify the 4 correctness gates',
   phases: [
     { title: 'Foundational build', detail: 'core, db, web, infra in parallel (disjoint dirs)' },
     { title: 'Dependent build', detail: 'ingestion, tiles against core/db public APIs' },
@@ -10,7 +10,7 @@ export const meta = {
 
 // ----- shared context every agent gets -----
 const COMMON = `
-You are a senior engineer building PhillyBricks — an AGPL, transparency-first Philadelphia
+You are a senior engineer building Bandbox — an AGPL, transparency-first Philadelphia
 real-estate intelligence tool. The repo is a pnpm + TypeScript monorepo at the cwd. The M0
 skeleton already exists and installs cleanly. READ these before coding (they are the source of
 truth): PRD.md (engineering), docs/DATA_SOURCES.md (verified data facts), and the frozen shared
@@ -82,7 +82,7 @@ const GATE_SCHEMA = {
 phase('Foundational build');
 
 const CORE = `${COMMON}
-YOUR DIRECTORY: packages/core/src (plus tests in packages/core/test). Package name @phillybricks/core.
+YOUR DIRECTORY: packages/core/src (plus tests in packages/core/test). Package name @bandbox/core.
 You own pure logic. Two of the four correctness gates live here (distress math, comps). Implement,
 extend packages/core/src/index.ts to export your modules, and write thorough golden unit tests.
 
@@ -144,10 +144,10 @@ GOLDEN TESTS in packages/core/test (vitest):
   and reports trimmed_count; null livable_area → land branch.
 - transfer flags: sheriff/estate/arms-length classification on representative rows; $1 estate deed is NOT
   arms-length.
-Run "pnpm --filter @phillybricks/core test" and "pnpm --filter @phillybricks/core typecheck" until green.`;
+Run "pnpm --filter @bandbox/core test" and "pnpm --filter @bandbox/core typecheck" until green.`;
 
 const DB = `${COMMON}
-YOUR DIRECTORY: packages/db (migrations/, src/, test/). Package name @phillybricks/db.
+YOUR DIRECTORY: packages/db (migrations/, src/, test/). Package name @bandbox/db.
 You own the SQL schema. The RLS/secrets gate is one of the four correctness gates and is graded against
 your migrations by infra/scripts/security-gate.mjs — make it pass.
 
@@ -188,10 +188,10 @@ Also: packages/db/src/migrate.ts — a tiny runner that applies migrations/*.sql
 idempotent). packages/db/src/index.ts — export the runner + a Database types placeholder + canonical
 table-name string constants (PUBLIC_TABLES etc.). A vitest test that parses every migration .sql and
 asserts the security-gate invariants (so regressions fail in unit tests too).
-Run "node infra/scripts/security-gate.mjs" and "pnpm --filter @phillybricks/db typecheck" until green.`;
+Run "node infra/scripts/security-gate.mjs" and "pnpm --filter @bandbox/db typecheck" until green.`;
 
 const WEB = `${COMMON}
-YOUR DIRECTORY: apps/web (src/, public/, config files). Package name @phillybricks/web (Next.js App Router).
+YOUR DIRECTORY: apps/web (src/, public/, config files). Package name @bandbox/web (Next.js App Router).
 You build the design system + the two reference surfaces against the FROZEN contracts, using typed mock
 data (no live DB yet). Design is settled — implement "The Survey Table, Warmed" VERBATIM.
 
@@ -215,15 +215,15 @@ Deliver:
   + instrument readout + time strip), Button (primary red CTA budget / secondary / ghost), CommunitySignal.
   Honor the red discipline (1–2 true-red elements/screen), 3px ink borders, square corners, offset hard
   shadows (no blur), prefers-reduced-motion (shadows stay), WCAG AA both themes.
-- src/lib/mock/ — typed fixtures shaped EXACTLY like the contracts in @phillybricks/core/contracts
+- src/lib/mock/ — typed fixtures shaped EXACTLY like the contracts in @bandbox/core/contracts
   (ParcelDeepDive, ScanResponse, CompsResult, DistressResult, LeadsResponse). Import the TYPES from
-  @phillybricks/core. Use believable Philly data (Point Breeze / Fishtown like the mockups).
+  @bandbox/core. Use believable Philly data (Point Breeze / Fishtown like the mockups).
 - src/app/page.tsx → Market Scan surface (route '/'); src/app/parcel/[pk]/page.tsx → Property Deep-Dive,
   rendered from the mock ParcelDeepDive. Both server components where possible, client components for the
   interactive bits (map, theme, drawer, rail). Wire the distress decomposition + comps derivation drawer +
   source stamps + glossary rail exactly as the mockups behave.
 - A src/components/README or comment noting which props will later come from /api/parcel/:pk, /api/scan, etc.
-Run "pnpm --filter @phillybricks/web typecheck" and "pnpm --filter @phillybricks/web build" until both pass.
+Run "pnpm --filter @bandbox/web typecheck" and "pnpm --filter @bandbox/web build" until both pass.
 Do NOT start a dev server (the orchestrator verifies in-browser afterward).`;
 
 const INFRA = `${COMMON}
@@ -272,15 +272,15 @@ const coreApi = (wave1[0] && wave1[0].public_api ? wave1[0].public_api.join('\n'
 const dbApi = (wave1[1] && wave1[1].public_api ? wave1[1].public_api.join('\n') : 'see packages/db/src/index.ts');
 
 const INGESTION = `${COMMON}
-YOUR DIRECTORY: packages/ingestion (src/, test/). Package name @phillybricks/ingestion.
+YOUR DIRECTORY: packages/ingestion (src/, test/). Package name @bandbox/ingestion.
 You own the nightly worker + source adapters. The per-source JOIN-RATE gate is one of the four correctness
 gates. core + db are now implemented; rely on these public APIs:
---- @phillybricks/core exports ---
+--- @bandbox/core exports ---
 ${coreApi}
---- @phillybricks/db exports ---
+--- @bandbox/db exports ---
 ${dbApi}
-Import the CityAdapter 'philadelphia' and deriveTransferFlags from @phillybricks/core. Import the type
-contracts from @phillybricks/core/contracts.
+Import the CityAdapter 'philadelphia' and deriveTransferFlags from @bandbox/core. Import the type
+contracts from @bandbox/core/contracts.
 
 Deliver under packages/ingestion/src:
 - normParcel.ts — a TS normalizer that MIRRORS the SQL norm_parcel and core's normParcelKey EXACTLY
@@ -305,10 +305,10 @@ Deliver under packages/ingestion/src:
   the parcel_id_num decoy value does NOT yield a valid OPA join; assert spatial sources skip the parcel gate.
   Put fixtures in test/fixtures/. Pure-unit where possible (mock the DB); you MAY add a live Carto smoke test
   guarded behind an env flag (CARTO_LIVE=1) since Carto is public — but default tests must not hit network.
-Run "pnpm --filter @phillybricks/ingestion test" and "… typecheck" until green.`;
+Run "pnpm --filter @bandbox/ingestion test" and "… typecheck" until green.`;
 
 const TILES = `${COMMON}
-YOUR DIRECTORY: packages/tiles (src/). Package name @phillybricks/tiles.
+YOUR DIRECTORY: packages/tiles (src/). Package name @bandbox/tiles.
 Deliver:
 - src/build.ts — the nightly tile build: query public.parcel (geom) + the choropleth-relevant fields from
   the DB (via the installed 'postgres' client + DATABASE_URL), emit newline-delimited GeoJSON, shell out to
@@ -319,7 +319,7 @@ Deliver:
 - src/index.ts — exports buildParcelTiles(), buildBoundaryTiles().
 - A comment block documenting the tippecanoe flags used and that tippecanoe must be installed in the CI/runner
   image. Guard the shell-out so a missing tippecanoe fails loudly with an actionable message.
-Run "pnpm --filter @phillybricks/tiles typecheck" until green (no network/DB in tests; keep any test pure).`;
+Run "pnpm --filter @bandbox/tiles typecheck" until green (no network/DB in tests; keep any test pure).`;
 
 const wave2 = await parallel([
   () => agent(INGESTION, { label: 'build:ingestion', phase: 'Dependent build', schema: BUILD_SCHEMA }),

@@ -1,8 +1,8 @@
-# PhillyBricks Next.js web image.
+# Bandbox Next.js web image.
 # Used by docker-compose.yml service: `web`.
 #
 # STATUS: scaffold. The dependency install is real. The production build step
-# below assumes `pnpm --filter @phillybricks/web build` produces a standalone
+# below assumes `pnpm --filter @bandbox/web build` produces a standalone
 # server. TODO before this is prod-ready:
 #   - set `output: 'standalone'` in apps/web/next.config.mjs (owned by the web
 #     package) so the runtime image can be slimmed to the standalone bundle;
@@ -24,11 +24,11 @@ COPY . .
 
 RUN pnpm install --frozen-lockfile
 
-# Build the Next app. transpilePackages handles @phillybricks/core source.
-RUN pnpm --filter @phillybricks/web build
+# Build the Next app. transpilePackages handles @bandbox/core source.
+RUN pnpm --filter @bandbox/web build
 
 ENV NODE_ENV=production
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["pnpm", "--filter", "@phillybricks/web", "start"]
+CMD ["pnpm", "--filter", "@bandbox/web", "start"]

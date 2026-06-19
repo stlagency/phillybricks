@@ -1,5 +1,5 @@
 {
-  "name": "@phillybricks/web",
+  "name": "@bandbox/web",
   "version": "0.1.0",
   "private": true,
   "description": "Next.js App Router web app — market scan, property deep-dive, leads, alerts. Design: 'The Survey Table, Warmed'.",
@@ -13,7 +13,7 @@
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
-    "@phillybricks/core": "workspace:*",
+    "@bandbox/core": "workspace:*",
     "@supabase/supabase-js": "^2.47.10",
     "maplibre-gl": "^5.0.0",
     "next": "^15.1.4",

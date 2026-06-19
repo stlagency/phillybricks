@@ -1,4 +1,4 @@
-# PhillyBricks CI (PRD §8 — quality gates + the adversarial security/portability gates).
+# Bandbox CI (PRD §8 — quality gates + the adversarial security/portability gates).
 #
 # On every push / PR:
 #   - quality:        typecheck + lint + unit tests
@@ -168,10 +168,10 @@ jobs:
           exit 1
 
       - name: Run migrations against PostGIS
-        # The @phillybricks/db package owns the migration runner
+        # The @bandbox/db package owns the migration runner
         # (node packages/db/src/migrate.ts); invoke it via its own script so the
         # runtime flags / entrypoint stay the db package's responsibility.
-        run: pnpm --filter @phillybricks/db migrate
+        run: pnpm --filter @bandbox/db migrate
 
       - name: Static security gate (fast path, re-checked here)
         run: pnpm gate:security

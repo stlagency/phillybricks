@@ -1,5 +1,5 @@
 /**
- * @phillybricks/db — SQL schema, migration runner, canonical table-name constants,
+ * @bandbox/db — SQL schema, migration runner, canonical table-name constants,
  * and a generated-types placeholder (PRD §2, §3).
  *
  * The migrations in ./migrations/ are the source of truth for the schema; the

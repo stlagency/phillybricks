@@ -14,7 +14,7 @@
  * where they are true signals (delinquent / unsafe), other metrics use sky-tint.
  */
 import { useState } from 'react';
-import type { Comp, ParcelDeepDive } from '@phillybricks/core/contracts';
+import type { Comp, ParcelDeepDive } from '@bandbox/core/contracts';
 import { Wordmark } from '../../../components/Wordmark';
 import { ThemeToggle } from '../../../components/ThemeToggle';
 import { Card } from '../../../components/Card';
@@ -644,7 +644,7 @@ export function DeepDive({ data }: { data: ParcelDeepDive }) {
       </div>
 
       <footer className="pb-foot">
-        PHILLYBRICKS · KNOW THE BLOCK BEFORE YOU KNOCK · DATA: OPA · RTT · L&amp;I ·
+        BANDBOX · KNOW THE BLOCK BEFORE YOU KNOCK · DATA: OPA · RTT · L&amp;I ·
         REVENUE · SHERIFF
       </footer>
     </RailProvider>

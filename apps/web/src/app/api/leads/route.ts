@@ -11,11 +11,12 @@
  * The WHERE is built once in lib/leads-query.ts and shared with the CSV export, so
  * the list, the counts, and the exported set can never disagree.
  *
- * NOTE: anon may PREVIEW leads (read-only); save/export require auth + active sub
- * (M6/M7) — enforced on those write routes, not here.
+ * NOTE: anon may PREVIEW leads (read-only); save/export require auth only
+ * (login-gated, free — monetization deferred to M8) — enforced on those routes,
+ * not here.
  */
 import { NextResponse } from 'next/server';
-import type { LeadsResponse, LeadRow, LeadFacets } from '@phillybricks/core/contracts';
+import type { LeadsResponse, LeadRow, LeadFacets } from '@bandbox/core/contracts';
 import { db } from '../../../lib/db';
 import { distressFromRow } from '../../../lib/distress-row';
 import { parseLeadsFilter, fetchLeadsPage, countLeads, fetchLeadFacets } from '../../../lib/leads-query';

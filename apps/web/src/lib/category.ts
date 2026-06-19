@@ -6,7 +6,7 @@
  *   1 single-family · 2 multi-family · 3 mixed (store+dwelling) · 4 commercial
  *   5 industrial · 6 vacant land · others → other.
  */
-import type { BroadCategory } from '@phillybricks/core';
+import type { BroadCategory } from '@bandbox/core';
 
 export function broadCategory(code: string | null): BroadCategory {
   switch ((code ?? '').trim()) {

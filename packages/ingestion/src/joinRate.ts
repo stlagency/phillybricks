@@ -15,7 +15,7 @@
  * Run stats (per-key rates, chosen path, decision) are written to
  * `ops.ingest_run.join_rates`.
  */
-import type { CityAdapter, SourceSpec } from '@phillybricks/core/contracts';
+import type { CityAdapter, SourceSpec } from '@bandbox/core/contracts';
 
 /** Measured rate for one candidate key column. */
 export interface KeyPathRate {

@@ -1,8 +1,8 @@
-# PhillyBricks component kit — "The Survey Table, Warmed"
+# Bandbox component kit — "The Survey Table, Warmed"
 
 Hard-border brutalist kit + civic-warm transparency mechanics, implementing
 `design/DESIGN.md` verbatim against the FROZEN contracts in
-`@phillybricks/core/contracts`. Every component is driven by typed mock data
+`@bandbox/core/contracts`. Every component is driven by typed mock data
 today (`src/lib/mock/*`) and by live API responses later. This file maps each
 prop surface to the route that will feed it (PRD §6).
 

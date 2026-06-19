@@ -8,9 +8,9 @@
  * normalizer treats a non-number as absent (→ 0). We coerce the four numeric signals
  * to Number first (booleans arrive as real booleans).
  */
-import { scoreDistress } from '@phillybricks/core';
-import type { DistressComponentKey } from '@phillybricks/core/contracts';
-import type { DistressResult } from '@phillybricks/core/contracts';
+import { scoreDistress } from '@bandbox/core';
+import type { DistressComponentKey } from '@bandbox/core/contracts';
+import type { DistressResult } from '@bandbox/core/contracts';
 
 const NUMERIC: DistressComponentKey[] = [
   'tax_delinquent',

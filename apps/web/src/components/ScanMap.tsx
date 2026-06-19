@@ -20,7 +20,7 @@ import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import type { FeatureCollection } from 'geojson';
-import type { LensMetric, ScanFeature } from '@phillybricks/core/contracts';
+import type { LensMetric, ScanFeature } from '@bandbox/core/contracts';
 import { LENS_RAMPS } from '../lib/mock/scan';
 
 const DRAFT_BG = '#1C2530';

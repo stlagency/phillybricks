@@ -7,11 +7,11 @@
  *
  *   # first M3 populate — full geo_metric backfill + force a full geo re-stamp:
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" NODE_OPTIONS=--max-old-space-size=4096 \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/finalize-derived.ts backfill
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/finalize-derived.ts backfill
  *
  *   # nightly-equivalent — incremental stamp + trailing-3mo class-(a) recompute:
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/finalize-derived.ts
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/finalize-derived.ts
  *
  * Not part of the build (outside tsconfig include).
  */

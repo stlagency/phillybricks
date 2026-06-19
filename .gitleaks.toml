@@ -1,6 +1,6 @@
 # gitleaks config — required CI check (PRD §8). Push-protection is the real gate;
 # this scans on push + full-history on first publish. Incident path = rotate immediately.
-title = "PhillyBricks gitleaks"
+title = "Bandbox gitleaks"
 
 [extend]
 useDefault = true

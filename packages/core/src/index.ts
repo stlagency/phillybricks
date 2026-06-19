@@ -1,5 +1,5 @@
 /**
- * @phillybricks/core — pure logic + frozen contracts.
+ * @bandbox/core — pure logic + frozen contracts.
  * The core-implementation agent (M1/M3) appends exports for:
  *   - adapters/philadelphia (CityAdapter)
  *   - scoring (distress composite + versioned config)

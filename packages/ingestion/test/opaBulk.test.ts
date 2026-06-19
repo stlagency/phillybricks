@@ -5,7 +5,7 @@
  */
 import { describe, it, expect } from 'vitest';
 import { Readable } from 'node:stream';
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import {
   OPA_EXPECTED_ROWS,
   computeSoftRetire,

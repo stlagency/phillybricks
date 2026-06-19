@@ -18,7 +18,7 @@
  * SVG is the faithful design reference for the choropleth + instrument chrome.
  */
 import { useEffect, useState } from 'react';
-import type { LensMetric } from '@phillybricks/core/contracts';
+import type { LensMetric } from '@bandbox/core/contracts';
 import { HOODS, LENS_RAMPS, type HoodShape } from '../lib/mock/scan';
 
 function useTheme(): 'light' | 'dark' {

@@ -18,7 +18,7 @@
  * aggregated DistressResult for the scan rail). No transformation here.
  */
 import { useState } from 'react';
-import type { DistressResult, DistressComponent } from '@phillybricks/core/contracts';
+import type { DistressResult, DistressComponent } from '@bandbox/core/contracts';
 import { useRail } from './ContextRail';
 
 /** Brick→gravel ramp for segments after the dominant red one. */

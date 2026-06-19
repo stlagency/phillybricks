@@ -9,7 +9,7 @@
  * ST_Multi'd into MultiPolygon(4326) so the single column accepts the neighborhood
  * MultiPolygons AND the ZIP/tract Polygons. Idempotent: upsert on (geo_type, geo_id).
  */
-import type { GeoSourceSpec } from '@phillybricks/core/contracts';
+import type { GeoSourceSpec } from '@bandbox/core/contracts';
 import type { DbClient } from '../db.js';
 
 /** A minimal GeoJSON FeatureCollection shape (only what we read). */

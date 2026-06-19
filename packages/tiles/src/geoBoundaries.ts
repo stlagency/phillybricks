@@ -104,7 +104,7 @@ export async function buildBoundaryTiles(
   const sql =
     opts.sql ?? postgres(opts.databaseUrl ?? requireDatabaseUrl(), { max: 1, onnotice: () => {} });
 
-  const workDir = await mkdtemp(join(tmpdir(), 'phillybricks-boundaries-'));
+  const workDir = await mkdtemp(join(tmpdir(), 'bandbox-boundaries-'));
   const layers: BoundaryLayerResult[] = [];
 
   let client: ReturnType<typeof makeStorageClient> | null = null;

@@ -1,5 +1,5 @@
 /**
- * @phillybricks/tiles — the nightly tile build (PRD §4, §6 "Tiles", M4).
+ * @bandbox/tiles — the nightly tile build (PRD §4, §6 "Tiles", M4).
  *
  * Pipeline role (PRD §2, ASCII flow): runs AFTER derived-refresh, as the LAST
  * step of the nightly worker. Produces a SINGLE `parcels.pmtiles` object plus

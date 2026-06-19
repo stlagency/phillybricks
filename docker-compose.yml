@@ -1,4 +1,4 @@
-# PhillyBricks — self-host stack (PRD §8, SELF_HOST.md).
+# Bandbox — self-host stack (PRD §8, SELF_HOST.md).
 #
 # Three services: PostGIS (the warehouse), the ingestion worker, and the Next.js
 # web app. This is the "run it yourself / run it for another city" path — point the
@@ -13,7 +13,7 @@
 # each package is finalized in its own milestone (M4 web, M1 worker). Until then
 # `docker compose build` will surface exactly what each image still needs.
 
-name: phillybricks
+name: bandbox
 
 services:
   # ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-phillybricks}
+      POSTGRES_DB: ${POSTGRES_DB:-bandbox}
     ports:
       - '${DB_PORT:-5432}:5432'
     volumes:
@@ -51,8 +51,8 @@ services:
         condition: service_healthy
     environment:
       # In-network DSN. The migration runner reads DATABASE_URL (PRD §8).
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-phillybricks}
-    command: ['pnpm', '--filter', '@phillybricks/db', 'migrate']
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-bandbox}
+    command: ['pnpm', '--filter', '@bandbox/db', 'migrate']
 
   # ---------------------------------------------------------------------------
   # Ingestion worker — the nightly pipeline. In self-host you typically run this
@@ -71,8 +71,8 @@ services:
       - .env
     environment:
       # Override the pooled cloud DSN with the in-network one for self-host.
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-phillybricks}
-    command: ['pnpm', '--filter', '@phillybricks/ingestion', 'run:nightly']
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-bandbox}
+    command: ['pnpm', '--filter', '@bandbox/ingestion', 'run:nightly']
 
   # ---------------------------------------------------------------------------
   # Web app — Next.js (App Router). Serves the read surfaces.
@@ -88,7 +88,7 @@ services:
     env_file:
       - .env
     environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-phillybricks}
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-bandbox}
       PORT: '3000'
     ports:
       - '${WEB_PORT:-3000}:3000'

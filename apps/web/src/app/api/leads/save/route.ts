@@ -13,7 +13,7 @@ import type {
   SavedLead,
   SavedLeadStatus,
   SaveLeadInput,
-} from '@phillybricks/core/contracts';
+} from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
 import { requireUser, sameOrigin, authError } from '../../../../lib/auth';
 

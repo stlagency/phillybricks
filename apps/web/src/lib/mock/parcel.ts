@@ -1,12 +1,12 @@
 /**
  * Mock ParcelDeepDive fixture — shaped EXACTLY like
- * @phillybricks/core/contracts `ParcelDeepDive` (PRD §6, GET /api/parcel/:pk).
+ * @bandbox/core/contracts `ParcelDeepDive` (PRD §6, GET /api/parcel/:pk).
  *
  * Typed mock data for the design surfaces only. Mirrors the property
  * deep-dive mockup: 1834 E Firth St, Fishtown / 19125, OPA 312015400.
  * Every figure carries a source stamp + source_url back to the public record.
  */
-import type { ParcelDeepDive } from '@phillybricks/core/contracts';
+import type { ParcelDeepDive } from '@bandbox/core/contracts';
 import { firthStComps } from './comps';
 import { firthStDistress } from './distress';
 

@@ -4,7 +4,7 @@
  * embedded in /api/parcel/:pk. Returns null when the parcel doesn't exist.
  */
 import type { Sql } from 'postgres';
-import { selectComps, type CompSubject, type CompCandidate, type CompsResult } from '@phillybricks/core';
+import { selectComps, type CompSubject, type CompCandidate, type CompsResult } from '@bandbox/core';
 import { broadCategory } from './category';
 
 const RADIUS_M = 3219; // ~2 miles

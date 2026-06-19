@@ -9,8 +9,8 @@
  *   - spatial sources (expectedJoinRate undefined) skip the parcel gate.
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { evaluateGate, measureJoinRate } from '../src/joinRate.js';
 import { loadJsonFixture, loadParcelIndexFixture } from './helpers.js';
 

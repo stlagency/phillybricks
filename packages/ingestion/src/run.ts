@@ -16,8 +16,8 @@
  * the spine loads, the parcel-key index is refreshed so the keyed sources measure
  * their join rates against real parcels.
  */
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { asDbClient, connectFromEnv, type DbClient } from './db.js';
 import { loadParcelKeyIndex, type ParcelKeyIndex } from './joinRate.js';
 import {
@@ -31,7 +31,7 @@ import { makeCartoFetcher, makeOpaFetcher } from './fetchers.js';
 import { makeScrapeFetcher } from './adapters/scrape.js';
 import { makeStepsForSpec } from './steps.js';
 import { finalizeDerived } from './finalize.js';
-import { buildParcelTiles, buildBoundaryTiles } from '@phillybricks/tiles';
+import { buildParcelTiles, buildBoundaryTiles } from '@bandbox/tiles';
 import {
   runSourcePipeline,
   type PipelineHooks,

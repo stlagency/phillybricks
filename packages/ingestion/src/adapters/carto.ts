@@ -21,7 +21,7 @@
  * No I/O assumptions leak: the HTTP transport is injected (`fetchImpl`) so unit
  * tests run offline and a CARTO_LIVE smoke test can pass the real `fetch`.
  */
-import type { GeometryMode } from '@phillybricks/core/contracts';
+import type { GeometryMode } from '@bandbox/core/contracts';
 
 /** Minimal fetch shape we rely on (Node 18+ global `fetch` satisfies it). */
 export type FetchLike = (

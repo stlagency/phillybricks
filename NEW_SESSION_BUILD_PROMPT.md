@@ -1,6 +1,6 @@
 ultracode
 
-You are kicking off the v1 build of **PhillyBricks** — an open-source (AGPL), transparency-first Philadelphia residential real-estate market-intelligence tool. Greenfield repo at `/Users/aaroncohen/CLAUDEMAXING/cw_Philly`. You have NO prior conversation context; the planning docs ARE the context.
+You are kicking off the v1 build of **Bandbox** — an open-source (AGPL), transparency-first Philadelphia residential real-estate market-intelligence tool. Greenfield repo at `/Users/aaroncohen/CLAUDEMAXING/cw_Philly`. You have NO prior conversation context; the planning docs ARE the context.
 
 ## STEP 0 — Read these first, in full, before doing anything else
 1. `HANDOFF.md` — orientation + status + human pause-points.
@@ -12,7 +12,7 @@ You are kicking off the v1 build of **PhillyBricks** — an open-source (AGPL), 
 Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`) loads automatically.
 
 ## GOAL
-Build PhillyBricks v1 per those docs. Pipeline the PRD's milestones **M0 → M7** (PRD §9), each with its Definition of Done. The design language is settled — implement the surfaces against **"The Survey Table, Warmed"** verbatim (`design/DESIGN.md` + `TOKENS.css`).
+Build Bandbox v1 per those docs. Pipeline the PRD's milestones **M0 → M7** (PRD §9), each with its Definition of Done. The design language is settled — implement the surfaces against **"The Survey Table, Warmed"** verbatim (`design/DESIGN.md` + `TOKENS.css`).
 
 ## APPROACH — ultracode multi-agent workflow, INGESTION-FIRST
 Drive this as an ultracode workflow that pipelines the milestones. Be **ingestion-first** (PRD Principle §0.6, §9): stand up **M0 foundations** then **M1 ingestion core** and let the nightly run start immediately — state history (change-logs `public.parcel_change_log` / `delinquency_event` / `violation_event`) only accrues forward and is the one irrecoverable asset (PRD §10 fatal risk; protected by the §4.1 liveness dead-man's-switch).
@@ -26,9 +26,9 @@ Insert **adversarial verification gates** (a skeptic agent that tries to break i
 ## HARD CONSTRAINTS — do not violate
 - **AGPL-3.0, public from commit 1.** No secret EVER in the repo. GitHub secret scanning + push protection; gitleaks/trufflehog as a required CI check; full-history scan on first publish; rotate-on-leak. Ship `.env.example` (placeholders, inventory in PRD §8) + `SELF_HOST.md`. Secrets only in env / Actions secrets / Supabase Vault.
 - **Design = "The Survey Table, Warmed" (`design/DESIGN.md` + `TOKENS.css`), verbatim.** Architectural brutalism: 3px ink borders, square corners (radius 0), offset HARD shadows (6/8/10px, no blur), visible grid. Fonts **Tanker / Zodiak / Satoshi / Space Mono** (Fontshare + Space Mono; self-host in `_fonts/`). **True Phillies red `#E81828` = signal-only** (distress / the one CTA / active parcel — 1–2 per screen budget); **muddy brick `#A8341F` = text/edge accent only**; blue (Navy/Federal) does the structural + data lifting. Full light + warm-umber dark, WCAG AA, prefers-reduced-motion (offset shadows stay — they're structure). Blueprint map. **Wordmark: PHILLY letter-spaced to equal BRICKS width** (measure after `document.fonts.ready`; see the equalizer in the mockups). All Rowhouse transparency mechanics (source stamps, value-derivation drawer, decomposable distress bar, teach-in-place context rail, community-value framing) rebuilt in this hard-bordered hardware.
-- **~$45/mo budget:** Supabase Pro $25 + Vercel Pro $20 (Hobby forbids commercial/payment use); Actions / Resend free-tier. Map tiles ride on the existing Supabase Pro plan via Supabase Storage (100 GB storage + 250 GB egress included; $0.09/GB egress beyond) — no extra vendor. Supabase Small (+$15) only if nightly refresh strains Micro; **no PITR — 7-day RPO** for v1 (backup posture already decided, PRD §8). Keep DB <8 GB: land-transform-discard raw for big sources, window crime/311 to ~10y, incremental `geo_metric`.
+- **~$45/mo budget:** Supabase Pro $25 + Vercel Pro $20 (Hobby forbids commercial/payment use); Actions / ZeptoMail free-tier. Map tiles ride on the existing Supabase Pro plan via Supabase Storage (100 GB storage + 250 GB egress included; $0.09/GB egress beyond) — no extra vendor. Supabase Small (+$15) only if nightly refresh strains Micro; **no PITR — 7-day RPO** for v1 (backup posture already decided, PRD §8). Keep DB <8 GB: land-transform-discard raw for big sources, window crime/311 to ~10y, incremental `geo_metric`.
 - **Philly behind the `CityAdapter` seam** (PRD §2.1): no Philly literal (table, URL, document_type) outside `packages/core/adapters/`; CI grep gate enforces it. Second city = config + adapters.
-- **Skip-trace = BYO-key ONLY** (orchestrate, never resell); auth + active subscription + per-user lawful-use attestation; integrated resale deferred.
+- **Skip-trace = BYO-key ONLY** (orchestrate, never resell); auth + per-user lawful-use attestation (active-subscription gate deferred to M8 — login-gated but free in v1); integrated resale deferred.
 - Honor as you reach them: GitHub Actions cron needs a **repo-mutating keep-alive** (schedule alone does NOT reset the 60-day idle disable) + external **healthchecks.io** dead-man's-switch on run *absence*; Carto pagination is **keyset on `cartodb_id`** (recording_date is non-unique); OPA S3 `the_geom` is **WKT/EWKT** (parse via `ST_GeomFromText/EWKT`); no `lat`/`lng` anywhere; sheriff scraper honors robots `Crawl-delay: 10`, asserts `<thead>` columns, Bid4Assets enrichment OFF by default; PMTiles is a single object rebuilt nightly to Supabase Storage (no dynamic `ST_AsMVT` base map). Monorepo: `apps/web` · `packages/db` · `packages/ingestion` · `packages/core` · `packages/tiles` · `infra/` (pnpm, TypeScript).
 
 ## START HERE
@@ -36,5 +36,5 @@ Begin with **M0 (Foundations)** then **M1 (Ingestion core)**; wire the nightly G
 
 ## Human pause-points (do everything around them, then tell Aaron the one thing you need)
 - Create the **Supabase Pro** project under org **"STL Agentic"** (us-east-1, enable PostGIS) — confirm the paid $25/mo first; capture project ref + pooled `DATABASE_URL`.
-- **Stripe** + **Resend** API keys; **GitHub** public repo + secret-scanning/push-protection toggles.
+- **ZeptoMail** Send-Mail token (M7); **Stripe** API keys (M8 — monetization deferred); **GitHub** public repo + secret-scanning/push-protection toggles.
 Aaron's standing preference: execute autonomously on recoverable actions (commits/pushes to main, deploys, dep installs, running scripts); pause only for genuinely irrecoverable things (real money, third-party messages, unbacked deletes) or steps needing his keyboard.

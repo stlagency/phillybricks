@@ -5,8 +5,8 @@
  * from the loaded set, and reactivation is handled by the upsert (is_active=true).
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceMapping } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceMapping } from '@bandbox/core/contracts';
 import { softRetireParcels } from '../src/steps.js';
 import type { StagedBatch } from '../src/pipeline.js';
 import { FakeDb } from './helpers.js';

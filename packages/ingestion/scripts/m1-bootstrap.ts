@@ -6,11 +6,11 @@
  *
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" \
  *     NODE_OPTIONS=--max-old-space-size=4096 \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/m1-bootstrap.ts [measure-only]
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/m1-bootstrap.ts [measure-only]
  *
  * Not part of the build (outside tsconfig include). Idempotent: re-running re-upserts.
  */
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import { asDbClient, connectFromEnv } from '../src/db.js';
 import { makeCartoFetcher, makeOpaFetcher } from '../src/fetchers.js';
 import { makeStepsForSpec } from '../src/steps.js';

@@ -19,7 +19,7 @@ import type {
   SkipTraceVendor,
   SkipTraceContact,
   SkipTraceResult,
-} from '@phillybricks/core/contracts';
+} from '@bandbox/core/contracts';
 
 /** The minimal parcel projection a vendor request needs (owner + mailing address). */
 export interface SkipTraceParcel {
@@ -191,7 +191,7 @@ export const SKIPTRACE_VENDORS: Record<SkipTraceVendor, VendorAdapter> = {
             // TODO-verify-against-vendor-docs: Endato uses paired galaxy-ap-name /
             // galaxy-ap-password headers; we carry the user's key in the password
             // slot until the real two-part credential is modeled.
-            'galaxy-ap-name': 'phillybricks',
+            'galaxy-ap-name': 'bandbox',
             'galaxy-ap-password': apiKey,
             'galaxy-search-type': 'DevAPIContactID',
             'content-type': 'application/json',

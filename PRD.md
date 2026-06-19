@@ -1,4 +1,4 @@
-# PhillyBricks — Implementation Plan / PRD (v1.1)
+# Bandbox — Implementation Plan / PRD (v1.1)
 *Philadelphia residential real-estate market intelligence.*
 
 **Companion docs:** product/scope decisions → `CONCEPT_v2_shared_understanding.md`; verified data facts → `docs/DATA_SOURCES.md` (in-repo); design system → `design/DESIGN.md` + `TOKENS.css` (canonical, "The Survey Table, Warmed").
@@ -22,9 +22,9 @@
 | Tier | Who | Gets |
 |---|---|---|
 | **Anonymous** (free) | Public / SEO | Full market-scan map, property deep-dive, comps + value estimate, glossary. Read-only. |
-| **Subscriber** (low flat monthly, Stripe) | Investors | + saved target areas, alerts, leads mini-CRM, CSV export, BYO skip-trace orchestration. |
+| **Authenticated** (free; monetization deferred to M8) | Investors | + saved target areas, alerts, leads mini-CRM, CSV export, BYO skip-trace orchestration. |
 
-Auth: Supabase Auth. Entitlement enforced server-side via `app.subscription.status='active'` (RLS + API check). No *data* is paywalled — only personalization/automation.
+Auth: Supabase Auth. The personalization/automation surfaces are **login-gated but free** — monetization is deferred to **M8**. The entitlement seam (`app.subscription.status='active'`, RLS + API check) is built and kept **dormant** (unenforced) until then. No *data* is ever paywalled — only personalization/automation, and currently nothing.
 
 ---
 
@@ -43,7 +43,7 @@ geo files (1-time) ───┘   normalize → stage → validate(gate) → pro
                               │
         ┌─────────────────────┼───────────────────────┐
         ▼                     ▼                         ▼
- tippecanoe → PMTiles    PostgREST + Next API      Stripe · Supabase Auth · Resend (email)
+ tippecanoe → PMTiles    PostgREST + Next API      Supabase Auth · ZeptoMail (email) · Stripe (deferred M8)
  → Supabase Storage (CDN)     │
         ▼                     ▼
  MapLibre (base) + deck.gl (overlays) · Next on Vercel (Pro)
@@ -199,11 +199,11 @@ Each **raw signal** is individually toggleable + shown on the parcel page: `tax_
   - `GET /api/parcel/:pk` — deep-dive bundle (parcel + transfers + permits/violations + taxes + nearby crime/311 counts via stamped geo ids + distress decomposition in the §5.3 shape).
   - `GET /api/comps?pk=…` — comp set + distribution + estimate + widening/trim metadata.
   - `GET /api/scan?geo=&lens=&period=` — choropleth values + trend; **returns each metric's available `period` min/max** (so the UI time-control knows the range per lens).
-  - `GET /api/leads?filters…` — scored, paginated; export/save require auth+active sub.
+  - `GET /api/leads?filters…` — scored, paginated; export/save require auth (login-gated, free).
   - `app` CRUD (auth): saved areas, saved leads, alert subs, skip-trace key.
-  - **`POST /api/skiptrace/:pk`** — requires `authenticated` + `subscription.status='active'`; resolves the vendor base URL from a **server-side allowlist keyed by the `vendor` enum** (never DB/user-controlled host); **decrypts the key only here (SECURITY DEFINER / service-context)**, calls the vendor, returns contact data to the session, **never persists the PII and never logs the key**; per-user rate-limit + daily cap; POST + same-origin/CSRF-protected.
-  - **Stripe webhook** → `app.subscription`: reads **raw body**, verifies `stripe.webhooks.constructEvent(rawBody, sig, signingSecret)` (reject on failure), **idempotent on event id**, runs as **service_role**; `app.subscription` has no anon/authenticated write grant.
-  - **Email digest** (§7.4): GitHub-Actions post-diff step (or Edge Function) queries new `alert_event` per `alert_subscription` since `last_sent_at`, renders, sends via **Resend**, advances `last_sent_at`.
+  - **`POST /api/skiptrace/:pk`** — requires `authenticated` (monetization deferred to M8; the `subscription.status='active'` gate is dormant); resolves the vendor base URL from a **server-side allowlist keyed by the `vendor` enum** (never DB/user-controlled host); **decrypts the key only here (SECURITY DEFINER / service-context)**, calls the vendor, returns contact data to the session, **never persists the PII and never logs the key**; per-user rate-limit + daily cap; POST + same-origin/CSRF-protected.
+  - **Stripe webhook** → `app.subscription` (**M8, deferred**): reads **raw body**, verifies `stripe.webhooks.constructEvent(rawBody, sig, signingSecret)` (reject on failure), **idempotent on event id**, runs as **service_role**; `app.subscription` has no anon/authenticated write grant. Built but not wired until monetization.
+  - **Email digest** (§7.4): GitHub-Actions post-diff step (or Edge Function) queries new `alert_event` per `alert_subscription` since `last_sent_at`, renders, sends via **ZeptoMail**, advances `last_sent_at`.
 - **Tiles:** parcels as **PMTiles on Supabase Storage** — a **single object rebuilt nightly** by `packages/tiles` after derived-refresh (a public, S3-compatible Storage bucket; uploaded via the existing `@aws-sdk/client-s3` with `forcePathStyle: true`), served via CDN + HTTP range to MapLibre (Supabase Storage honors range requests, so PMTiles works unchanged). Aggregate boundaries as small static GeoJSON/PMTiles. **No dynamic `ST_AsMVT` base map** (egress). Martin reserved for future dynamic needs.
 
 ---
@@ -219,13 +219,13 @@ Multi-resolution ZIP→neighborhood→tract→parcel (PMTiles). Lens switcher (p
 Sections: assessment vs last sale; full sale history (arms-length/estate flagged); open permits/violations/cases; taxes owed + delinquency history; nearby crime/311 (counts+trend); comps + value estimate; distress decomposition (§5.3 shape). Every figure links to its **raw record**. Glossary tooltips.
 
 ### 7.3 Leads (scan→score→list + mini-CRM)
-Build by filters + distress thresholds over city/saved area; results table with score + signals. **Mini-CRM:** save lead, status, tags, notes; BYO skip-trace button (uses user key, §6). **CSV export (paid):** explicit columns (`parcel_pk, address, owner, mailing, distress components+composite, key signals`), server-side **streamed** with a row cap, UTF-8 + RFC-4180; **skip-trace/contact PII is never included**. Auth required to save/export; anon can preview.
+Build by filters + distress thresholds over city/saved area; results table with score + signals. **Mini-CRM:** save lead, status, tags, notes; BYO skip-trace button (uses user key, §6). **CSV export (login-gated, free):** explicit columns (`parcel_pk, address, owner, mailing, distress components+composite, key signals`), server-side **streamed** with a row cap, UTF-8 + RFC-4180; **skip-trace/contact PII is never included**. Auth required to save/export; anon can preview. (Export stays login-gated even while free — preserves the future paywall seam and discourages scraping; monetization deferred to M8.)
 
 ### 7.4 Saved areas + alerts
-Define a farm: draw polygon / pick canonical neighborhood-ZIP / radius around a point → stored polygon. Triggers (new_transaction/new_development/new_distress/new_matching_lead) → **nightly email digest (Resend) + in-app feed** from `alert_event`. Digest: per-user aggregation bounded by `last_sent_at`; **List-Unsubscribe header + unsubscribe link (CAN-SPAM)**.
+Define a farm: draw polygon / pick canonical neighborhood-ZIP / radius around a point → stored polygon. Triggers (new_transaction/new_development/new_distress/new_matching_lead) → **nightly email digest (ZeptoMail) + in-app feed** from `alert_event`. Digest: per-user aggregation bounded by `last_sent_at`; **List-Unsubscribe header + unsubscribe link (CAN-SPAM)**.
 
-### 7.5 Accounts / subscription
-Supabase Auth; Stripe low flat subscription unlocks §7.3–7.4 + export + BYO skip-trace. Free = all read surfaces.
+### 7.5 Accounts (free; monetization deferred to M8)
+Supabase Auth. §7.3–7.4 + export + BYO skip-trace are **login-gated but free** for any authenticated user. Free = all read surfaces (anon) + all personalization/automation (authenticated). The Stripe low-flat-subscription seam (`app.subscription`, the entitlement check) is **built and dormant** — re-armed in **M8** when monetization is validated, by flipping the two `requireUser` gates back to `requireEntitlement`.
 
 ### 7.6 Education layer (cross-cutting)
 v1 baseline = inline transparency (explainers + raw-record links + methodology pages + glossary). Guided paths + fuller KB post-v1.
@@ -234,9 +234,9 @@ v1 baseline = inline transparency (explainers + raw-record links + methodology p
 
 ## 8. Non-functional requirements
 - **License/repo:** AGPL-3.0, public from commit 1. **Secret controls:** GitHub **secret scanning + push protection** on; **gitleaks/trufflehog as a required CI check** (a CI scan alone runs after push — push-protection is the real gate); **full-history scan on first publish**; incident path = rotate immediately. Secrets only in env / Actions secrets / Supabase Vault. `.env.example` (placeholders) + `SELF_HOST.md` (docker-compose: Postgres+PostGIS, worker, web).
-- **Environment variables (inventory):** `.env.example` ships placeholders for `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooled), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `SUPABASE_S3_ENDPOINT`/`SUPABASE_S3_REGION`/`SUPABASE_S3_ACCESS_KEY_ID`/`SUPABASE_S3_SECRET_ACCESS_KEY`/`SUPABASE_STORAGE_BUCKET`/`SUPABASE_STORAGE_PUBLIC_BASE_URL` (Storage S3 access keys, minted in Project Settings → Storage → S3 Access Keys — distinct from the anon/service_role keys), `HEALTHCHECKS_URL`, `KEEPALIVE_TOKEN`, and the `SUPABASE_VAULT` key id for decrypting BYO skip-trace keys. (Carto needs no key; the OPA S3 bulk is public.) Track name · owner · required? · storage location for each.
+- **Environment variables (inventory):** `.env.example` ships placeholders for `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (pooled), `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `ZEPTOMAIL_TOKEN`, `SUPABASE_S3_ENDPOINT`/`SUPABASE_S3_REGION`/`SUPABASE_S3_ACCESS_KEY_ID`/`SUPABASE_S3_SECRET_ACCESS_KEY`/`SUPABASE_STORAGE_BUCKET`/`SUPABASE_STORAGE_PUBLIC_BASE_URL` (Storage S3 access keys, minted in Project Settings → Storage → S3 Access Keys — distinct from the anon/service_role keys), `HEALTHCHECKS_URL`, `KEEPALIVE_TOKEN`, and the `SUPABASE_VAULT` key id for decrypting BYO skip-trace keys. (Carto needs no key; the OPA S3 bulk is public.) Track name · owner · required? · storage location for each.
 - **Backup posture (decided for v1):** accept Supabase **daily backups / 7-day RPO**; **skip PITR (+$100)** for now. The change-log history tables (§3.3) are the one irreplaceable asset and are protected by the §4.1 liveness dead-man's-switch (alerts on a missed run); revisit PITR post-revenue.
-- **Cost (corrected):** **~$45/mo baseline** = Supabase Pro **$25** + Vercel Pro **$20** (Hobby forbids commercial/payment use). Tiles ride on the existing Supabase Pro plan (100 GB storage + 250 GB egress included; $0.09/GB egress beyond) — no separate object-store vendor; heavy public tile traffic shares the Supabase project's egress with the warehouse. GitHub Actions free (public repo), Resend free/cheap tier. *Conditional:* Supabase **Small** compute (+$15) if nightly refresh strains Micro; **PITR (+$100)** only if chosen (else accept daily-backup/7-day RPO — decided in M0). The deferred subscription price (§11) is set against this true floor.
+- **Cost (corrected):** **~$45/mo baseline** = Supabase Pro **$25** + Vercel Pro **$20** (Hobby forbids commercial/payment use). Tiles ride on the existing Supabase Pro plan (100 GB storage + 250 GB egress included; $0.09/GB egress beyond) — no separate object-store vendor; heavy public tile traffic shares the Supabase project's egress with the warehouse. GitHub Actions free (public repo), ZeptoMail free/cheap tier. *Conditional:* Supabase **Small** compute (+$15) if nightly refresh strains Micro; **PITR (+$100)** only if chosen (else accept daily-backup/7-day RPO — decided in M0). The deferred subscription price (§11) is set against this true floor.
 - **DB size budget (per-table tally, replaces the old 2–4 GB line):** RTT 5.1M + L&I ~6M + crime ~1.8M (post-10y window) + 311 (windowed) + tax_balances 684K + business_licenses 431K + parcel 584K (GIST geom) + change-logs + `geo_metric` ≈ tens of millions of rows; budget against Pro 8 GB with overage at $0.125/GB. **`raw.*` = land-transform-discard** for the huge sources (retain raw only for the scraper where re-parsing matters). M1/M3 DoD asserts on-disk size.
 - **Performance:** scan choropleth <1s; deep-dive <1.5s; comps <1.5s; map base from CDN PMTiles. Non-blocking refreshes (CONCURRENTLY / incremental `geo_metric`).
 - **Skip-trace threat model:** vendor keys encrypted at rest (protects backups/disk); decrypted only inside the server-side proxy at call time; a proxy-role compromise would expose keys in use — mitigated by least-privilege grants, no key logging, short-lived in-memory use. CONCEPT "zero legal exposure" → restated: **"liability for vendor contract/credentialing/permissible-purpose sits with the user; platform exposure sharply reduced."** Require a **per-user attestation** (lawful real-estate outreach only; no FCRA-regulated use) before enabling skip-trace.
@@ -263,9 +263,11 @@ v1 baseline = inline transparency (explainers + raw-record links + methodology p
 
 **M5 — Property deep-dive.** Bundle endpoint + page; raw-record links; glossary tooltips. *DoD:* any parcel renders full underwrite view with sourced figures + distress decomposition.
 
-**M6 — Leads + mini-CRM.** Scored leads query; results table; save/tag/note/status; **CSV export (spec'd, no PII)**; BYO skip-trace proxy (auth+sub+rate-limit+allowlist+attestation). *DoD:* list buildable, savable, exportable; skip-trace works with a user key and leaks no key/PII.
+**M6 — Leads + mini-CRM.** Scored leads query; results table; save/tag/note/status; **CSV export (spec'd, no PII)**; BYO skip-trace proxy (auth+rate-limit+allowlist+attestation). *DoD:* list buildable, savable, exportable; skip-trace works with a user key and leaks no key/PII.
 
-**M7 — Accounts, subscription, alerts.** Supabase Auth; Stripe sub + **verified webhook** + entitlements; saved areas (3 modes); alert diff → `alert_event` → **nightly Resend digest (with unsubscribe) + in-app feed**. *DoD:* end-to-end subscribe → save area → receive a real-change digest; forged-webhook rejected.
+**M7 — Accounts + alerts (free).** Supabase Auth → fill in `getUserId()` (the `lib/auth.ts` seam), dropping the dev seam; that lights up the (now free, login-gated) CSV export + mini-CRM save + skip-trace. Saved areas (3 modes); alert diff → `alert_event` → **nightly ZeptoMail digest (with unsubscribe / CAN-SPAM) + in-app feed**. **No Stripe.** *DoD:* sign in → save area → receive a real-change digest; unsubscribe works; skip-trace works with a user key and leaks no key/PII.
+
+**M8 — Monetization (deferred, when validated).** Stripe low-flat sub + **verified webhook** (raw body, `constructEvent`, idempotent on event id, service_role write to `app.subscription`); flip the two free gates back to `requireEntitlement` (the dormant seam is already in place). Stripe keys needed. Price set against the ~$45/mo floor (§11). *DoD:* subscribe → entitlement unlocks the gated surfaces; forged webhook rejected.
 
 **Cross-cutting:** transparency/education hooks + methodology pages + glossary throughout.
 
@@ -285,7 +287,7 @@ v1 baseline = inline transparency (explainers + raw-record links + methodology p
 | Distress composite read as "truth" | Always show raw signals + full decomposition; bounded [0,1]; labeled one lens. |
 
 ## 11. Deferred / open (not v1 blockers)
-- Subscription **price point** (set against the ~$45/mo floor before M7).
+- Subscription **price point** (set against the ~$45/mo floor before M8 — monetization is deferred).
 - Distress composite **weights + normalization caps** (documented defaults in M3; tunable).
 - First BYO skip-trace vendors (BatchData/REISkip/Endato).
 - Condo **unit dimension** on `parcel` — add only if M1 histograms show unit-suffixed ids in an ingested key column.

@@ -16,7 +16,7 @@
  * the default test suite stays offline and never actually waits the Crawl-delay.
  */
 import * as cheerio from 'cheerio';
-import type { ScraperSpec } from '@phillybricks/core/contracts';
+import type { ScraperSpec } from '@bandbox/core/contracts';
 import type { DbClient } from '../db.js';
 import type { StagedBatch } from '../pipeline.js';
 import type { SourceFetcher } from '../run.js';

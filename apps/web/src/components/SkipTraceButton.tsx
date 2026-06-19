@@ -8,11 +8,12 @@
  * the proxy refuses and we show the honest reason, not a fake contact.
  *
  * Refusal → message map (the route's error bodies, §6 fail-closed order):
- *   401 auth_required · 403 subscription_required / attestation_required /
- *   no_skiptrace_key · 429 rate_limited · 400 unknown_vendor · 502 vendor_error.
+ *   401 auth_required · 403 attestation_required / no_skiptrace_key ·
+ *   429 rate_limited · 400 unknown_vendor · 502 vendor_error.
+ *   (subscription_required is dormant — monetization deferred to M8.)
  */
 import { useState } from 'react';
-import type { SkipTraceResult } from '@phillybricks/core/contracts';
+import type { SkipTraceResult } from '@bandbox/core/contracts';
 
 type State =
   | { kind: 'idle' }
@@ -26,8 +27,6 @@ function refusalMessage(status: number, code: string | undefined): string {
   if (status === 429) return 'Daily skip-trace cap reached';
   if (status === 404) return 'Parcel not found';
   switch (code) {
-    case 'subscription_required':
-      return 'Subscription required';
     case 'attestation_required':
       return 'Attest lawful use first';
     case 'no_skiptrace_key':

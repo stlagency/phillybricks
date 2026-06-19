@@ -1,5 +1,5 @@
 -- 0001_extensions_schemas.sql
--- PhillyBricks M0/M1 — extensions + schema layout (PRD §2, §3.1).
+-- Bandbox M0/M1 — extensions + schema layout (PRD §2, §3.1).
 --
 -- Schemas (PRD §3.1):
 --   raw.*    faithful landing, mostly transient (land-transform-discard).

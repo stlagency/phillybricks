@@ -11,7 +11,7 @@
  * low-confidence number (PRD §5.2): the South-Philly voice, not a guess.
  */
 import { useState } from 'react';
-import type { CompsResult } from '@phillybricks/core/contracts';
+import type { CompsResult } from '@bandbox/core/contracts';
 import { useRail } from './ContextRail';
 
 function fmtUsd(n: number): string {
@@ -36,7 +36,7 @@ export function ValueDerivationDrawer({ comps, livableArea }: ValueDerivationDra
         <div className="pb-deriv-trigger" style={{ cursor: 'default' }}>
           <span>
             <span className="pb-mlabel" style={{ marginBottom: 6 }}>
-              PhillyBricks value estimate
+              Bandbox value estimate
             </span>
             <span className="pb-deriv-est" style={{ borderBottom: 0 }}>
               Insufficient comps
@@ -68,7 +68,7 @@ export function ValueDerivationDrawer({ comps, livableArea }: ValueDerivationDra
       >
         <span>
           <span className="pb-mlabel" style={{ marginBottom: 6 }}>
-            PhillyBricks value estimate
+            Bandbox value estimate
           </span>
           <span className="pb-deriv-est">{fmtUsd(est.estimate)}</span>
         </span>

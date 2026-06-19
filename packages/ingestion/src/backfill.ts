@@ -12,7 +12,7 @@
  * No join-rate gate here: the gate is for nightly DELTAS; a backfill's job is to get
  * history in. Integrity is reconciled afterward (count within ±0.5% of source).
  */
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import type { DbClient } from './db.js';
 import { buildCartoUrl, iterateCartoPages, type FetchLike } from './adapters/carto.js';
 import { upsertMapped } from './loaders/upsert.js';

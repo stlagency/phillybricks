@@ -64,7 +64,7 @@ export const GLOSSARY: Record<string, RailDefinition> = {
   distress: {
     term: 'Distress score',
     def: 'A 0–100 read built from tax-delinquency, vacancy, and open violations, each normalized and weighted. Higher means more distress. Every piece is decomposable — tap a segment to see the receipt.',
-    src: 'PhillyBricks model · OPA + L&I + REV',
+    src: 'Bandbox model · OPA + L&I + REV',
   },
 };
 

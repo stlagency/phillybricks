@@ -19,7 +19,7 @@
  * it can refresh them directly — CONCURRENTLY may not run inside a function/transaction,
  * so each refresh is a bare autocommit statement (never wrapped in db.begin()).
  */
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import type { DbClient } from './db.js';
 import { geoBoundaryIsEmpty, loadGeoBoundaries, type LoadBoundaryResult } from './loaders/geoBoundary.js';
 import { stampAllGeo, type StampResult } from './loaders/geoStamp.js';

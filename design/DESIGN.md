@@ -1,4 +1,4 @@
-# PhillyBricks — Design System (v1.0)
+# Bandbox — Design System (v1.0)
 ## "The Survey Table, Warmed"
 
 **This is the canonical visual source of truth for the build.** It reconciles the two earlier systems on the product owner's instruction: **brutalist bones** (the structure, type, color discipline, and South-Philly voice of `../BRAND.md`) + **civic-warm air and transparency mechanics** (the show-the-work interaction layer from the "Rowhouse" exploration). Verified rendering in light + dark.

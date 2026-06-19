@@ -1,4 +1,4 @@
-# PhillyBricks weekly jobs (PRD §4.2, §10).
+# Bandbox weekly jobs (PRD §4.2, §10).
 #
 # Two weekly responsibilities the nightly cadence deliberately does NOT carry:
 #   1. Sheriff scrape — the city sheriff's mortgage + foreclosure listings (cheerio).
@@ -72,13 +72,13 @@ jobs:
         run: curl -fsS --retry 3 --max-time 20 "${HEALTHCHECKS_WEEKLY_URL}/start" || true
 
       # Sheriff scraper (honors Crawl-delay: 10 inside the worker). The CLI surface
-      # belongs to @phillybricks/ingestion; we drive it with a --weekly task flag.
+      # belongs to @bandbox/ingestion; we drive it with a --weekly task flag.
       - name: Sheriff scrape (mortgage + foreclosure)
-        run: pnpm --filter @phillybricks/ingestion run:nightly --task=sheriff
+        run: pnpm --filter @bandbox/ingestion run:nightly --task=sheriff
 
       # RTT full keyset re-sync — heals gaps, reconciles to Carto count(*).
       - name: RTT full keyset re-sync
-        run: pnpm --filter @phillybricks/ingestion run:nightly --task=rtt-resync
+        run: pnpm --filter @bandbox/ingestion run:nightly --task=rtt-resync
 
       - name: Liveness — ping weekly monitor on success
         if: ${{ success() && env.HEALTHCHECKS_WEEKLY_URL != '' }}

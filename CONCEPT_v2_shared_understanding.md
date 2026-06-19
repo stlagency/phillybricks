@@ -1,4 +1,4 @@
-# PhillyBricks — Philadelphia residential real-estate intelligence
+# Bandbox — Philadelphia residential real-estate intelligence
 ## Consolidated Shared-Understanding Brief (v2)
 
 **Status:** Product scope + architecture locked via interview. One open decision (skip-trace, §8). This brief is the input to a separate implementation plan.
@@ -58,8 +58,8 @@ Commercial reuse/resale is **permitted** (Executive Order 1-12 mandates unrestri
 | Distress | Model | **Raw signal overlays + an optional, fully decomposable composite** (no black box). |
 | Sheriff | Forward auctions | **Scraper IN v1** (see §6 — easy core + optional fragile enrichment). |
 | Skip-trace | Owner contact | **BYO-key only for v1** — users connect their own vendor key; we orchestrate, never resell. Integrated resale deferred (needs a reseller addendum + per-user credentialing). |
-| Monetization | Money flow | **Low flat subscription** unlocks power features (alerts/saved-areas/leads/exports); free browsing; usage add-ons on top. Stripe in v1. |
-| Leads | Workspace | **Mini-CRM**: saved leads + notes/tags/status + CSV export (paid feature). |
+| Monetization | Money flow | **Deferred to M8.** Power features (alerts/saved-areas/leads/exports) are **login-gated but free** in v1; the low-flat-subscription seam (Stripe + `app.subscription`) is built and dormant, re-armed when validated. Free browsing throughout. |
+| Leads | Workspace | **Mini-CRM**: saved leads + notes/tags/status + CSV export (login-gated, free; paywall seam dormant → M8). |
 | Valuation | Underwrite | Comps **+ transparent rule-based estimate** (e.g. neighborhood median $/sqft × livable area, adjustments shown). No ML AVM. |
 | Repo | OSS posture | **AGPL, public from day 1** ⇒ clean secret hygiene from commit 1; `.env.example` + documented self-host path. |
 
@@ -98,7 +98,7 @@ Commercial reuse/resale is **permitted** (Executive Order 1-12 mandates unrestri
 - **Leads (scan→score→list)** + **mini-CRM workspace** (saved leads, notes/tags/status, CSV export).
 - **Accounts** (Supabase Auth) gating: **saved target areas** (draw polygon / pick canonical / radius), **alerts** (4 triggers: new transactions, new development, new distress, new matching leads → nightly email digest + in-app), leads workspace, exports.
 - **Sheriff scraper** (phillysheriff.com core; Bid4Assets enrichment best-effort).
-- **Low flat subscription** (Stripe) for power features.
+- **Power features are free for authenticated users in v1**; the low-flat-subscription seam (Stripe) is dormant, deferred to **M8**.
 - **BYO-key skip-trace** (optional): users connect their own contact-data vendor key; we orchestrate only, never resell.
 - **Transparency-first education**: inline explainers/methodology, raw-record links, glossary.
 - **AGPL public repo**, clean secrets, `.env.example`, self-host docs, Philly behind an adapter seam.
@@ -131,8 +131,8 @@ phillysheriff scrape ┘   • upserts + nightly state snapshots
                               │
               ┌───────────────┼────────────────┐
               ▼               ▼                 ▼
-      tippecanoe → PMTiles   PostgREST /      Stripe (subs)
-      → Supabase Storage     Next API         Supabase Auth
+      tippecanoe → PMTiles   PostgREST /      Supabase Auth
+      → Supabase Storage     Next API         ZeptoMail · Stripe (M8)
               │               │
               ▼               ▼
         MapLibre (base) + deck.gl (overlays) · Next on Vercel
@@ -149,13 +149,13 @@ phillysheriff scrape ┘   • upserts + nightly state snapshots
 3. **Serving + map:** PMTiles build job → Supabase Storage; MapLibre multi-res map + 4 lenses; PostgREST/Next API.
 4. **Property deep-dive** + comps + transparent rule-based estimate.
 5. **Leads** scan→score→list + mini-CRM.
-6. **Accounts + saved areas + subscription (Stripe) + alerts (digest).**
+6. **Accounts + saved areas + alerts (digest)** — login-gated but free; subscription (Stripe) deferred to **M8**.
 7. **Transparency/education layer + glossary**, woven across surfaces.
 
 ---
 
 ## 7. Cost envelope (low-markup check)
-Supabase Pro **$25/mo** + **Vercel Pro $20/mo** (Hobby forbids commercial/payment use) · tiles on Supabase Storage (included in Pro: 100 GB storage + 250 GB egress) · GitHub Actions **free (public repo)** · Resend **free/cheap** · Stripe usage fees. ⇒ baseline **~$45/mo**. Conditional: Supabase Small compute +$15 if nightly refresh strains Micro; PITR +$100 only if chosen. Scales with DB size (window/roll-up to control).
+Supabase Pro **$25/mo** + **Vercel Pro $20/mo** (Hobby forbids commercial/payment use) · tiles on Supabase Storage (included in Pro: 100 GB storage + 250 GB egress) · GitHub Actions **free (public repo)** · ZeptoMail **free/cheap** · Stripe usage fees. ⇒ baseline **~$45/mo**. Conditional: Supabase Small compute +$15 if nightly refresh strains Micro; PITR +$100 only if chosen. Scales with DB size (window/roll-up to control).
 
 > **Engineering specs are superseded by `PRD.md` (v1.1)** on technical detail. Notably: history is captured as **change-logs, not full nightly snapshots** (same goal — forward-accruing trends + alerts); RTT joins ~60% on `parcel_number` so we also ingest OPA `pin` and set **empirical per-source join gates**; Carto pagination keys on `cartodb_id`. This brief remains the source of truth for *product scope*; the PRD governs *how*.
 

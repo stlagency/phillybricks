@@ -1,5 +1,5 @@
 /**
- * Pure unit tests for @phillybricks/tiles — NO DB, NO network, NO tippecanoe.
+ * Pure unit tests for @bandbox/tiles — NO DB, NO network, NO tippecanoe.
  * Covers env parsing, object-key derivation, and the loud-failure guards.
  *
  * Lives under src/ (not test/) to stay within the package's tsconfig rootDir;

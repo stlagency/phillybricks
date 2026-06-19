@@ -15,14 +15,14 @@
  * as its headline (consistent with the rank-bucketed choropleth).
  */
 import type { Sql } from 'postgres';
-import { DISTRESS_CONFIG, DISTRESS_COMPONENT_KEYS } from '@phillybricks/core';
+import { DISTRESS_CONFIG, DISTRESS_COMPONENT_KEYS } from '@bandbox/core';
 import type {
   GeoDetail,
   GeoType,
   DistressComponent,
   DistressResult,
   GeoMetricCell,
-} from '@phillybricks/core/contracts';
+} from '@bandbox/core/contracts';
 
 /** Trusted geo_type → parcel geo-stamp column (not user input). */
 const GEO_COL: Record<GeoType, string> = {

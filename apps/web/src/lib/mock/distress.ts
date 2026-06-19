@@ -1,6 +1,6 @@
 /**
  * Mock DistressResult fixtures — shaped EXACTLY like
- * @phillybricks/core/contracts `DistressResult` (PRD §5.3).
+ * @bandbox/core/contracts `DistressResult` (PRD §5.3).
  *
  * This is typed mock data for the design surfaces only — no live DB yet.
  * In production these objects arrive from `GET /api/parcel/:pk` (the
@@ -10,7 +10,7 @@
  * = 68. `contribution = weight × normalized` on the 0–1 scale; the page
  * presents score and contributions ×100 (so 0.32 renders as "32").
  */
-import type { DistressResult, DistressComponent } from '@phillybricks/core/contracts';
+import type { DistressResult, DistressComponent } from '@bandbox/core/contracts';
 
 const WEIGHTS_VERSION = 'distress-weights/2026.1';
 

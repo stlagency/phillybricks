@@ -3,11 +3,11 @@ import './globals.css';
 import '../components/components.css';
 
 export const metadata: Metadata = {
-  title: 'PhillyBricks — Know the block before you knock.',
+  title: 'Bandbox — Know the block before you knock.',
   description:
     'Parcel-level Philadelphia real-estate intelligence from the public record. ' +
     'Transparency-first: every derived number is decomposable and links to its raw filing.',
-  applicationName: 'PhillyBricks',
+  applicationName: 'Bandbox',
 };
 
 export const viewport: Viewport = {

@@ -3,8 +3,8 @@
  * end, resumes from a stored cursor, and stops + persists on the time budget.
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
-import type { SourceSpec } from '@phillybricks/core/contracts';
+import { philadelphia } from '@bandbox/core';
+import type { SourceSpec } from '@bandbox/core/contracts';
 import { backfillSource } from '../src/backfill.js';
 import type { FetchLike } from '../src/adapters/carto.js';
 import { FakeDb } from './helpers.js';

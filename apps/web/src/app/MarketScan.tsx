@@ -17,7 +17,7 @@
  * neighborhood →" CTA are the two sanctioned rail reds.
  */
 import { useEffect, useState } from 'react';
-import type { LensMetric, ScanFeature, GeoType, ScanResponse, GeoDetail } from '@phillybricks/core/contracts';
+import type { LensMetric, ScanFeature, GeoType, ScanResponse, GeoDetail } from '@bandbox/core/contracts';
 import { TopBand } from '../components/TopBand';
 import { FilterRail } from '../components/FilterRail';
 import { LensSwitcher } from '../components/LensSwitcher';

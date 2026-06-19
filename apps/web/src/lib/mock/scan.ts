@@ -1,6 +1,6 @@
 /**
  * Mock scan fixtures — `ScanResponse` shaped EXACTLY like
- * @phillybricks/core/contracts (PRD §6, GET /api/scan?geo=&lens=&period=).
+ * @bandbox/core/contracts (PRD §6, GET /api/scan?geo=&lens=&period=).
  *
  * Typed mock data for the Market Scan surface only. In production each lens's
  * response arrives from `GET /api/scan` (one call per active lens/period); the
@@ -11,7 +11,7 @@
  * the mockup's stylized blueprint layout, NOT real coordinates — production
  * polygons come from `public.geo_boundary` via PMTiles.
  */
-import type { LensMetric, ScanResponse, ScanFeature, GeoType } from '@phillybricks/core/contracts';
+import type { LensMetric, ScanResponse, ScanFeature, GeoType } from '@bandbox/core/contracts';
 
 /** Blueprint polygon geometry for the SVG choropleth (from the mockup). */
 export interface HoodShape {

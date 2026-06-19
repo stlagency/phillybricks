@@ -5,7 +5,7 @@
  * never run by default / in CI without the flag).
  */
 import { describe, it, expect, vi } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import {
   buildCartoUrl,
   buildKeysetSql,

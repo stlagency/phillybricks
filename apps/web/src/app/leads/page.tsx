@@ -13,7 +13,7 @@ import './leads.css';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Leads — PhillyBricks',
+  title: 'Leads — Bandbox',
   description: 'Scored, filterable distress leads with honest per-signal counts and CSV export.',
 };
 

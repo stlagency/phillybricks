@@ -6,7 +6,7 @@
  * the delegation and the candidate-column selection + quarantine plumbing.
  */
 import { describe, it, expect } from 'vitest';
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import {
   makeQuarantineRow,
   normParcel,

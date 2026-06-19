@@ -1,7 +1,8 @@
 /**
  * GET /api/leads/export — server-streamed CSV of the current filtered leads set
- * (PRD §7.3, §6). PAID-GATED: requireEntitlement() first; a refusal Response
- * (401 unauthenticated / 403 not subscribed) is returned verbatim.
+ * (PRD §7.3, §6). LOGIN-GATED: requireUser() first; a 401 refusal Response is
+ * returned verbatim. Free for authenticated users — monetization deferred to M8
+ * (the requireEntitlement seam is dormant, not removed).
  *
  * The set is the SAME filter the list/facets use (lib/leads-query buildLeadsWhere),
  * streamed over a postgres.js cursor and serialized row-by-row through the pure
@@ -20,10 +21,10 @@
  * never written to disk (PRD §6 threat model). owner_1 + mailing_address are the
  * public OPA columns only.
  */
-import { DISTRESS_CONFIG, DISTRESS_COMPONENT_KEYS } from '@phillybricks/core';
-import type { DistressComponentKey } from '@phillybricks/core/contracts';
+import { DISTRESS_CONFIG, DISTRESS_COMPONENT_KEYS } from '@bandbox/core';
+import type { DistressComponentKey } from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
-import { requireEntitlement } from '../../../../lib/auth';
+import { requireUser } from '../../../../lib/auth';
 import { distressFromRow } from '../../../../lib/distress-row';
 import { parseLeadsFilter, buildLeadsWhere, type LeadsQueryRow } from '../../../../lib/leads-query';
 import { csvRow } from '../../../../lib/leads-csv';
@@ -42,7 +43,7 @@ const KEY_SIGNAL_FLAGS: DistressComponentKey[] = [
 ];
 
 export async function GET(req: Request): Promise<Response> {
-  const gate = await requireEntitlement(req);
+  const gate = await requireUser(req);
   if (gate instanceof Response) return gate;
 
   const url = new URL(req.url);

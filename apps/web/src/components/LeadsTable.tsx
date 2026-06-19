@@ -11,7 +11,7 @@
  * the actions slot is left open for that integration to wire in.
  */
 import Link from 'next/link';
-import type { LeadRow } from '@phillybricks/core/contracts';
+import type { LeadRow } from '@bandbox/core/contracts';
 import { Pill } from './Pill';
 import { SkipTraceButton } from './SkipTraceButton';
 

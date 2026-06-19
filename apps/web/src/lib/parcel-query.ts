@@ -14,7 +14,7 @@ import type {
   LiRow,
   TaxStatus,
   NearbyCounts,
-} from '@phillybricks/core/contracts';
+} from '@bandbox/core/contracts';
 import { distressFromRow } from './distress-row';
 import { computeComps } from './comps-query';
 

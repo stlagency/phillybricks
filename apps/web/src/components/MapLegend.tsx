@@ -7,7 +7,7 @@
  * BlueprintMap.
  */
 import { useEffect, useState } from 'react';
-import type { LensMetric } from '@phillybricks/core/contracts';
+import type { LensMetric } from '@bandbox/core/contracts';
 import { LENS_META, LENS_RAMPS } from '../lib/mock/scan';
 
 function useTheme(): 'light' | 'dark' {

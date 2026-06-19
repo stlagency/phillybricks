@@ -7,7 +7,8 @@
  *
  * Guard order (fail closed, cheapest/most-general first):
  *   1. sameOrigin  → 403 (CSRF: reject foreign-Origin posts)
- *   2. requireEntitlement → its 401/403 (auth + active subscription)
+ *   2. requireUser → its 401 (login-gated; free for authenticated users, the paid
+ *      gate is deferred to M8 — the requireEntitlement seam stays dormant)
  *   3. hasSkiptraceAttestation → 403 attestation_required (per-user lawful-use, §8)
  *   4. stored key present → 403 no_skiptrace_key
  *   5. runSkipTrace, mapping typed errors: RateLimitError→429, UnknownVendorError→400,
@@ -17,11 +18,11 @@
  * M7 makes it a shared/DB store for a true global cap across serverless instances).
  */
 import { NextResponse } from 'next/server';
-import type { SkipTraceVendor } from '@phillybricks/core/contracts';
+import type { SkipTraceVendor } from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
 import {
   authError,
-  requireEntitlement,
+  requireUser,
   hasSkiptraceAttestation,
   sameOrigin,
 } from '../../../../lib/auth';
@@ -48,10 +49,10 @@ export async function POST(
   // 1. CSRF: reject cross-origin posts.
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 
-  // 2. auth + active subscription.
-  const entitled = await requireEntitlement(req);
-  if (entitled instanceof Response) return entitled;
-  const { userId } = entitled;
+  // 2. require an authenticated user (monetization deferred to M8).
+  const authed = await requireUser(req);
+  if (authed instanceof Response) return authed;
+  const { userId } = authed;
 
   // 3. per-user lawful-use attestation (PRD §8).
   if (!(await hasSkiptraceAttestation(userId))) return authError(403, 'attestation_required');

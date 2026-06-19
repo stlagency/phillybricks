@@ -5,11 +5,11 @@
  * and resumes next run. Reconciles the loaded count against the live source (±0.5%).
  *
  *   DATABASE_URL="$(cat <memory>/database-url.secret)" \
- *     pnpm --filter @phillybricks/ingestion exec tsx scripts/backfill-rtt.ts
+ *     pnpm --filter @bandbox/ingestion exec tsx scripts/backfill-rtt.ts
  *
  * Idempotent + resumable: safe to re-run until `drained` + reconciled.
  */
-import { philadelphia } from '@phillybricks/core';
+import { philadelphia } from '@bandbox/core';
 import { asDbClient, connectFromEnv } from '../src/db.js';
 import { backfillSource, reconcileSourceCount } from '../src/backfill.js';
 import { closeIngestRun, openIngestRun } from '../src/ingestRun.js';
