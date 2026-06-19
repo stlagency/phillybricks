@@ -41,12 +41,21 @@ Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope),
 - **geo_metric (incremental, classes a/b):** 644,814 rows, 11 metrics across 591 geo units. Class-(a) monthly back to 1974 (median_sale_price, **median_price_per_sqft** [price lens], **permit_count** [momentum], crime_count, request_count, sheriff_deed_share); class-(b) current snapshot (**distress_share** [distress], **livability_index** [livability], delinquency_share, open_violation_share, assessment_median). Nightly recomputes class-(a) trailing 3mo + class-(b) snapshot; one-time `backfill` did all months. **Known limit:** the trailing-3mo window won't refresh medians for months older than 3mo when a late/back-dated deed lands — heal via a periodic `finalize-derived.ts backfill` or the planned weekly RTT re-sync.
 - **Runners:** `pnpm --filter @phillybricks/ingestion exec tsx scripts/finalize-derived.ts [backfill]` (full vs nightly-incremental) and `scripts/verify-distress-parity.ts`.
 
-## YOUR TASK — M4: serving + map (PRD §6, §7.1, §3.4 tiles)
-Build the read layer + map over the now-real M3 data:
-1. **Read APIs** filling the frozen contracts (`@phillybricks/core/contracts`): `GET /api/scan` (←`geo_metric`, per-lens min/max period, quantile buckets), `GET /api/parcel/:pk` (`ParcelDeepDive` ← parcel + transfers + L&I + tax + nearby crime/311 via stamped geo ids + `distress_signal` raw → `scoreDistress()` decomposition), `GET /api/comps?pk` (`selectComps`/`estimateValue` over `comp_candidate`), `GET /api/leads`. Coerce numeric/bigint matview columns (postgres.js returns them as strings) before passing to `scoreDistress`.
+## M4 — serving (READ APIs DONE 2026-06-18, live-verified; map + deploy remaining)
+All four frozen contracts are served from real M3 data and verified against prod via the dev server (`apps/web`, `next build` clean):
+- `GET /api/scan?geo=&lens=&period=` → `ScanResponse` from `geo_metric` (lens→metric in `lib/scan-meta.ts`: price→median_price_per_sqft, momentum→permit_count, distress→distress_share, livability→livability_index), quantile buckets 0–4, per-lens period_min/max. Verified: 159 neighborhoods, real period ranges (price 1993-10→2026-04).
+- `GET /api/parcel/:pk` → `ParcelDeepDive` (parcel + transfers + L&I + tax + nearby crime/311 via stamped geo ids + comps + `distress_signal` raw → `scoreDistress()`). Verified on 132152700 (Logan, score 76).
+- `GET /api/comps?pk` → `CompsResult` (`computeComps` in `lib/comps-query.ts`: subject + same-hood-OR-2mi candidate pool → core `selectComps`; ORDER BY for determinism). Verified deterministic + transparent estimate.
+- `GET /api/leads` → `LeadsResponse` (distress_signal ⋈ parcel, score-ordered, signal/neighborhood/min-score filters). `signal=on_sheriff_list` → 1,117.
+- `GET /api/boundaries?geo` → GeoJSON FeatureCollection (the choropleth geometry; 159/48/384 polygons).
+- DB access: `lib/db.ts` (server-only `postgres`, reads DATABASE_URL). `next.config.mjs` adds `extensionAlias` (`.js`→`.ts`) so RUNTIME value imports from `@phillybricks/core` resolve (type-only imports don't need it). `lib/distress-row.ts` coerces numeric/bigint matview columns before `scoreDistress`.
+- Local run: `apps/web/.env.local` (gitignored) has DATABASE_URL + NEXT_PUBLIC_SUPABASE_URL/ANON_KEY; `pnpm --filter @phillybricks/web dev`, then the `.claude/launch.json` `web` preview server.
+
+### YOUR TASK — finish M4: map + deploy (needs Vercel Pro + R2)
+1. **Map:** wire `apps/web` `MarketScan` (currently mock `scanByLens`/`pointBreezeDetail`) to `/api/scan` + `/api/boundaries`. DESIGN DECISION needed: real MapLibre choropleth (PRD §7.1) vs. keep the stylized blueprint SVG aesthetic (the mockup) — the mock `HOODS` geo_ids don't match real neighborhood NAMEs, so a real choropleth means a MapLibre rewrite (boundaries need NO R2; only the high-zoom parcel layer does). Add time control (period from `/api/scan`), filters, click geo→rail, click parcel→deep-dive.
 2. **Tiles:** `packages/tiles` (parcel + boundary builders) is BUILT — needs `tippecanoe` on PATH + R2 keys. Single `parcels.pmtiles` + 3 boundary archives, rebuilt nightly after finalize.
-3. **Map:** wire `apps/web` `MarketScan` (currently mock) to `/api/scan` + MapLibre/PMTiles, 4 lenses + time control + filters.
-- **Human pause-points (M4):** Vercel Pro project + env (`SUPABASE_URL=https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable + service_role); R2 bucket + keys. Build the code autonomously; surface these to deploy.
+3. **Deploy:** Vercel Pro project + env, then `next build` is already clean.
+- **Human pause-points (M4):** Vercel Pro project + env (`DATABASE_URL` pooled, `SUPABASE_URL=https://ctcvrdsrylauqpuxbauz.supabase.co`, anon/publishable + service_role); R2 bucket + keys.
 
 ## After M4 → M5 deep-dive page · M6 leads + BYO skip-trace · M7 accounts + Stripe + alerts (**Stripe + Resend needed**).
 
