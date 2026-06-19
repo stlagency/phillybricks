@@ -58,7 +58,13 @@ All four frozen contracts are served from real M3 data and verified against prod
 
 ### YOUR TASK — finish M4: tiles + map polish
 1. **Tiles (needs R2 — in progress):** `packages/tiles` (parcel + boundary builders) is BUILT — needs `tippecanoe` on PATH + the R2 env (`R2_ACCOUNT_ID`/`R2_ACCESS_KEY_ID`/`R2_SECRET_ACCESS_KEY`/`R2_BUCKET`). Run after the nightly finalize: single `parcels.pmtiles` + 3 boundary archives. Then add the high-zoom per-parcel layer under the choropleth in `ScanMap` (PMTiles via the `pmtiles` protocol).
-2. **Map polish:** `ScanMap` (MapLibre choropleth) is live but only PIXEL-verified by the user (the headless preview here is 0×0). Add time control (period from `/api/scan`), the filter panel, geo-type zoom switching (neighborhood→zip→tract), and wire the right rail to the clicked geo's real detail (currently still `pointBreezeDetail` mock). Click parcel→`/parcel/[pk]` deep-dive (the page exists; wire it to `/api/parcel/:pk`).
+2. **Map polish** (`apps/web/src/components/ScanMap.tsx`):
+   - **[USER-REQUESTED] "Reset zoom" button** — a control that re-fits the map to `PHILLY_BOUNDS` (`map.fitBounds(PHILLY_BOUNDS, { padding: 24 })`); the user confirmed the live map looks good and wants this. Style it to the design system (draft/instrument chrome), place near the NavigationControl.
+   - Time control (period from `/api/scan` `period_min`/`period_max`; class-(b) lenses labeled "tracking since …").
+   - Filter panel; geo-type zoom switching (neighborhood→zip→tract — the APIs already accept `geo=`).
+   - Wire the right rail to the clicked geo's real detail (currently still `pointBreezeDetail` mock; `onSelect` already fires with the `ScanFeature`).
+   - Click parcel→`/parcel/[pk]` deep-dive (the page exists; wire it to `/api/parcel/:pk`).
+   - Map was pixel-verified by the USER on the live URL (the headless preview here is 0×0).
 - **Human pause-points:** R2 bucket + keys (in progress); optional `tippecanoe` on the nightly runner; optional `vercel git connect` for push-to-deploy.
 
 ## After M4 → M5 deep-dive page · M6 leads + BYO skip-trace · M7 accounts + Stripe + alerts (**Stripe + Resend needed**).
