@@ -20,7 +20,11 @@
 
 **M0 → M8 are complete and live in production.** The nightly ingests all 14 open-data sources + the sheriff scraper into a live Supabase warehouse, the four correctness gates are wired, `parcel_change_log` history is accruing (the one irreplaceable asset, PRD §0.6), the derived layer (distress composite, comps, geo_metric, geo boundaries) is built + live-verified, the **serving + map layer is shipped** (read APIs + MapLibre 4-lens scan + per-parcel tiles), the **property deep-dive (M5)** renders every figure bound to live sourced data with zero fabrication, the **leads + mini-CRM + CSV export + BYO skip-trace (M6)** app-layer is built + verified, **M7 — accounts + alerts (free)** is live (Supabase Auth + saved areas + nightly ZeptoMail digest), and **M8 — Stripe subscriptions** is live (checkout + verified webhook + portal, paywall behind `BILLING_ENABLED`) — all at **https://www.bandbox.pro**.
 
-**No milestone is currently open.** The remaining work is operational, not a build (see "Human pause-points" — confirm the $45/mo price, rotate the Stripe secret key, do one real test-subscribe, then flip `BILLING_ENABLED=true` to arm the paywall). See the **M7** and **M8** sections below for what shipped.
+**NEXT FOCUS — design optimization (Aaron, 2026-06-20): "the brand is too busy."** Declutter the UI/UX while keeping the "Survey Table, Warmed" identity. The prep brief — a grounded diagnosis (from live screenshots), the skill order (critique/audit → quieter → distill → typeset → layout → polish), and the open direction questions — is in **[`docs/DESIGN_OPTIMIZATION.md`](DESIGN_OPTIMIZATION.md)**. Start there.
+
+**Then — billing revision (deferred behind design):** launch pricing changed to **$2/mo + $20/yr** (NOT the $45/mo that is currently live but inert — paywall is off), plus an **owner/admin "comp a user to free"** path. Needs monthly+annual selection in checkout, the admin-comp route, and the final gated-feature list. The M8 plumbing (checkout/webhook/portal/paywall flag) is already built + live — this is a pricing/feature revision, not a rebuild. Details + live Stripe IDs in the `bandbox-stripe-m8` memory.
+
+(M0–M8 shipped — see the **M7** / **M8** sections below. Operational follow-ups in "Human pause-points".)
 
 Read `PRD.md` (engineering truth), `CONCEPT_v2_shared_understanding.md` (scope), `design/DESIGN.md` (UI) + root `TOKENS.css` (design tokens), `docs/DATA_SOURCES.md` (data facts). Project memory (`philly-open-data-facts`, `philly-tool-v1-decisions`, `philly-infra`) loads automatically.
 
