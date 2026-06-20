@@ -22,7 +22,7 @@ import type { SkipTraceVendor } from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
 import {
   authError,
-  requireUser,
+  requirePaid,
   hasSkiptraceAttestation,
   sameOrigin,
 } from '../../../../lib/auth';
@@ -50,8 +50,8 @@ export async function POST(
   // 1. CSRF: reject cross-origin posts.
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 
-  // 2. require an authenticated user (monetization deferred to M8).
-  const authed = await requireUser(req);
+  // 2. require a paid user when billing is armed (else any authenticated user).
+  const authed = await requirePaid(req);
   if (authed instanceof Response) return authed;
   const { userId } = authed;
 

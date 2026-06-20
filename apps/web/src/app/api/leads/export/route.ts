@@ -24,7 +24,7 @@
 import { DISTRESS_CONFIG, DISTRESS_COMPONENT_KEYS } from '@bandbox/core';
 import type { DistressComponentKey } from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
-import { requireUser } from '../../../../lib/auth';
+import { requirePaid } from '../../../../lib/auth';
 import { distressFromRow } from '../../../../lib/distress-row';
 import { parseLeadsFilter, buildLeadsWhere, type LeadsQueryRow } from '../../../../lib/leads-query';
 import { csvRow } from '../../../../lib/leads-csv';
@@ -43,7 +43,7 @@ const KEY_SIGNAL_FLAGS: DistressComponentKey[] = [
 ];
 
 export async function GET(req: Request): Promise<Response> {
-  const gate = await requireUser(req);
+  const gate = await requirePaid(req);
   if (gate instanceof Response) return gate;
 
   const url = new URL(req.url);

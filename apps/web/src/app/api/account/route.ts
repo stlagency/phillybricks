@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 import type { AccountProfile, SkipTraceVendor } from '@bandbox/core/contracts';
 import { db } from '../../../lib/db';
-import { requireUser, ensureProfile } from '../../../lib/auth';
+import { requireUser, ensureProfile, billingEnabled } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,6 +23,8 @@ export async function GET(req: Request): Promise<Response> {
     from app.profile where id = ${user.userId} limit 1`;
   const key = await sql<{ vendor: string }[]>`
     select vendor from app.skiptrace_key where user_id = ${user.userId} limit 1`;
+  const sub = await sql<{ status: string; current_period_end: Date | null }[]>`
+    select status, current_period_end from app.subscription where user_id = ${user.userId} limit 1`;
 
   const body: AccountProfile = {
     user_id: user.userId,
@@ -33,6 +35,9 @@ export async function GET(req: Request): Promise<Response> {
       : null,
     has_skiptrace_key: key.length > 0,
     skiptrace_vendor: (key[0]?.vendor as SkipTraceVendor) ?? null,
+    subscription_status: sub[0] ? (sub[0].status === 'active' ? 'active' : 'inactive') : null,
+    current_period_end: sub[0]?.current_period_end ? sub[0].current_period_end.toISOString() : null,
+    billing_enabled: billingEnabled(),
   };
   return NextResponse.json(body);
 }

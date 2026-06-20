@@ -69,12 +69,83 @@ export function AccountView() {
         <h1>{account?.email ?? user.email ?? 'Account'}</h1>
       </header>
 
+      <BillingCard account={account} />
       <AttestationCard account={account} onChange={refresh} />
       <SkiptraceKeyCard account={account} onChange={refresh} />
       <SavedAreasCard areas={areas} onChange={refresh} />
       <AlertsCard areas={areas} subs={subs} onChange={refresh} />
       <FeedCard feed={feed} onChange={refresh} />
     </div>
+  );
+}
+
+/* ── Billing (M8) ────────────────────────────────────────────────────────── */
+function BillingCard({ account }: { account: AccountProfile | null }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  // Surface the post-Checkout redirect outcome (?billing=success|cancel).
+  useEffect(() => {
+    const b = new URLSearchParams(window.location.search).get('billing');
+    if (b === 'success') setMsg('Subscription started — thank you! It may take a moment to activate.');
+    else if (b === 'cancel') setMsg('Checkout canceled.');
+  }, []);
+
+  async function go(path: string) {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const res = await apiFetch(path, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: '{}',
+      });
+      if (res.ok) {
+        const { url } = (await res.json()) as { url?: string };
+        if (url) {
+          window.location.href = url;
+          return;
+        }
+        setMsg('Could not open billing.');
+      } else if (res.status === 503) {
+        setMsg('Billing is not configured yet.');
+      } else {
+        setMsg('Could not open billing.');
+      }
+    } catch {
+      setMsg('Could not open billing.');
+    }
+    setBusy(false);
+  }
+
+  const active = account?.subscription_status === 'active';
+  return (
+    <section className="pb-card">
+      <h2>
+        Billing {account && !account.billing_enabled ? <span className="pb-muted">(paywall off)</span> : null}
+      </h2>
+      <p className="pb-card-note">
+        {account?.billing_enabled
+          ? 'CSV export and skip-trace require an active subscription.'
+          : 'CSV export and skip-trace are currently free for signed-in users.'}
+      </p>
+      <p className="pb-status">
+        Status: <strong className={active ? 'pb-ok' : 'pb-off'}>{account?.subscription_status ?? 'none'}</strong>
+        {account?.current_period_end
+          ? ` · renews ${new Date(account.current_period_end).toLocaleDateString()}`
+          : ''}
+      </p>
+      {active ? (
+        <button className="pb-btn pb-btn-secondary" onClick={() => go('/api/billing/portal')} disabled={busy}>
+          Manage billing
+        </button>
+      ) : (
+        <button className="pb-btn pb-btn-primary" onClick={() => go('/api/billing/checkout')} disabled={busy}>
+          Subscribe →
+        </button>
+      )}
+      {msg ? <p className="pb-auth-msg">{msg}</p> : null}
+    </section>
   );
 }
 

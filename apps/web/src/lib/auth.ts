@@ -105,10 +105,7 @@ export async function requireUser(req: Request): Promise<SessionUser | Response>
 /**
  * Active-subscription check (the paid gate, PRD §7.5). Server connection reads
  * app.subscription directly (it is not the `authenticated` role, so the check is
- * explicit, not RLS-implicit).
- *
- * @deprecated Dormant until monetization (M8). Nothing calls this today —
- * `app.subscription` is kept ready but the gates use `requireUser`. Re-arm in M8.
+ * explicit, not RLS-implicit). Written only by the verified Stripe webhook (M8).
  */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
   const rows = await db()<{ one: number }[]>`
@@ -117,18 +114,29 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
   return rows.length > 0;
 }
 
-/**
- * 401 if unauthenticated, 403 if not subscribed; otherwise the SessionUser.
- *
- * @deprecated Dormant until monetization (M8). The gated routes use `requireUser`
- * (free for authenticated users) while Stripe is deferred. Re-arm in M8 by
- * swapping the two call sites back to this.
- */
+/** 401 if unauthenticated, 403 if not subscribed; otherwise the SessionUser. */
 export async function requireEntitlement(req: Request): Promise<SessionUser | Response> {
   const u = await requireUser(req);
   if (u instanceof Response) return u;
   if (!(await hasActiveSubscription(u.userId))) return authError(403, 'subscription_required');
   return u;
+}
+
+/** True when the paywall is armed (BILLING_ENABLED=true). When false, the paid
+ *  surfaces are free for any authenticated user (M8 monetization is reversible by
+ *  config — no redeploy to turn billing on or off). */
+export function billingEnabled(): boolean {
+  return process.env.BILLING_ENABLED === 'true';
+}
+
+/**
+ * The paid gate (M8): requires an active subscription when billing is armed,
+ * otherwise just an authenticated user. The two paid surfaces (CSV export,
+ * skip-trace) call this instead of requireUser/requireEntitlement directly, so the
+ * paywall flips on/off with BILLING_ENABLED alone.
+ */
+export async function requirePaid(req: Request): Promise<SessionUser | Response> {
+  return billingEnabled() ? requireEntitlement(req) : requireUser(req);
 }
 
 /** Has the user signed the per-user lawful-use attestation (PRD §8)? Required
