@@ -27,7 +27,7 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--pb-slate);
+  color: var(--pb-label);
 }
 .pb-leads-exportmsg {
   margin: 0 var(--pb-space-7);
@@ -62,7 +62,7 @@
   font-weight: 700;
   letter-spacing: 0;
   text-transform: none;
-  color: var(--pb-slate);
+  color: var(--pb-label);
   padding: var(--pb-space-3) var(--pb-space-3);
   border-bottom: var(--pb-border-w) solid var(--pb-ink);
   white-space: nowrap;
@@ -76,7 +76,7 @@
   width: 2.5rem;
   font-family: var(--pb-font-mono);
   font-weight: 700;
-  color: var(--pb-slate);
+  color: var(--pb-label);
 }
 .pb-leads-addr {
   font-weight: 700;
@@ -114,7 +114,7 @@
   gap: var(--pb-space-2);
 }
 .pb-leads-none {
-  color: var(--pb-slate);
+  color: var(--pb-label);
 }
 
 .pb-leads-owner {

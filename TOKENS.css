@@ -13,7 +13,8 @@
   /* ---- LIGHT (default): concrete + patriotic blue, red as signal only ---- */
   --pb-ink:        #1A1714;  /* 3px borders + text (warm near-black) */
   --pb-text:       #1A1714;  /* primary text (= ink in light)        */
-  --pb-slate:      #8A8479;  /* muted text / labels / metadata        */
+  --pb-slate:      #8A8479;  /* muted metadata / recessive serif asides / decorative hairlines */
+  --pb-label:      #595348;  /* small FUNCTIONAL labels (mono/Satoshi xs-sm) — slate is <AA on light bg; clears 4.5:1 on paper/surface/rail/recessed */
   --pb-paper:      #E7E3DA;  /* bg (mortar)                           */
   --pb-surface:    #FFFFFF;  /* card (bone)                           */
   --pb-stone:      #D9D4CA;  /* recessed / table zebra                */
@@ -73,6 +74,7 @@ html[data-theme="dark"] {
   --pb-ink:        #0C1016;  /* hard border ink (shadows use this)     */
   --pb-text:       #ECE6DA;  /* warm bone, not cold white              */
   --pb-slate:      #A39A8B;
+  --pb-label:      #A39A8B;  /* = slate after dark; dark slate already clears AA (5.1–6.7:1) */
   --pb-paper:      #1B1814;  /* night mortar                           */
   --pb-surface:    #25211B;  /* lamplit card                           */
   --pb-stone:      #2F2A22;
@@ -113,7 +115,7 @@ html[data-theme="dark"] {
 
 /* metric block / data */
 .pb-label { font-family: var(--pb-font-mono); font-size: var(--pb-text-xs);
-            letter-spacing: var(--pb-track-label); text-transform: uppercase; color: var(--pb-slate); }
+            letter-spacing: var(--pb-track-label); text-transform: uppercase; color: var(--pb-label); }
 .pb-value { font-family: var(--pb-font-mono); font-weight: 700; color: var(--pb-text); }
 
 /* buttons */

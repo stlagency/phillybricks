@@ -39,7 +39,8 @@ Self-host fallback for the AGPL repo: `../_fonts/*.css`. **Scale (px):** 11 / 13
 |---|---|---|---|
 | Border + (light) text | `--pb-ink` | `#1A1714` | `#0C1016` |
 | Primary text | `--pb-text` | `#1A1714` | `#ECE6DA` (warm bone, not cold white) |
-| Muted text | `--pb-slate` | `#8A8479` | `#A39A8B` |
+| Muted text (recessive serif asides + decorative hairlines) | `--pb-slate` | `#8A8479` | `#A39A8B` |
+| Small **functional** labels (mono/Satoshi xs–sm) | `--pb-label` | `#595348` | `#A39A8B` (= slate) |
 | Bg (mortar) | `--pb-paper` | `#E7E3DA` | `#1B1814` |
 | Card (bone) | `--pb-surface` | `#FFFFFF` | `#25211B` |
 | Recessed / zebra | `--pb-stone` | `#D9D4CA` | `#2F2A22` |
@@ -59,6 +60,8 @@ Self-host fallback for the AGPL repo: `../_fonts/*.css`. **Scale (px):** 11 / 13
 Price `#2C6FBF` (federal-blue) · Momentum `#3E7D5A` (park-green) · **Distress `#E81828`** (the one lens allowed signal-red as fill — the lens *is* the alert) · Livability `#B5703A` (desaturated terracotta — the one warm lens, deliberately distinct from both reds). Dark: `#5C97D8` / `#5FA77E` / `#FF3A47` / `#D69A4E`.
 
 **Functional:** focus ring `--pb-blue` 3px solid offset 2px; links `--pb-blue` underline. **AA verified** both themes (ink-on-mortar 12.8:1; ink-on-bone 16.1:1; bone-on-dark-bg 13.8:1; white-on-red ≈4.6–4.9:1 → red text only ≥15px bold or white-on-red fill, never red body; brick-on-bone 6.4:1).
+
+**Label vs. muted (the contrast split).** Light-theme `--pb-slate` (#8A8479) reads *below* AA at the 11px/`--pb-text-xs` sizes the UI uses (≈2.9:1 on paper, 3.7:1 on surface), so small **functional** labels — metric/filter labels, source stamps, table headers, eyebrows, breadcrumbs, counts, legend/timestrip heads, the recessed measure-line lead — use `--pb-label` (#595348) instead. It clears AA on *every* surface a label lands on, including the darkest (`--pb-recessed` #CFC9BE): paper 5.95 · surface 7.62 · rail 6.59 · recessed/stamp **4.63** · stone-zebra 4.92. `--pb-slate` is retained for two things that don't need 4.5:1: **recessive serif-italic asides** (kicker, freshness/freshline, trend/time notes, distress rank — kept deliberately airy, larger than xs) and **decorative hairlines** (dotted "click-to-source" underlines, derivation/term borders, the leads row-rule). Dark theme already cleared AA (slate 5.1–6.7:1), so `--pb-label` = `--pb-slate` there — the split is light-only.
 
 ---
 
