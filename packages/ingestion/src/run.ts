@@ -31,6 +31,8 @@ import { makeCartoFetcher, makeOpaFetcher } from './fetchers.js';
 import { makeScrapeFetcher } from './adapters/scrape.js';
 import { makeStepsForSpec } from './steps.js';
 import { finalizeDerived } from './finalize.js';
+import { runAlerts } from './alerts.js';
+import { createZeptoMailSender, parseFromAddress } from './email.js';
 import { buildParcelTiles, buildBoundaryTiles } from '@bandbox/tiles';
 import {
   runSourcePipeline,
@@ -304,6 +306,28 @@ export async function main(): Promise<void> {
       }
     } else {
       console.log('Tile rebuild skipped (SUPABASE_S3_* not configured).');
+    }
+
+    // Alert digests (M7, PRD §3.5/§7), AFTER finalizeDerived so distress_signal is
+    // fresh for new_matching_lead. The in-app feed is always written; email is
+    // opt-in on ZEPTOMAIL_TOKEN (a verified bandbox.pro sender). NON-FATAL — an
+    // alert failure must never fail the nightly (history already accrued). Every
+    // ZeptoMail send is open+click-tracked by construction (createZeptoMailSender).
+    try {
+      const token = process.env.ZEPTOMAIL_TOKEN;
+      const from = parseFromAddress(process.env.ZEPTOMAIL_FROM ?? 'Bandbox <alerts@bandbox.pro>');
+      const sender = token ? createZeptoMailSender({ token, from }) : null;
+      const baseUrl = process.env.PUBLIC_BASE_URL ?? 'https://www.bandbox.pro';
+      const rep = await runAlerts(db, { send: sender, baseUrl, log: (m) => console.log(`  ${m}`) });
+      console.log(
+        `Alerts complete: ${rep.subscriptionsProcessed} subscription(s), ` +
+          `${rep.eventsInserted} feed event(s), ${rep.emailsSent} email(s)` +
+          `${sender ? '' : ' (email disabled — ZEPTOMAIL_TOKEN unset)'}.`,
+      );
+    } catch (err) {
+      console.error(
+        `Alerts FAILED (non-fatal; feed/email retried next run): ${err instanceof Error ? err.message : err}`,
+      );
     }
   } finally {
     await sql.end({ timeout: 5 });

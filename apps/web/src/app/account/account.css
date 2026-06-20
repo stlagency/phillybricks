@@ -1,0 +1,241 @@
+/* Account + auth surfaces (M7). Self-contained; leans on the Navy/umber palette
+   with var() fallbacks so it tracks the design tokens where present. */
+
+:root {
+  --pb-acc-navy: var(--color-navy, #0a2a5e);
+  --pb-acc-paper: var(--color-paper, #f5f0e6);
+  --pb-acc-ink: var(--color-ink, #1d1a14);
+  --pb-acc-line: var(--color-rule, #e0d8c8);
+  --pb-acc-muted: var(--color-muted, #6b6457);
+  --pb-acc-accent: var(--color-accent, #c2683a);
+  --pb-acc-ok: #2f7d54;
+  --pb-acc-off: #9a5a2a;
+}
+
+/* ── Header account control (inside the Navy TopBand) ── */
+.pb-topactions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.pb-account {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.pb-account-link {
+  color: #fff;
+  font-size: 0.85rem;
+  text-decoration: none;
+  max-width: 16ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pb-account-link:hover {
+  text-decoration: underline;
+}
+.pb-account-signout {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #fff;
+  font-size: 0.72rem;
+  padding: 0.18rem 0.5rem;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.pb-account-signout:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Shared buttons ── */
+.pb-btn {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.55rem 1rem;
+  border-radius: 3px;
+  border: 2px solid var(--pb-acc-navy);
+  cursor: pointer;
+}
+.pb-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.pb-btn-primary {
+  background: var(--pb-acc-navy);
+  color: #fff;
+}
+.pb-btn-secondary {
+  background: transparent;
+  color: var(--pb-acc-navy);
+}
+.pb-linkbtn {
+  background: none;
+  border: none;
+  color: var(--pb-acc-accent);
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+.pb-linkbtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Auth (login) ── */
+.pb-auth-main,
+.pb-account-main {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+.pb-auth-card {
+  max-width: 26rem;
+  margin: 2rem auto;
+  background: var(--pb-acc-paper);
+  border: 2px solid var(--pb-acc-navy);
+  border-radius: 4px;
+  padding: 1.75rem;
+}
+.pb-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-top: 1rem;
+}
+.pb-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+}
+.pb-auth-field input,
+.pb-card input,
+.pb-card select {
+  font: inherit;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--pb-acc-line);
+  border-radius: 3px;
+  background: #fff;
+  color: var(--pb-acc-ink);
+}
+.pb-auth-alt {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+.pb-auth-msg {
+  margin-top: 0.9rem;
+  padding: 0.5rem 0.7rem;
+  background: #fff;
+  border-left: 3px solid var(--pb-acc-accent);
+  font-size: 0.85rem;
+}
+
+/* ── Account grid ── */
+.pb-account-grid {
+  display: grid;
+  gap: 1.25rem;
+}
+.pb-account-head h1 {
+  margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
+}
+.pb-account-loading {
+  padding: 3rem;
+  text-align: center;
+  color: var(--pb-acc-muted);
+}
+.pb-card {
+  background: var(--pb-acc-paper);
+  border: 1px solid var(--pb-acc-line);
+  border-radius: 4px;
+  padding: 1.25rem 1.4rem;
+}
+.pb-card h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+}
+.pb-card-note {
+  color: var(--pb-acc-muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.8rem;
+  line-height: 1.5;
+}
+.pb-status {
+  font-size: 0.9rem;
+  margin: 0 0 0.8rem;
+}
+.pb-ok {
+  color: var(--pb-acc-ok);
+}
+.pb-off {
+  color: var(--pb-acc-off);
+}
+
+/* ── Forms inside cards ── */
+.pb-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+.pb-field-row input {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+}
+.pb-field-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.pb-checks {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: 0.35rem;
+}
+.pb-check {
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* ── Lists ── */
+.pb-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.pb-list-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--pb-acc-line);
+  font-size: 0.9rem;
+}
+.pb-unread {
+  border-left: 3px solid var(--pb-acc-accent);
+  padding-left: 0.5rem;
+}
+.pb-muted {
+  color: var(--pb-acc-muted);
+  font-style: normal;
+}
+.pb-badge {
+  display: inline-block;
+  background: var(--pb-acc-accent);
+  color: #fff;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+  vertical-align: middle;
+}

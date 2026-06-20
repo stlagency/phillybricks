@@ -20,6 +20,19 @@ import type {
   SkipTraceContact,
   SkipTraceResult,
 } from '@bandbox/core/contracts';
+/** A value that may be sync or async (the UsageStore is in-memory OR DB-backed). */
+type MaybePromise<T> = T | Promise<T>;
+
+/**
+ * The minimal tagged-template SQL surface the Vault + usage helpers call. Declared
+ * STRUCTURALLY (no `postgres` import) so this proxy module keeps NO hard DB
+ * dependency — the route injects the real client, which satisfies this shape. This
+ * is what keeps `skiptrace.ts` "imports no DB client" (see skiptrace.test.ts).
+ */
+export type SqlLike = <T extends readonly unknown[] = readonly unknown[]>(
+  template: TemplateStringsArray,
+  ...args: unknown[]
+) => Promise<T>;
 
 /** The minimal parcel projection a vendor request needs (owner + mailing address). */
 export interface SkipTraceParcel {
@@ -225,8 +238,16 @@ export const SKIPTRACE_VENDORS: Record<SkipTraceVendor, VendorAdapter> = {
  *  store; the route depends only on this interface. */
 export interface UsageStore {
   /** Is the user under their cap right now, and how many calls remain. */
-  check(userId: string): { allowed: boolean; remaining: number };
+  check(userId: string): MaybePromise<{ allowed: boolean; remaining: number }>;
   /** Record one successful call. */
+  record(userId: string): MaybePromise<void>;
+}
+
+/** A synchronous UsageStore — the in-memory default returns plain objects (so its
+ *  unit tests can read `.allowed`/`.remaining` without awaiting). Assignable to
+ *  UsageStore, so runSkipTrace accepts it interchangeably with the DB-backed store. */
+export interface SyncUsageStore extends UsageStore {
+  check(userId: string): { allowed: boolean; remaining: number };
   record(userId: string): void;
 }
 
@@ -236,7 +257,7 @@ export interface UsageStore {
  * must back this with a shared store (DB row / Redis / Supabase) for a true global
  * cap. Adequate today: there is one warm instance and no stored keys yet.
  */
-export function createMemoryUsageStore(dailyCap = 50): UsageStore {
+export function createMemoryUsageStore(dailyCap = 50): SyncUsageStore {
   const counts = new Map<string, { day: string; n: number }>();
   const today = (): string => new Date().toISOString().slice(0, 10); // UTC YYYY-MM-DD
 
@@ -262,30 +283,82 @@ export function createMemoryUsageStore(dailyCap = 50): UsageStore {
   };
 }
 
-// ── the Vault seam ───────────────────────────────────────────────────────────
+/** UTC calendar day (YYYY-MM-DD) — the cap's reset boundary. */
+function utcDay(): string {
+  return new Date().toISOString().slice(0, 10);
+}
 
 /**
- * Decrypt a stored skip-trace key.
- *
- * TODO(M7): wire Supabase Vault (decrypt server-side via the service role). The
- * route is the only caller and treats the output as the plaintext key. There are
- * NO stored keys yet, so today this is a base64 identity decode with a graceful
- * fallback — it exists only so the call site is real and the M7 change is one fn.
+ * DB-backed per-user daily cap (M7) — the GLOBAL cap that replaces the per-instance
+ * in-memory counter under serverless. Counts live in app.skiptrace_usage keyed by
+ * (user_id, UTC day); `record` is an UPSERT that increments n. There is a benign
+ * check→record race under heavy concurrency (a user could exceed the cap by the
+ * number of simultaneous in-flight lookups); acceptable for a soft abuse cap.
  */
-export function decryptKey(encrypted: string): string {
-  // M7: replace with Supabase Vault `decrypted_secret` lookup. Until then, treat the
-  // stored value as base64(plaintext); if it isn't valid base64, pass it through.
-  try {
-    const decoded = Buffer.from(encrypted, 'base64').toString('utf8');
-    // Re-encoding round-trips only for genuine base64 → guard against false decodes.
-    if (Buffer.from(decoded, 'utf8').toString('base64').replace(/=+$/, '') ===
-        encrypted.replace(/=+$/, '')) {
-      return decoded;
-    }
-  } catch {
-    /* fall through to identity */
-  }
-  return encrypted;
+export function createDbUsageStore(sql: SqlLike, dailyCap = 50): UsageStore {
+  return {
+    async check(userId) {
+      const rows = await sql<{ n: number }[]>`
+        select n from app.skiptrace_usage
+        where user_id = ${userId} and day = ${utcDay()}`;
+      const n = Number(rows[0]?.n ?? 0);
+      return { allowed: n < dailyCap, remaining: Math.max(0, dailyCap - n) };
+    },
+    async record(userId) {
+      await sql`
+        insert into app.skiptrace_usage (user_id, day, n)
+        values (${userId}, ${utcDay()}, 1)
+        on conflict (user_id, day)
+          do update set n = app.skiptrace_usage.n + 1`;
+    },
+  };
+}
+
+// ── the Vault seam (SECURITY DEFINER proxy, PRD §6) ──────────────────────────
+
+/** A resolved BYO key: the vendor + the plaintext, held in memory for one request. */
+export interface ResolvedSkiptraceKey {
+  vendor: string;
+  apiKey: string;
+}
+
+/**
+ * Why functions, not direct Vault reads: the web connection role
+ * (`phillybricks_worker`) has NO Vault privilege by design (PRD §6 — the key is
+ * "decrypted only inside the SECURITY DEFINER proxy"). All three helpers below call
+ * `app.*` SECURITY DEFINER functions (owned by a Vault-capable role) that encapsulate
+ * `vault.create_secret` / `vault.decrypted_secrets`, so the worker can store/resolve
+ * a key WITHOUT being able to read the Vault generally. See migration 0014.
+ */
+
+/** Store a user's BYO key in Vault via the proxy (replaces any prior key). */
+export async function setSkiptraceKey(
+  sql: SqlLike,
+  userId: string,
+  vendor: string,
+  plaintext: string,
+): Promise<void> {
+  await sql`select app.set_skiptrace_key(${userId}, ${vendor}, ${plaintext})`;
+}
+
+/**
+ * Resolve a user's stored BYO key to {vendor, plaintext} via the proxy, or null if
+ * none on file. The plaintext is returned to the caller only (never logged/persisted).
+ */
+export async function getSkiptraceKey(
+  sql: SqlLike,
+  userId: string,
+): Promise<ResolvedSkiptraceKey | null> {
+  const rows = await sql<{ r_vendor: string | null; r_plaintext: string | null }[]>`
+    select r_vendor, r_plaintext from app.get_skiptrace_key(${userId})`;
+  const row = rows[0];
+  if (!row || !row.r_vendor || row.r_plaintext == null) return null;
+  return { vendor: row.r_vendor, apiKey: row.r_plaintext };
+}
+
+/** Remove a user's stored BYO key and its Vault secret via the proxy. */
+export async function deleteSkiptraceKey(sql: SqlLike, userId: string): Promise<void> {
+  await sql`select app.delete_skiptrace_key(${userId})`;
 }
 
 // ── the injectable proxy core ────────────────────────────────────────────────
@@ -326,8 +399,8 @@ export async function runSkipTrace(args: RunSkipTraceArgs): Promise<SkipTraceRes
   if (!isKnownVendor(vendor)) throw new UnknownVendorError(String(vendor));
   const adapter = SKIPTRACE_VENDORS[vendor];
 
-  // 2. per-user cap.
-  const gate = store.check(userId);
+  // 2. per-user cap (the store may be in-memory or DB-backed).
+  const gate = await store.check(userId);
   if (!gate.allowed) throw new RateLimitError(gate.remaining);
 
   // 3. build + fire the vendor request with a hard timeout.
@@ -362,7 +435,7 @@ export async function runSkipTrace(args: RunSkipTraceArgs): Promise<SkipTraceRes
   }
 
   // 4. record usage only on success, return transient result. Nothing persisted.
-  store.record(userId);
+  await store.record(userId);
   return {
     parcel_pk: parcel.parcel_pk,
     vendor,

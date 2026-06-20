@@ -58,6 +58,12 @@ jobs:
       SUPABASE_S3_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
       SUPABASE_STORAGE_BUCKET: 'phillybricks-tiles'
       HEALTHCHECKS_URL: ${{ secrets.HEALTHCHECKS_URL }}
+      # M7 alert digest (PRD §3.5/§7). Email is opt-in on ZEPTOMAIL_TOKEN; without it
+      # the worker still writes the in-app feed. Every send is open+click-tracked by
+      # construction. PUBLIC_BASE_URL builds the parcel + unsubscribe links.
+      ZEPTOMAIL_TOKEN: ${{ secrets.ZEPTOMAIL_TOKEN }}
+      ZEPTOMAIL_FROM: ${{ secrets.ZEPTOMAIL_FROM }}
+      PUBLIC_BASE_URL: 'https://www.bandbox.pro'
       # Bid4Assets enrichment is OFF by default in the public repo (PRD §4.2).
       ENABLE_BID4ASSETS_ENRICHMENT: 'false'
 

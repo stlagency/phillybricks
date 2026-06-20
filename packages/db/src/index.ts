@@ -59,6 +59,7 @@ export const APP_TABLES = [
   'alert_subscription',
   'alert_event',
   'skiptrace_key',
+  'skiptrace_usage',
 ] as const;
 export type AppTable = (typeof APP_TABLES)[number];
 

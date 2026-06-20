@@ -246,3 +246,81 @@ export interface SkipTraceResult {
   /** ISO timestamp of the lookup. */
   looked_up_at: string;
 }
+
+// ── M7: accounts + alerts (PRD §3.5, §7) ─────────────────────────────────────
+
+/** The current user's profile + entitlement snapshot (GET /api/account). */
+export interface AccountProfile {
+  user_id: string;
+  email: string | null;
+  display_name: string | null;
+  /** ISO timestamp of the lawful-use skip-trace attestation, or null. */
+  attested_skiptrace_at: string | null;
+  /** Whether a BYO skip-trace key is on file (the key itself is never returned). */
+  has_skiptrace_key: boolean;
+  /** Skip-trace vendor on file, if any. */
+  skiptrace_vendor: SkipTraceVendor | null;
+}
+
+/** How a saved area's geometry is defined (PRD §3.5). */
+export type SavedAreaKind = 'polygon' | 'canonical' | 'radius';
+
+/** One app.saved_area row, owned by the authenticated user. */
+export interface SavedArea {
+  id: string;
+  name: string | null;
+  kind: SavedAreaKind;
+  created_at: string;
+}
+
+/**
+ * POST /api/areas body — create a saved area in one of three modes:
+ *   polygon   → `geojson` is a GeoJSON Polygon geometry.
+ *   canonical → `geo_type` + `geo_id` resolve to a geo_boundary's geometry.
+ *   radius    → `center` (lon/lat) + `radius_m` buffer into a circle.
+ */
+export interface SaveAreaInput {
+  name?: string | null;
+  kind: SavedAreaKind;
+  geojson?: unknown;
+  geo_type?: GeoType;
+  geo_id?: string;
+  center?: { lon: number; lat: number };
+  radius_m?: number;
+}
+
+/** The alert trigger taxonomy (PRD §3.5). */
+export type AlertTriggerType =
+  | 'new_transaction'
+  | 'new_development'
+  | 'new_distress'
+  | 'new_matching_lead';
+
+/** One app.alert_subscription row — fires triggers over a saved area. */
+export interface AlertSubscription {
+  id: string;
+  saved_area_id: string | null;
+  trigger_types: AlertTriggerType[];
+  channel: 'email' | 'in_app';
+  frequency: 'daily';
+  last_sent_at: string | null;
+  created_at: string;
+}
+
+/** POST /api/alerts/subscriptions body. */
+export interface CreateAlertSubscriptionInput {
+  saved_area_id: string;
+  trigger_types: AlertTriggerType[];
+  channel?: 'email' | 'in_app';
+  frequency?: 'daily';
+}
+
+/** One materialized alert feed item (app.alert_event), newest-first in the feed. */
+export interface AlertEvent {
+  id: string;
+  parcel_pk: string | null;
+  trigger_type: AlertTriggerType;
+  payload: Record<string, unknown>;
+  created_at: string;
+  read_at: string | null;
+}

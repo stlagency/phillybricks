@@ -8,20 +8,23 @@
  * `requireEntitlement`, `app.subscription`, the Stripe dep) stays in place but
  * UNENFORCED — a dormant seam re-armed in M8 by flipping the two call sites back.
  *
- * Pre-auth (today) there is no login UI, so `getUserId()` returns null and every
- * gated route returns 401, EXCEPT when the documented local-verification seam is
- * set. It is production-safe: with the env var unset (the prod default) the routes
- * enforce real auth.
+ * M7 WIRED: `getUserId()` resolves a real Supabase user from the request's
+ * `Authorization: Bearer <access_token>` header — validated by GoTrue via
+ * `auth.getUser(jwt)` (signature + expiry checked server-side). The browser holds
+ * the session and attaches the token on every gated fetch (lib/api-client). With no
+ * valid token the gated routes return 401, so the seam fails closed.
  *
- *   BANDBOX_DEV_USER_ID  — treat every request as this user (local testing).
- *
- * In M7, `getUserId` resolves the Supabase session (cookie or `Authorization:
- * Bearer <jwt>` → `auth.uid()`), and the dev seam is dropped.
+ *   BANDBOX_DEV_USER_ID — local-only override (treat every request as this user).
+ *   Hardened in M7: honored ONLY when NODE_ENV !== 'production', so even if the var
+ *   leaked into a prod environment it could never bypass real auth.
  */
 import { db } from './db';
+import { supabaseAuthClient } from './supabase-server';
 
 export interface SessionUser {
   userId: string;
+  /** Email from the validated session, when available (null under the dev seam). */
+  email: string | null;
 }
 
 /** A JSON error Response with the right status (the gated-route refusal shape). */
@@ -32,22 +35,71 @@ export function authError(status: 401 | 403, code: string): Response {
   });
 }
 
-/**
- * Resolve the current user id, or null if unauthenticated. M7 swaps the body for
- * a real Supabase session lookup; the signature is the stable seam.
- */
-export async function getUserId(_req: Request): Promise<string | null> {
-  const dev = process.env.BANDBOX_DEV_USER_ID;
-  if (dev) return dev;
-  // M7: verify a Supabase JWT (cookie/bearer) and return its `sub` claim.
-  return null;
+/** Extract a Bearer access token from the Authorization header, or null. */
+function bearerToken(req: Request): string | null {
+  const h = req.headers.get('authorization');
+  if (!h) return null;
+  const m = /^Bearer\s+(.+)$/i.exec(h.trim());
+  return m ? m[1]!.trim() : null;
 }
 
-/** 401 unless authenticated; otherwise the SessionUser. */
+/**
+ * Resolve the current session (user id + email), or null if unauthenticated (M7).
+ * Validates the request's Bearer access token against Supabase Auth (`auth.getUser`
+ * — GoTrue checks the JWT signature + expiry). Fails closed: any missing/invalid
+ * token, or unconfigured Supabase env, yields null → 401 at the gate.
+ */
+export async function getSession(req: Request): Promise<SessionUser | null> {
+  // Local-only dev override — NEVER honored in production, even if the var leaks.
+  if (process.env.NODE_ENV !== 'production' && process.env.BANDBOX_DEV_USER_ID) {
+    return { userId: process.env.BANDBOX_DEV_USER_ID, email: null };
+  }
+
+  const token = bearerToken(req);
+  if (!token) return null;
+
+  const supa = supabaseAuthClient();
+  if (!supa) return null;
+
+  try {
+    const { data, error } = await supa.auth.getUser(token);
+    if (error || !data.user) return null;
+    return { userId: data.user.id, email: data.user.email ?? null };
+  } catch {
+    return null; // network/transient → treat as unauthenticated (fail closed)
+  }
+}
+
+/** Resolve just the current user id, or null if unauthenticated (M7). */
+export async function getUserId(req: Request): Promise<string | null> {
+  return (await getSession(req))?.userId ?? null;
+}
+
+/**
+ * Idempotently ensure the user's app.profile row exists (id = user_id = auth uid),
+ * capturing the session email when known. Called by the surfaces that need a profile
+ * (account, attestation, alert subscriptions) so we don't depend on an auth.users
+ * trigger that the CI gate's bare PostGIS lacks — and so the nightly alert worker can
+ * read the recipient from app.profile without auth.users access. RLS-exempt server
+ * connection.
+ */
+export async function ensureProfile(userId: string, email?: string | null): Promise<void> {
+  if (email) {
+    await db()`
+      insert into app.profile (id, user_id, email) values (${userId}, ${userId}, ${email})
+      on conflict (id) do update set email = excluded.email`;
+  } else {
+    await db()`
+      insert into app.profile (id, user_id) values (${userId}, ${userId})
+      on conflict (id) do nothing`;
+  }
+}
+
+/** 401 unless authenticated; otherwise the SessionUser (id + email). */
 export async function requireUser(req: Request): Promise<SessionUser | Response> {
-  const userId = await getUserId(req);
-  if (!userId) return authError(401, 'auth_required');
-  return { userId };
+  const session = await getSession(req);
+  if (!session) return authError(401, 'auth_required');
+  return session;
 }
 
 /**

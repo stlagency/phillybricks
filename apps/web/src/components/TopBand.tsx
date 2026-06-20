@@ -7,6 +7,7 @@
 import Link from 'next/link';
 import { Wordmark } from './Wordmark';
 import { ThemeToggle } from './ThemeToggle';
+import { AccountNav } from './AccountNav';
 
 export interface NavItem {
   label: string;
@@ -50,6 +51,7 @@ export function TopBand({ nav = DEFAULT_NAV, current, themeVariant = 'band' }: T
         })}
       </nav>
       <div className="pb-topactions">
+        <AccountNav />
         <ThemeToggle variant={themeVariant} />
       </div>
     </header>

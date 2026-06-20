@@ -28,19 +28,20 @@ import {
 } from '../../../../lib/auth';
 import {
   runSkipTrace,
-  decryptKey,
-  createMemoryUsageStore,
+  getSkiptraceKey,
+  createDbUsageStore,
   RateLimitError,
   UnknownVendorError,
   VendorError,
   type SkipTraceParcel,
+  type SqlLike,
 } from '../../../../lib/skiptrace';
 
 export const dynamic = 'force-dynamic';
 
-/** Process-wide per-user daily cap. WARNING (M7): per-instance under serverless;
- *  back with a shared store for a global cap. */
-const usageStore = createMemoryUsageStore(50);
+/** Per-user daily cap (M7): GLOBAL, DB-backed (app.skiptrace_usage) so it holds
+ *  across serverless instances — unlike the old per-instance in-memory counter. */
+const DAILY_CAP = 50;
 
 export async function POST(
   req: Request,
@@ -59,14 +60,18 @@ export async function POST(
 
   const { pk } = await ctx.params;
   const sql = db();
+  // The skiptrace helpers take a structural SqlLike (so that module imports no DB
+  // client); a concrete postgres Sql satisfies it — cast as the codebase does for
+  // its DbClient seam.
+  const sqlClient = sql as unknown as SqlLike;
+  const usageStore = createDbUsageStore(sqlClient, DAILY_CAP);
 
-  // 4. the user's stored vendor key — the ONLY read/decrypt of the key.
-  const keyRows = await sql<{ vendor: string; encrypted_key: string }[]>`
-    select vendor, encrypted_key from app.skiptrace_key
-    where user_id = ${userId} limit 1`;
-  if (keyRows.length === 0) return authError(403, 'no_skiptrace_key');
-  const vendor = keyRows[0]!.vendor as SkipTraceVendor;
-  const apiKey = decryptKey(keyRows[0]!.encrypted_key);
+  // 4. the user's stored vendor key — resolved via the SECURITY DEFINER proxy
+  //    (the ONLY decrypt of the key; the worker role has no direct Vault access).
+  const resolved = await getSkiptraceKey(sqlClient, userId);
+  if (!resolved) return authError(403, 'no_skiptrace_key');
+  const vendor = resolved.vendor as SkipTraceVendor;
+  const apiKey = resolved.apiKey;
 
   // Load the parcel projection the vendor request needs.
   const parcelRows = await sql<
