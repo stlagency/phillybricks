@@ -260,6 +260,13 @@ export interface AccountProfile {
   has_skiptrace_key: boolean;
   /** Skip-trace vendor on file, if any. */
   skiptrace_vendor: SkipTraceVendor | null;
+  /** Subscription status (M8): 'active' unlocks the paid gates; null = no record. */
+  subscription_status: 'active' | 'inactive' | null;
+  /** ISO end of the current paid period, when subscribed. */
+  current_period_end: string | null;
+  /** Whether the paywall is armed server-side (BILLING_ENABLED); when false the paid
+   *  surfaces are free for any authenticated user. */
+  billing_enabled: boolean;
 }
 
 /** How a saved area's geometry is defined (PRD §3.5). */
