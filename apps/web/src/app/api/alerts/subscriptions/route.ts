@@ -1,6 +1,6 @@
 /**
  * /api/alerts/subscriptions — alert subscriptions over a saved area (PRD §3.5).
- * GET lists the user's subscriptions; POST creates one. Login-gated; POST is
+ * GET lists the user's subscriptions; POST creates one. Paid-gated (requirePaid: a subscription when the paywall is armed, else any signed-in user); POST is
  * CSRF-guarded. The target saved_area must belong to the user. Each subscription
  * gets an opaque unsub_token by default (DB) for the List-Unsubscribe link.
  */
@@ -11,7 +11,7 @@ import type {
   CreateAlertSubscriptionInput,
 } from '@bandbox/core/contracts';
 import { db } from '../../../../lib/db';
-import { requireUser, sameOrigin, authError, ensureProfile } from '../../../../lib/auth';
+import { requirePaid, sameOrigin, authError, ensureProfile } from '../../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +45,7 @@ function toSub(r: SubRow): AlertSubscription {
 }
 
 export async function GET(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
 
   const rows = await db()<SubRow[]>`
@@ -57,7 +57,7 @@ export async function GET(req: Request): Promise<Response> {
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 

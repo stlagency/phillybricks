@@ -318,7 +318,12 @@ export async function main(): Promise<void> {
       const from = parseFromAddress(process.env.ZEPTOMAIL_FROM ?? 'Bandbox <alerts@bandbox.pro>');
       const sender = token ? createZeptoMailSender({ token, from }) : null;
       const baseUrl = process.env.PUBLIC_BASE_URL ?? 'https://www.bandbox.pro';
-      const rep = await runAlerts(db, { send: sender, baseUrl, log: (m) => console.log(`  ${m}`) });
+      const rep = await runAlerts(db, {
+        send: sender,
+        baseUrl,
+        entitledOnly: process.env.BILLING_ENABLED === 'true',
+        log: (m) => console.log(`  ${m}`),
+      });
       console.log(
         `Alerts complete: ${rep.subscriptionsProcessed} subscription(s), ` +
           `${rep.eventsInserted} feed event(s), ${rep.emailsSent} email(s)` +

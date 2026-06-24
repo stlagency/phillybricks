@@ -35,7 +35,13 @@ export async function GET(req: Request): Promise<Response> {
       : null,
     has_skiptrace_key: key.length > 0,
     skiptrace_vendor: (key[0]?.vendor as SkipTraceVendor) ?? null,
-    subscription_status: sub[0] ? (sub[0].status === 'active' ? 'active' : 'inactive') : null,
+    subscription_status: sub[0]
+      ? sub[0].status === 'active'
+        ? 'active'
+        : sub[0].status === 'comped'
+          ? 'comped'
+          : 'inactive'
+      : null,
     current_period_end: sub[0]?.current_period_end ? sub[0].current_period_end.toISOString() : null,
     billing_enabled: billingEnabled(),
   };

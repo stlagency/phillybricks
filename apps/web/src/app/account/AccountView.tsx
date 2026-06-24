@@ -62,6 +62,12 @@ export function AccountView() {
 
   if (loading || !user) return <p className="pb-account-loading">Loading…</p>;
 
+  // When the paywall is armed and the user isn't entitled (paid or comped), the
+  // areas/alerts API returns 403 — reflect that in the UI instead of empty cards.
+  const entitled =
+    account?.subscription_status === 'active' || account?.subscription_status === 'comped';
+  const gated = Boolean(account?.billing_enabled) && !entitled;
+
   return (
     <div className="pb-account-grid">
       <header className="pb-account-head">
@@ -72,8 +78,8 @@ export function AccountView() {
       <BillingCard account={account} />
       <AttestationCard account={account} onChange={refresh} />
       <SkiptraceKeyCard account={account} onChange={refresh} />
-      <SavedAreasCard areas={areas} onChange={refresh} />
-      <AlertsCard areas={areas} subs={subs} onChange={refresh} />
+      <SavedAreasCard areas={areas} onChange={refresh} gated={gated} />
+      <AlertsCard areas={areas} subs={subs} onChange={refresh} gated={gated} />
       <FeedCard feed={feed} onChange={refresh} />
     </div>
   );
@@ -91,14 +97,14 @@ function BillingCard({ account }: { account: AccountProfile | null }) {
     else if (b === 'cancel') setMsg('Checkout canceled.');
   }, []);
 
-  async function go(path: string) {
+  async function go(path: string, payload: Record<string, unknown> = {}) {
     setBusy(true);
     setMsg(null);
     try {
       const res = await apiFetch(path, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: '{}',
+        body: JSON.stringify(payload),
       });
       if (res.ok) {
         const { url } = (await res.json()) as { url?: string };
@@ -118,7 +124,9 @@ function BillingCard({ account }: { account: AccountProfile | null }) {
     setBusy(false);
   }
 
-  const active = account?.subscription_status === 'active';
+  const status = account?.subscription_status ?? null;
+  const paid = status === 'active';
+  const comped = status === 'comped';
   return (
     <section className="pb-card">
       <h2>
@@ -126,23 +134,41 @@ function BillingCard({ account }: { account: AccountProfile | null }) {
       </h2>
       <p className="pb-card-note">
         {account?.billing_enabled
-          ? 'CSV export and skip-trace require an active subscription.'
-          : 'CSV export and skip-trace are currently free for signed-in users.'}
+          ? 'CSV export, skip-trace, and saved-area alerts require a subscription.'
+          : 'CSV export, skip-trace, and saved-area alerts are currently free for signed-in users.'}
       </p>
       <p className="pb-status">
-        Status: <strong className={active ? 'pb-ok' : 'pb-off'}>{account?.subscription_status ?? 'none'}</strong>
-        {account?.current_period_end
+        Status:{' '}
+        <strong className={paid || comped ? 'pb-ok' : 'pb-off'}>
+          {comped ? 'comped (free access)' : (status ?? 'none')}
+        </strong>
+        {paid && account?.current_period_end
           ? ` · renews ${new Date(account.current_period_end).toLocaleDateString()}`
           : ''}
       </p>
-      {active ? (
+      {paid ? (
         <button className="pb-btn pb-btn-secondary" onClick={() => go('/api/billing/portal')} disabled={busy}>
           Manage billing
         </button>
+      ) : comped ? (
+        <p className="pb-card-note">Your account is comped — full access, no payment needed.</p>
       ) : (
-        <button className="pb-btn pb-btn-primary" onClick={() => go('/api/billing/checkout')} disabled={busy}>
-          Subscribe →
-        </button>
+        <div className="pb-cta-row">
+          <button
+            className="pb-btn pb-btn-primary"
+            onClick={() => go('/api/billing/checkout', { interval: 'annual' })}
+            disabled={busy}
+          >
+            Subscribe — $20/year →
+          </button>
+          <button
+            className="pb-btn pb-btn-secondary"
+            onClick={() => go('/api/billing/checkout', { interval: 'monthly' })}
+            disabled={busy}
+          >
+            or $2/month
+          </button>
+        </div>
       )}
       {msg ? <p className="pb-auth-msg">{msg}</p> : null}
     </section>
@@ -268,9 +294,11 @@ function SkiptraceKeyCard({
 function SavedAreasCard({
   areas,
   onChange,
+  gated,
 }: {
   areas: SavedArea[];
   onChange: () => Promise<void>;
+  gated: boolean;
 }) {
   const [mode, setMode] = useState<'canonical' | 'radius'>('canonical');
   const [name, setName] = useState('');
@@ -316,6 +344,9 @@ function SavedAreasCard({
     <section className="pb-card">
       <h2>Saved areas</h2>
       <p className="pb-card-note">A saved area is the geography your alerts watch.</p>
+      {gated ? (
+        <p className="pb-card-note pb-off">Subscribe to create and manage saved areas.</p>
+      ) : null}
 
       <ul className="pb-list">
         {areas.length === 0 ? <li className="pb-muted">No saved areas yet.</li> : null}
@@ -350,7 +381,7 @@ function SavedAreasCard({
             <input placeholder="radius (m)" value={radius} onChange={(e) => setRadius(e.target.value)} />
           </>
         )}
-        <button className="pb-btn pb-btn-primary" onClick={create} disabled={busy}>
+        <button className="pb-btn pb-btn-primary" onClick={create} disabled={busy || gated}>
           Save area
         </button>
       </div>
@@ -364,10 +395,12 @@ function AlertsCard({
   areas,
   subs,
   onChange,
+  gated,
 }: {
   areas: SavedArea[];
   subs: AlertSubscription[];
   onChange: () => Promise<void>;
+  gated: boolean;
 }) {
   const [areaId, setAreaId] = useState('');
   const [picked, setPicked] = useState<Set<AlertTriggerType>>(new Set(['new_distress']));
@@ -412,6 +445,9 @@ function AlertsCard({
         A nightly digest of new public-record activity in a saved area. Email sends
         are open- and click-tracked; one-click unsubscribe is in every message.
       </p>
+      {gated ? (
+        <p className="pb-card-note pb-off">Subscribe to create and receive alerts.</p>
+      ) : null}
 
       <ul className="pb-list">
         {subs.length === 0 ? <li className="pb-muted">No alerts yet.</li> : null}
@@ -452,7 +488,7 @@ function AlertsCard({
             <option value="email">Email digest</option>
             <option value="in_app">In-app only</option>
           </select>
-          <button className="pb-btn pb-btn-primary" onClick={create} disabled={busy}>
+          <button className="pb-btn pb-btn-primary" onClick={create} disabled={busy || gated}>
             Create alert
           </button>
         </div>

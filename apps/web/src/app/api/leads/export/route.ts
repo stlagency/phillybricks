@@ -1,8 +1,8 @@
 /**
  * GET /api/leads/export — server-streamed CSV of the current filtered leads set
- * (PRD §7.3, §6). LOGIN-GATED: requireUser() first; a 401 refusal Response is
- * returned verbatim. Free for authenticated users — monetization deferred to M8
- * (the requireEntitlement seam is dormant, not removed).
+ * (PRD §7.3, §6). PAID-GATED: requirePaid() first; a 401/403 refusal Response is
+ * returned verbatim. Requires a subscription (active or comped) when the paywall is
+ * armed (BILLING_ENABLED), else free for any signed-in user.
  *
  * The set is the SAME filter the list/facets use (lib/leads-query buildLeadsWhere),
  * streamed over a postgres.js cursor and serialized row-by-row through the pure

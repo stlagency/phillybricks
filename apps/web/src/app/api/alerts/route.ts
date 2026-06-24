@@ -2,12 +2,12 @@
  * /api/alerts — the in-app alert feed (PRD §3.5). GET lists the user's alert
  * events (newest first; `?unread=1` filters to unread). PATCH marks events read:
  * body `{ all: true }` marks everything, or `{ ids: [...] }` marks those rows.
- * Login-gated; PATCH is CSRF-guarded. Ownership enforced in SQL.
+ * Paid-gated (requirePaid: a subscription when the paywall is armed, else any signed-in user); PATCH is CSRF-guarded. Ownership enforced in SQL.
  */
 import { NextResponse } from 'next/server';
 import type { AlertEvent, AlertTriggerType } from '@bandbox/core/contracts';
 import { db } from '../../../lib/db';
-import { requireUser, sameOrigin, authError } from '../../../lib/auth';
+import { requirePaid, sameOrigin, authError } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,7 +34,7 @@ function toEvent(r: EventRow): AlertEvent {
 }
 
 export async function GET(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
 
   const unread = new URL(req.url).searchParams.get('unread') === '1';
@@ -54,7 +54,7 @@ export async function GET(req: Request): Promise<Response> {
 }
 
 export async function PATCH(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 

@@ -7,8 +7,8 @@
  *
  * Guard order (fail closed, cheapest/most-general first):
  *   1. sameOrigin  → 403 (CSRF: reject foreign-Origin posts)
- *   2. requireUser → its 401 (login-gated; free for authenticated users, the paid
- *      gate is deferred to M8 — the requireEntitlement seam stays dormant)
+ *   2. requirePaid → 401/403 (subscription — active or comped — when the paywall is
+ *      armed via BILLING_ENABLED; else free for any signed-in user)
  *   3. hasSkiptraceAttestation → 403 attestation_required (per-user lawful-use, §8)
  *   4. stored key present → 403 no_skiptrace_key
  *   5. runSkipTrace, mapping typed errors: RateLimitError→429, UnknownVendorError→400,

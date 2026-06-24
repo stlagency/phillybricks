@@ -21,9 +21,22 @@ export function stripe(): Stripe {
   return _stripe;
 }
 
-/** True when the secret key + price id are both configured (checkout is possible). */
+/** The billing intervals the checkout offers (launch pricing: $2/mo, $20/yr). */
+export type BillingInterval = 'monthly' | 'annual';
+
+/** The configured Stripe price id for an interval, or null when unset.
+ *  Annual falls back to the legacy single STRIPE_PRICE_ID for a clean cutover. */
+function priceIdFor(interval: BillingInterval): string | null {
+  if (interval === 'monthly') return process.env.STRIPE_PRICE_ID_MONTHLY || null;
+  return process.env.STRIPE_PRICE_ID_ANNUAL || process.env.STRIPE_PRICE_ID || null;
+}
+
+/** True when the secret key + at least one interval price are configured
+ *  (checkout is possible for that interval). */
 export function stripeConfigured(): boolean {
-  return Boolean(process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PRICE_ID);
+  return Boolean(
+    process.env.STRIPE_SECRET_KEY && (priceIdFor('annual') || priceIdFor('monthly')),
+  );
 }
 
 /** True when the paywall is armed (the paid gates require an active subscription). */
@@ -31,11 +44,21 @@ export function billingEnabled(): boolean {
   return process.env.BILLING_ENABLED === 'true';
 }
 
-/** The recurring monthly price the checkout subscribes to. */
-export function priceId(): string {
-  const id = process.env.STRIPE_PRICE_ID;
-  if (!id) throw new Error('STRIPE_PRICE_ID is not set.');
+/** The recurring price the checkout subscribes to, for the chosen interval.
+ *  Callers gate on stripeConfigured(); this throws if that interval is unset. */
+export function priceId(interval: BillingInterval = 'annual'): string {
+  const id = priceIdFor(interval);
+  if (!id) {
+    throw new Error(
+      `No Stripe price configured for ${interval} (set STRIPE_PRICE_ID_${interval.toUpperCase()}).`,
+    );
+  }
   return id;
+}
+
+/** Which intervals are currently purchasable (have a configured price). */
+export function availableIntervals(): BillingInterval[] {
+  return (['annual', 'monthly'] as BillingInterval[]).filter((i) => priceIdFor(i));
 }
 
 /** The webhook signing secret used to verify inbound events. */

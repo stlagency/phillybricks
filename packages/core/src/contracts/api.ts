@@ -260,8 +260,9 @@ export interface AccountProfile {
   has_skiptrace_key: boolean;
   /** Skip-trace vendor on file, if any. */
   skiptrace_vendor: SkipTraceVendor | null;
-  /** Subscription status (M8): 'active' unlocks the paid gates; null = no record. */
-  subscription_status: 'active' | 'inactive' | null;
+  /** Subscription status (M8): 'active' (paid) and 'comped' (admin-granted free) both
+   *  unlock the paid gates; 'inactive' = none/lapsed; null = no record. */
+  subscription_status: 'active' | 'comped' | 'inactive' | null;
   /** ISO end of the current paid period, when subscribed. */
   current_period_end: string | null;
   /** Whether the paywall is armed server-side (BILLING_ENABLED); when false the paid

@@ -5,13 +5,13 @@
  *   canonical → a geo_boundary's geometry (geo_type + geo_id; must exist).
  *   radius    → an ST_Buffer circle around a lon/lat (meters, capped at 50 km).
  *
- * Login-gated; POST is CSRF-guarded. Ownership is enforced in SQL (user_id bound)
+ * Paid-gated (requirePaid: a subscription when the paywall is armed, else any signed-in user); POST is CSRF-guarded. Ownership is enforced in SQL (user_id bound)
  * because the server connection is not the `authenticated` role (RLS-exempt).
  */
 import { NextResponse } from 'next/server';
 import type { SavedArea, SaveAreaInput, SavedAreaKind } from '@bandbox/core/contracts';
 import { db } from '../../../lib/db';
-import { requireUser, sameOrigin, authError } from '../../../lib/auth';
+import { requirePaid, sameOrigin, authError } from '../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,7 +32,7 @@ function toArea(r: SavedAreaRow): SavedArea {
 }
 
 export async function GET(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
 
   const rows = await db()<SavedAreaRow[]>`
@@ -43,7 +43,7 @@ export async function GET(req: Request): Promise<Response> {
 }
 
 export async function POST(req: Request): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 

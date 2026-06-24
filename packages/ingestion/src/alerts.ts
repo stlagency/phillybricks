@@ -27,6 +27,9 @@ export interface RunAlertsOptions {
   lookbackDays?: number;
   /** Max rows per trigger shown in a single digest. Default 50. */
   perTriggerCap?: number;
+  /** When true (paywall armed), only process subscriptions whose owner is entitled
+   *  ('active' paid or 'comped'); otherwise process all (default — free alerts). */
+  entitledOnly?: boolean;
   log?: (m: string) => void;
 }
 
@@ -242,15 +245,30 @@ export async function runAlerts(db: DbClient, opts: RunAlertsOptions = {}): Prom
 
   // Due = daily subscriptions not sent in the last 20h (survives a double nightly).
   // Recipient email comes from app.profile (denormalized at request time) so this
-  // worker needs no auth.users privilege.
-  const subs = await db<DueSub[]>`
-    select s.id, s.user_id, s.saved_area_id, s.trigger_types, s.channel, s.unsub_token,
-           s.last_sent_at, a.name as area_name, pr.email
-    from app.alert_subscription s
-    join app.saved_area a on a.id = s.saved_area_id and a.user_id = s.user_id
-    left join app.profile pr on pr.id = s.user_id
-    where s.frequency = 'daily'
-      and (s.last_sent_at is null or s.last_sent_at < now() - interval '20 hours')`;
+  // worker needs no auth.users privilege. When entitledOnly (paywall armed), an
+  // EXISTS gate restricts the run to owners with an 'active' or 'comped' entitlement
+  // — so flipping BILLING_ENABLED also stops digests to lapsed/free users, not just
+  // the API surface that creates them.
+  const entitledOnly = opts.entitledOnly ?? false;
+  const subs = entitledOnly
+    ? await db<DueSub[]>`
+        select s.id, s.user_id, s.saved_area_id, s.trigger_types, s.channel, s.unsub_token,
+               s.last_sent_at, a.name as area_name, pr.email
+        from app.alert_subscription s
+        join app.saved_area a on a.id = s.saved_area_id and a.user_id = s.user_id
+        left join app.profile pr on pr.id = s.user_id
+        where s.frequency = 'daily'
+          and (s.last_sent_at is null or s.last_sent_at < now() - interval '20 hours')
+          and exists (select 1 from app.subscription sub
+                      where sub.user_id = s.user_id and sub.status in ('active', 'comped'))`
+    : await db<DueSub[]>`
+        select s.id, s.user_id, s.saved_area_id, s.trigger_types, s.channel, s.unsub_token,
+               s.last_sent_at, a.name as area_name, pr.email
+        from app.alert_subscription s
+        join app.saved_area a on a.id = s.saved_area_id and a.user_id = s.user_id
+        left join app.profile pr on pr.id = s.user_id
+        where s.frequency = 'daily'
+          and (s.last_sent_at is null or s.last_sent_at < now() - interval '20 hours')`;
 
   let eventsInserted = 0;
   let emailsSent = 0;

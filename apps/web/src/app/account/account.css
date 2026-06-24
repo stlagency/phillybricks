@@ -183,6 +183,13 @@
   gap: 0.5rem;
   align-items: center;
 }
+/* Subscribe CTAs: annual (primary) + monthly (secondary), side by side. */
+.pb-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
 .pb-field-row input {
   flex: 1 1 8rem;
   min-width: 6rem;

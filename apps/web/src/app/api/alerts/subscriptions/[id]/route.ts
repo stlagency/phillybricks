@@ -1,10 +1,10 @@
 /**
  * DELETE /api/alerts/subscriptions/:id — remove an alert subscription for the
- * current user. Login-gated + CSRF-guarded; ownership enforced in SQL.
+ * current user. Paid-gated (requirePaid: a subscription when the paywall is armed, else any signed-in user) + CSRF-guarded; ownership enforced in SQL.
  */
 import { NextResponse } from 'next/server';
 import { db } from '../../../../../lib/db';
-import { requireUser, sameOrigin, authError } from '../../../../../lib/auth';
+import { requirePaid, sameOrigin, authError } from '../../../../../lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,7 +12,7 @@ export async function DELETE(
   req: Request,
   ctx: { params: Promise<{ id: string }> },
 ): Promise<Response> {
-  const user = await requireUser(req);
+  const user = await requirePaid(req);
   if (user instanceof Response) return user;
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
 

@@ -21,6 +21,7 @@ async function main(): Promise<void> {
     const rep = await runAlerts(db, {
       send: sender,
       baseUrl: process.env.PUBLIC_BASE_URL ?? 'https://www.bandbox.pro',
+      entitledOnly: process.env.BILLING_ENABLED === 'true',
       log: (m) => console.log(`  ${m}`),
     });
     console.log(

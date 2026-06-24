@@ -103,14 +103,16 @@ export async function requireUser(req: Request): Promise<SessionUser | Response>
 }
 
 /**
- * Active-subscription check (the paid gate, PRD §7.5). Server connection reads
+ * Entitlement check (the paid gate, PRD §7.5). Server connection reads
  * app.subscription directly (it is not the `authenticated` role, so the check is
- * explicit, not RLS-implicit). Written only by the verified Stripe webhook (M8).
+ * explicit, not RLS-implicit). Entitled = a paid Stripe subscription ('active',
+ * written by the verified webhook) OR an admin-granted comp ('comped', written by
+ * the admin-comp route). Both unlock the paid surfaces.
  */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
   const rows = await db()<{ one: number }[]>`
     select 1 as one from app.subscription
-    where user_id = ${userId} and status = 'active' limit 1`;
+    where user_id = ${userId} and status in ('active', 'comped') limit 1`;
   return rows.length > 0;
 }
 
@@ -137,6 +139,31 @@ export function billingEnabled(): boolean {
  */
 export async function requirePaid(req: Request): Promise<SessionUser | Response> {
   return billingEnabled() ? requireEntitlement(req) : requireUser(req);
+}
+
+/**
+ * Is this email an owner/admin? Membership is an env allowlist (ADMIN_EMAILS, a
+ * comma-separated list), matched case-insensitively. Unset/empty ⇒ nobody is admin
+ * (fail closed). The only privileged operation today is comping a user to free.
+ */
+export function isAdmin(email: string | null | undefined): boolean {
+  if (!email) return false;
+  const raw = process.env.ADMIN_EMAILS;
+  if (!raw) return false;
+  const target = email.trim().toLowerCase();
+  return raw
+    .split(',')
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(target);
+}
+
+/** 401 if unauthenticated, 403 if not an admin; otherwise the SessionUser. */
+export async function requireAdmin(req: Request): Promise<SessionUser | Response> {
+  const u = await requireUser(req);
+  if (u instanceof Response) return u;
+  if (!isAdmin(u.email)) return authError(403, 'forbidden');
+  return u;
 }
 
 /** Has the user signed the per-user lawful-use attestation (PRD §8)? Required

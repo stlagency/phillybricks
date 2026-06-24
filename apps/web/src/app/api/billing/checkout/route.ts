@@ -7,7 +7,7 @@
 import { NextResponse } from 'next/server';
 import { db } from '../../../../lib/db';
 import { requireUser, sameOrigin, authError } from '../../../../lib/auth';
-import { stripe, stripeConfigured, priceId } from '../../../../lib/stripe';
+import { stripe, stripeConfigured, priceId, type BillingInterval } from '../../../../lib/stripe';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +16,21 @@ export async function POST(req: Request): Promise<Response> {
   if (user instanceof Response) return user;
   if (!sameOrigin(req)) return authError(403, 'forbidden_origin');
   if (!stripeConfigured()) {
+    return NextResponse.json({ error: 'billing_unconfigured' }, { status: 503 });
+  }
+
+  // Interval: annual ($20/yr) is the default; monthly ($2/mo) is opt-in via body.
+  let interval: BillingInterval = 'annual';
+  try {
+    const body = (await req.json().catch(() => ({}))) as { interval?: unknown };
+    if (body.interval === 'monthly' || body.interval === 'annual') interval = body.interval;
+  } catch {
+    /* empty/invalid body → keep the annual default */
+  }
+  let price: string;
+  try {
+    price = priceId(interval);
+  } catch {
     return NextResponse.json({ error: 'billing_unconfigured' }, { status: 503 });
   }
 
@@ -44,7 +59,7 @@ export async function POST(req: Request): Promise<Response> {
     mode: 'subscription',
     customer: customerId,
     client_reference_id: user.userId,
-    line_items: [{ price: priceId(), quantity: 1 }],
+    line_items: [{ price, quantity: 1 }],
     success_url: `${origin}/account?billing=success`,
     cancel_url: `${origin}/account?billing=cancel`,
     allow_promotion_codes: true,
